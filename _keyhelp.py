@@ -235,6 +235,7 @@ class KeyHelpAddDataToServer:
     def __init__(self):
         self.status = False
         self.keyhelpApiReturnData = dict()
+        self.keyhelpAddedDbUsernames = []
 
     def addKeyHelpDataToApi(self, apiEndPoint, keyHelpData):
         apiJsonData = self.__makeClientsJsonData(keyHelpData, apiEndPoint)
@@ -282,6 +283,23 @@ class KeyHelpAddDataToServer:
         elif apiEndPoint == 'emails' and responseApi.status_code == 201:
             _global_config.write_log(
                 'EMail address "' + str(keyHelpData['iEmailAddress'] + '" added successfully'))
+            self.status = True
+        elif apiEndPoint == 'databases' and responseApi.status_code == 201:
+            self.keyhelpAddedDbUsernames.append(keyHelpData['iDatabaseUsername'])
+            _global_config.write_log(
+                '\nDatabase "' + str(keyHelpData['iDatabaseName'] + '" added successfully'))
+            _global_config.write_log(
+                'Database "' + str(keyHelpData['iDatabaseName'] + '" is the new database for the i-MSCP database: ' + keyHelpData['iOldDatabaseName']))
+            _global_config.write_log(
+                'Database username for "' + str(keyHelpData['iDatabaseName'] + '":  ' + keyHelpData['iDatabaseUsername']))
+            _global_config.write_log(
+                'Database username "' + str(keyHelpData['iDatabaseUsername'] + '" is the new db user for the i-MSCP db user: ' + keyHelpData['iOldDatabaseUsername']))
+            _global_config.write_log(
+                'Database password for "' + str(
+                    keyHelpData['iDatabaseUsername'] + '": ' + keyHelpData['iDatabaseUserPassword']))
+            _global_config.write_log(
+                'Database host for "' + str(
+                    keyHelpData['iDatabaseUsername'] + '": ' + keyHelpData['iDatabaseUserHost']) + '\n')
             self.status = True
         else:
             _global_config.write_log("KeyHelp API Message: %i - %s, Message %s" % (
@@ -409,11 +427,35 @@ class KeyHelpAddDataToServer:
             data['aliases'] = data_aliases
             data['forwardings'] = data_forwardings
 
+        if apiEndPoint == 'databases':
+            data_remote_access = []
+
+            if 'iDatabaseUserHost' in keyHelpData:
+                if keyHelpData['iDatabaseUserHost'] != 'localhost':
+                    keyHelpRemoteAccessData = keyHelpData['iDatabaseUserHost'].split(",")
+                    for ipaddr in keyHelpRemoteAccessData:
+                        data_remote_access.append(ipaddr)
+
+            data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
+            data['database_name'] = keyHelpData['iDatabaseName']
+            data['database_username'] = keyHelpData['iDatabaseUsername']
+            data['password'] = keyHelpData['iDatabaseUserPassword']
+            data['description'] = "Database migrated from i-MSCP"
+            data['remote_access'] = data_remote_access
+
+            # print(str(data)+'\n')
+
         jsonData = json.dumps(data)
 
         return jsonData
 
     def keyhelpCreateRandomEmailPassword(self, kMinPasswordLenght):
+        passwordCharacters = string.ascii_letters + string.digits + string.punctuation
+        emailPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
+
+        return emailPassword
+
+    def keyhelpCreateRandomDatabaseUserPassword(self, kMinPasswordLenght):
         passwordCharacters = string.ascii_letters + string.digits + string.punctuation
         emailPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
 

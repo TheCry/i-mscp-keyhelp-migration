@@ -221,9 +221,9 @@ if __name__ == "__main__":
             imscpInputData.imscpAliasSubEmailAddressNormalForward) + '\n')
         _global_config.write_log('i-MSCP emailadresses alias sub domains (forward):\n' + str(
             imscpInputData.imscpAliasSubEmailAddressForward) + '\n')
-        _global_config.write_log('i-MSCP domain databases):\n' + str(imscpInputData.imscpDomainDatabases) + '\n')
+        _global_config.write_log('i-MSCP domain databases:\n' + str(imscpInputData.imscpDomainDatabaseNames) + '\n')
         _global_config.write_log(
-            'i-MSCP domain database usernames:\n' + str(imscpInputData.imscpDomainDatabaseUsers) + '\n')
+            'i-MSCP domain database usernames:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
 
         if os.path.exists(
                 loggingFolder + '/' + imscpInputData.imscpData['iUsernameDomainIdna'] + '_get_data_from_imscp.log'):
@@ -269,8 +269,8 @@ if __name__ == "__main__":
                 imscpInputData.imscpAliasSubEmailAddressNormalForward) + '\n')
             print('i-MSCP emailadresses alias sub domains (forward):\n' + str(
                 imscpInputData.imscpAliasSubEmailAddressForward) + '\n')
-            print('i-MSCP domain databases):\n' + str(imscpInputData.imscpDomainDatabases) + '\n')
-            print('i-MSCP domain database users:\n' + str(imscpInputData.imscpDomainDatabaseUsers) + '\n')
+            print('i-MSCP domain databases):\n' + str(imscpInputData.imscpDomainDatabaseNames) + '\n')
+            print('i-MSCP domain database users:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
 
     except AuthenticationException:
         print('Authentication failed, please verify your credentials!')
@@ -850,85 +850,148 @@ if __name__ == "__main__":
                 else:
                     _global_config.write_log('ERROR "' + keyhelpAddApiData['iAliasDomainIdna'] + '" failed to add.')
                     print('ERROR "' + keyhelpAddApiData['iAliasDomainIdna'] + '" failed to add.\n')
+
+            # Adding databases and database usernames
+            if bool(imscpInputData.imscpDomainDatabaseNames):
+                print('Start adding databses and database usernames.\n')
+
+                for imscpDatabasesArrayKey, imscpDatabasesArrayValue in imscpInputData.imscpDomainDatabaseNames.items():
+                    # print(imscpDatabasesArrayKey, '->', imscpDatabasesArrayValue)
+                    databaseParentId = imscpDatabasesArrayValue.get('iDatabaseId')
+                    if re.match("^\d+", str(imscpDatabasesArrayValue.get('iDatabaseName'))):
+                        keyhelpAddApiData['iDatabaseName'] = re.sub("^\d+", 'db'+str(addedKeyHelpUserId),
+                                                                    str(imscpDatabasesArrayValue.get('iDatabaseName')),
+                                                                    flags=re.UNICODE)
+                    else:
+                        keyhelpAddApiData['iDatabaseName'] = 'db'+str(addedKeyHelpUserId) + '_' + imscpDatabasesArrayValue.get(
+                            'iDatabaseName')
+
+                    keyhelpAddApiData['iOldDatabaseName'] = imscpDatabasesArrayValue.get('iDatabaseName')
+                    keyhelpAddApiData['iOldDatabaseUsername'] = ''
+                    keyhelpAddApiData['iDatabaseUsername'] = ''
+
+                    if bool(imscpInputData.imscpDomainDatabaseUsernames):
+                        for dbUserKey, dbUserValue in imscpInputData.imscpDomainDatabaseUsernames.items():
+                            # print(dbUserKey, '->', dbUserValue)
+                            if keyhelpAddApiData['iDatabaseUsername'] == '':
+                                if databaseParentId == dbUserValue.get('iDatabaseId'):
+                                    if re.match("^\d+", str(dbUserValue.get('iDatabaseUsername'))):
+                                        keyhelpAddApiData['iDatabaseUsername'] = re.sub("^\d+", 'dbu'+str(addedKeyHelpUserId),
+                                                                                        str(dbUserValue.get(
+                                                                                            'iDatabaseUsername')),
+                                                                                        flags=re.UNICODE)
+                                    else:
+                                        keyhelpAddApiData[
+                                            'iDatabaseUsername'] = 'dbu'+str(addedKeyHelpUserId) + '_' + str(dbUserValue.get(
+                                            'iDatabaseUsername'))
+
+                                    keyhelpAddApiData['iDatabaseUserHost'] = str(dbUserValue.get('iDatabaseUserHost'))
+                                    keyhelpAddApiData[
+                                        'iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(10)
+
+                                # If an i-MSCP has only one db user we need to extend teh username
+                                while True:
+                                    i = 1
+                                    if keyhelpAddApiData['iDatabaseUsername'] in keyhelpAddData.keyhelpAddedDbUsernames:
+                                        keyhelpAddApiData['iDatabaseUsername'] = str(keyhelpAddApiData['iDatabaseUsername'])+'_'+str(i)
+                                        i += 1
+                                    else:
+                                        break
+
+                                keyhelpAddApiData['iOldDatabaseUsername'] = dbUserValue.get('iDatabaseUsername')
+
+                    keyhelpAddData.addKeyHelpDataToApi(apiEndpointDatabases, keyhelpAddApiData)
+                    if keyhelpAddData.status:
+                        print('Database "' + keyhelpAddApiData['iDatabaseName'] + '" added successfully.\n')
+                    else:
+                        _global_config.write_log('ERROR "' + keyhelpAddApiData['iDatabaseName'] + '" failed to add.')
+                        print('ERROR "' + keyhelpAddApiData['iDatabaseName'] + '" failed to add.\n')
         else:
             _global_config.write_log('ERROR "' + keyhelpInputData.keyhelpData['kusername'] + '" failed to add.')
             print('ERROR "' + keyhelpInputData.keyhelpData['kusername'] + '" failed to add.\n')
 
-        # TODO: Remove this exit
-        exit()
-        print('Dumping i-MSCP databases and copy on this server')
-        if not os.path.exists(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps'):
-            os.makedirs(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps')
+        if os.path.exists(logFile):
+            os.rename(logFile, loggingFolder + '/' + imscpInputData.imscpData[
+                'iUsernameDomainIdna'] + '_keyhelp_migration_data.log')
 
-        #### Daten welche befüllt wurden
-        # imscpInputData.imscpData['iUsernameDomainId']
-        # imscpInputData.imscpData['iUsernameDomain']
-        # imscpInputData.imscpData['iUsernameDomainIdna']
-        # imscpInputData.imscpDomainDatabaseNames
-        # imscpInputData.imscpDomainDatabaseUsernames
+        print('\nAll i-MSCP data were added to KeyHelp. Check the logfile "' + imscpInputData.imscpData[
+            'iUsernameDomainIdna'] + '_keyhelp_migration_data.log".')
+        if _global_config.ask_Yes_No('Should we start to copy all data to the KeyHelp Server [y/n]? '):
+            print('Dumping i-MSCP databases and copy on this server')
+            if not os.path.exists(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps'):
+                os.makedirs(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps')
 
-        if imscpInputData.imscpDomainDatabases:
-            try:
-                if os.path.exists(
-                        imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_database.log'):
-                    os.remove(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_database.log')
+            #### Daten welche befüllt wurden
+            # imscpInputData.imscpData['iUsernameDomainId']
+            # imscpInputData.imscpData['iUsernameDomain']
+            # imscpInputData.imscpData['iUsernameDomainIdna']
+            # imscpInputData.imscpDomainDatabaseNames
+            # imscpInputData.imscpDomainDatabaseUsernames
 
-                client = paramiko.SSHClient()
-                client.load_system_host_keys()
-                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                if imscpSshPublicKey:
-                    client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
-                                   key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
-                else:
-                    client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
-                                   password=imscpRootPassword, timeout=imscpSshTimeout)
+            if imscpInputData.imscpDomainDatabaseNames:
+                try:
+                    if os.path.exists(
+                            imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_database.log'):
+                        os.remove(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_database.log')
 
-                # Create MySQL dump folder if not exist
-                print('Check remote MySQL dump folder wheter exists. If not, i will create it!\n')
-                client.exec_command('test ! -d ' + imscpDbDumpFolder + ' && mkdir -p ' + imscpDbDumpFolder)
+                    client = paramiko.SSHClient()
+                    client.load_system_host_keys()
+                    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                    if imscpSshPublicKey:
+                        client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
+                                       key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+                    else:
+                        client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
+                                       password=imscpRootPassword, timeout=imscpSshTimeout)
 
-                for databaseKey, databaseValue in imscpInputData.imscpDomainDatabases.items():
-                    # print(databaseKey, '->', databaseValue)
-                    if databaseKey == 'iDatabaseName':
-                        # open sftp connection
-                        sftp_client = client.open_sftp()
-                        print(
-                            'Dumping database "' + databaseValue + '" to "' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz".')
-                        client.exec_command(
-                            'mysqldump -h' + imscpInputData.imscpData['imysqlhost'] + ' -P' + imscpInputData.imscpData[
-                                'imysqlport'] + ' -u' + imscpInputData.imscpData['imysqluser'] + ' -p' +
-                            imscpInputData.imscpData[
-                                'imysqlpassword'] + ' ' + databaseValue + ' | gzip > ' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz')
+                    # Create MySQL dump folder if not exist
+                    print('Check remote MySQL dump folder wheter exists. If not, i will create it!\n')
+                    client.exec_command('test ! -d ' + imscpDbDumpFolder + ' && mkdir -p ' + imscpDbDumpFolder)
 
-                        with TqdmWrap(ascii=True, unit='b', unit_scale=True) as pbar:
-                            print('Transfering "' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz" to ' +
-                                  imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/' + time.strftime(
-                                "%d%m%Y") + '_' + databaseValue + '_sql.gz.')
-                            get_remote_file = sftp_client.get(imscpDbDumpFolder + '/' + databaseValue + '_sql.gz',
-                                                              imscpInputData.imscpData[
-                                                                  'iUsernameDomainIdna'] + '_mysqldumps/' + time.strftime(
-                                                                  "%d%m%Y") + '_' + databaseValue + '_sql.gz',
-                                                              callback=pbar.viewBar)
-                        # remove the remote sql dump
-                        print(
-                            '\nRemoving database dump "' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz" on remote server.\n')
-                        client.exec_command('rm ' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz')
-                        _global_config.write_migration_log(
-                            imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_databases.log',
-                            'MySQL dump for i-MSCP database "' + databaseValue + '" => ' + time.strftime(
-                                "%d%m%Y") + '_' + databaseValue + '_sql.gz')
-            except AuthenticationException:
-                print('Authentication failed, please verify your credentials!')
-                exit(1)
-            except SSHException as sshException:
-                print("Unable to establish SSH connection: %s" % sshException)
-                exit(1)
-            except BadHostKeyException as badHostKeyException:
-                print("Unable to verify server's host key: %s" % badHostKeyException)
-                exit(1)
-            finally:
-                client.close()
+                    for databaseKey, databaseValue in imscpInputData.imscpDomainDatabaseNames.items():
+                        # print(databaseKey, '->', databaseValue)
+                        if databaseKey == 'iDatabaseName':
+                            # open sftp connection
+                            sftp_client = client.open_sftp()
+                            print(
+                                'Dumping database "' + databaseValue + '" to "' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz".')
+                            client.exec_command(
+                                'mysqldump -h' + imscpInputData.imscpData['imysqlhost'] + ' -P' + imscpInputData.imscpData[
+                                    'imysqlport'] + ' -u' + imscpInputData.imscpData['imysqluser'] + ' -p' +
+                                imscpInputData.imscpData[
+                                    'imysqlpassword'] + ' ' + databaseValue + ' | gzip > ' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz')
+
+                            with TqdmWrap(ascii=True, unit='b', unit_scale=True) as pbar:
+                                print('Transfering "' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz" to ' +
+                                      imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/' + time.strftime(
+                                    "%d%m%Y") + '_' + databaseValue + '_sql.gz.')
+                                get_remote_file = sftp_client.get(imscpDbDumpFolder + '/' + databaseValue + '_sql.gz',
+                                                                  imscpInputData.imscpData[
+                                                                      'iUsernameDomainIdna'] + '_mysqldumps/' + time.strftime(
+                                                                      "%d%m%Y") + '_' + databaseValue + '_sql.gz',
+                                                                  callback=pbar.viewBar)
+                            # remove the remote sql dump
+                            print(
+                                '\nRemoving database dump "' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz" on remote server.\n')
+                            client.exec_command('rm ' + imscpDbDumpFolder + '/' + databaseValue + '_sql.gz')
+                            _global_config.write_migration_log(
+                                imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_databases.log',
+                                'MySQL dump for i-MSCP database "' + databaseValue + '" => ' + time.strftime(
+                                    "%d%m%Y") + '_' + databaseValue + '_sql.gz')
+                except AuthenticationException:
+                    print('Authentication failed, please verify your credentials!')
+                    exit(1)
+                except SSHException as sshException:
+                    print("Unable to establish SSH connection: %s" % sshException)
+                    exit(1)
+                except BadHostKeyException as badHostKeyException:
+                    print("Unable to verify server's host key: %s" % badHostKeyException)
+                    exit(1)
+                finally:
+                    client.close()
+            else:
+                print('No databases available for the i-MSCP domain ' + imscpInputData.imscpData['iUsernameDomain'])
         else:
-            print('No databases available for the i-MSCP domain ' + imscpInputData.imscpData['iUsernameDomain'])
+            print('Migration stopped!')
     else:
         print('Migration stopped!')

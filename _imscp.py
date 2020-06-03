@@ -158,7 +158,7 @@ class imscpGetData:
                 self.__getImscpDomainEmailaddresses(self.imscpData['iUsernameDomainId'],
                                                     self.imscpData['iUsernameDomain'],
                                                     self.imscpData['iUsernameDomainIdna'], client)
-                print('Get i-MSCP domain database data')
+                print('Get i-MSCP database data')
                 self.__getImscpDomainDatabases(self.imscpData['iUsernameDomainId'], self.imscpData['iUsernameDomain'],
                                                self.imscpData['iUsernameDomainIdna'], client)
 
@@ -300,7 +300,7 @@ class imscpGetData:
             self.imscpData['imysqldatabase'] + '.sql_database WHERE domain_id = \'' + iUsernameDomainId + '\'"')
         i = 0
         dataLine = ''
-        self.imscpDomainDatabases = {}
+        self.imscpDomainDatabaseNames = {}
         for line in stdout:
             if i > 0:
                 dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
@@ -311,26 +311,26 @@ class imscpGetData:
 
                 index = int(imscpDomainDatabaseData[0])
 
-                self.imscpDomainDatabases[index] = {}
-                self.imscpDomainDatabases[index]['iDatabaseId'] = imscpDomainDatabaseData[0]
-                self.imscpDomainDatabases[index]['iDatabaseName'] = imscpDomainDatabaseData[1]
+                self.imscpDomainDatabaseNames[index] = {}
+                self.imscpDomainDatabaseNames[index]['iDatabaseId'] = imscpDomainDatabaseData[0]
+                self.imscpDomainDatabaseNames[index]['iDatabaseName'] = imscpDomainDatabaseData[1]
 
-                _global_config.write_log('Debug i-MSCP informations domain database:\nDatabase "' + self.imscpDomainDatabases[index]['iDatabaseName'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+                _global_config.write_log('Debug i-MSCP informations database:\nDatabase "' + self.imscpDomainDatabaseNames[index]['iDatabaseName'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
                 if showDebug:
-                    print('Debug i-MSCP informations domain database:\nDatabase "' + self.imscpDomainDatabases[index]['iDatabaseName'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+                    print('Debug i-MSCP informations database:\nDatabase "' + self.imscpDomainDatabaseNames[index]['iDatabaseName'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
                 self.__getImscpDomainDatabaseUsers(iUsernameDomainId, iUsernameDomain,
-                                                   self.imscpDomainDatabases[index]['iDatabaseId'],
-                                                   self.imscpDomainDatabases[index]['iDatabaseName'], client)
+                                                   self.imscpDomainDatabaseNames[index]['iDatabaseId'],
+                                                   self.imscpDomainDatabaseNames[index]['iDatabaseName'], client)
 
-                _global_config.write_log('======================= End data for domain database "' + iUsernameDomain + '" =======================\n\n\n')
+                _global_config.write_log('======================= End data for database "' + iUsernameDomain + '" =======================\n\n\n')
 
             i += 1
 
         if i == 0:
-            _global_config.write_log('Debug i-MSCP informations domain database:\nNo database found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+            _global_config.write_log('Debug i-MSCP informations database:\nNo database found for the i-MSCP domain "' + iUsernameDomain + '"\n')
             if showDebug:
-                print('Debug i-MSCP informations domain database:\nNo database found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+                print('Debug i-MSCP informations database:\nNo database found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
     def __getImscpDomainDatabaseUsers(self, iUsernameDomainId, iUsernameDomain, iDatabaseId, iDatabaseName, client):
         if imscpSshPublicKey:
@@ -347,7 +347,6 @@ class imscpGetData:
                 'imysqldatabase'] + '.sql_user WHERE sqld_id = \'' + iDatabaseId + '\'"')
         i = 0
         dataLine = ''
-        self.imscpDomainDatabaseUsers = {}
         for line in stdout:
             if i > 0:
                 dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
@@ -360,24 +359,24 @@ class imscpGetData:
 
                 index = int(imscpDomainDatabaseUsernameData[0])
 
-                self.imscpDomainDatabaseUsers[index] = {}
-                self.imscpDomainDatabaseUsers[index]['iDatabaseUserId'] = imscpDomainDatabaseUsernameData[0]
-                self.imscpDomainDatabaseUsers[index]['iDatabaseId'] = imscpDomainDatabaseUsernameData[1]
-                self.imscpDomainDatabaseUsers[index]['iDatabaseUsername'] = imscpDomainDatabaseUsernameData[2]
-                self.imscpDomainDatabaseUsers[index]['iDatabaseUserHost'] = imscpDomainDatabaseUsernameData[3]
+                self.imscpDomainDatabaseUsernames[index] = {}
+                self.imscpDomainDatabaseUsernames[index]['iDatabaseUserId'] = imscpDomainDatabaseUsernameData[0]
+                self.imscpDomainDatabaseUsernames[index]['iDatabaseId'] = imscpDomainDatabaseUsernameData[1]
+                self.imscpDomainDatabaseUsernames[index]['iDatabaseUsername'] = imscpDomainDatabaseUsernameData[2]
+                self.imscpDomainDatabaseUsernames[index]['iDatabaseUserHost'] = imscpDomainDatabaseUsernameData[3]
 
-                _global_config.write_log('Debug i-MSCP informations domain database users:\nDatabase username "' + self.imscpDomainDatabaseUsers[index]['iDatabaseUsername'] + '" found for the i-MSCP database "' + iDatabaseName + '""(domain: ' + iUsernameDomain + ')\n')
+                _global_config.write_log('Debug i-MSCP informations database users:\nDatabase username "' + self.imscpDomainDatabaseUsernames[index]['iDatabaseUsername'] + '" found for the i-MSCP database "' + iDatabaseName + '""(domain: ' + iUsernameDomain + ')\n')
                 if showDebug:
-                    print('Debug i-MSCP informations domain database:\nDatabase username "' + self.imscpDomainDatabaseUsers[index]['iDatabaseUsername'] + '" found for the i-MSCP database "' + iDatabaseName + '" (domain: ' + iUsernameDomain + ')\n')
+                    print('Debug i-MSCP informations database:\nDatabase username "' + self.imscpDomainDatabaseUsernames[index]['iDatabaseUsername'] + '" found for the i-MSCP database "' + iDatabaseName + '" (domain: ' + iUsernameDomain + ')\n')
 
-                _global_config.write_log('======================= End data for domain database users - "' + iDatabaseName + '" - Domain "' + iUsernameDomain + '" =======================\n\n\n')
+                _global_config.write_log('======================= End data for database users - "' + iDatabaseName + '" - Domain "' + iUsernameDomain + '" =======================\n\n\n')
 
             i += 1
 
         if i == 0:
-            _global_config.write_log('Debug i-MSCP informations domain database:\nNo database found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+            _global_config.write_log('Debug i-MSCP informations database users :\nNo database users found for the database "' + self.imscpDomainDatabaseUsernames[index]['iDatabaseUsername'] + '"\n')
             if showDebug:
-                print('Debug i-MSCP informations domain database:\nNo database found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+                print('Debug i-MSCP informations database users:\nNo database users found for the database "' + self.imscpDomainDatabaseUsernames[index]['iDatabaseUsername'] + '"\n')
 
     def __getImscpAliasSubDomains(self, iAliasDomainid, iAliasDomain, iAliasDomainIdna, client):
         if imscpSshPublicKey:
