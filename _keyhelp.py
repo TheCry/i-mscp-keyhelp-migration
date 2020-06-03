@@ -1,4 +1,4 @@
-import requests, time, json, re, configparser, io, os, sys, idna, paramiko, mysql.connector
+import requests, time, json, re, configparser, io, os, sys, idna, paramiko, mysql.connector, random, string
 from distutils.util import strtobool
 from paramiko.ssh_exception import BadHostKeyException, AuthenticationException, SSHException
 from mysql.connector import errorcode
@@ -167,6 +167,15 @@ class KeyhelpGetData:
             self.complete = False
             return True
 
+    def keyhelpCreateRandomPassword(self, kMinPasswordLenght):
+        passwordCharacters = string.ascii_letters + string.digits + string.punctuation
+        kPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
+        _global_config.write_log('Debug KeyHelp informations:\nKeyHelp panel password: "' + kPassword + '"\n')
+        self.keyhelpData['kpassword'] = kPassword
+        self.complete = False
+
+        return True
+
     def KeyhelpEmailaddress(self, kEmailaddress):
         emailRegex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
         if (re.search(emailRegex, kEmailaddress)):
@@ -270,6 +279,10 @@ class KeyHelpAddDataToServer:
                 self.status = True
             else:
                 print('Unknown API action!')
+        elif apiEndPoint == 'emails' and responseApi.status_code == 201:
+            _global_config.write_log(
+                'EMail address "' + str(keyHelpData['iEmailAddress'] + '" added successfully'))
+            self.status = True
         else:
             _global_config.write_log("KeyHelp API Message: %i - %s, Message %s" % (
             responseApi.status_code, responseApi.reason, apiPostData['message']))
@@ -360,7 +373,7 @@ class KeyHelpAddDataToServer:
             data['php_version'] = ""
             data['is_disabled'] = bool(strtobool(str('false')))
             data['delete_on'] = ''
-            data['is_dns_disabled'] = bool(strtobool(str(keyHelpData['keyhelpSetDnsForDomain'])))
+            data['is_dns_disabled'] = bool(strtobool(str(keyHelpData['keyhelpSetDisableDnsForDomain'])))
             data['is_email_domain'] = bool(strtobool(str('true')))
             data['create_www_subdomain'] = bool(strtobool(str('true')))
             data['create_system_domain'] = bool(strtobool(str(keyhelpCreateSystemDomain)))
@@ -372,8 +385,36 @@ class KeyHelpAddDataToServer:
             data['security'] = data_security
 
         if apiEndPoint == 'emails':
-            exit()
+            data_aliases = []
+            data_forwardings = []
+            emailaddressIsCatchall = False
+
+            keyHelpCatchallData = keyHelpData['iEmailCatchall'].split(",")
+            if keyHelpData['iEmailAddress'] in keyHelpCatchallData:
+                emailaddressIsCatchall = True
+
+            if 'iEmailMailForward' in keyHelpData:
+                keyHelpForwardData = keyHelpData['iEmailMailForward'].split(",")
+                for emailaddr in keyHelpForwardData:
+                    data_forwardings.append(emailaddr)
+
+
+            data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
+            data['email'] = keyHelpData['iEmailAddress']
+            data['password'] = keyHelpData['iEmailMailInitialPassword']
+            data['description'] = "Email migrated from i-MSCP"
+            data['max_size'] = int(keyHelpData['iEmailMailQuota'])
+            data['catch_all'] = bool(strtobool(str(emailaddressIsCatchall)))
+            data['store_forwarded_emails'] = bool(strtobool(str(keyHelpData['emailStoreForward'])))
+            data['aliases'] = data_aliases
+            data['forwardings'] = data_forwardings
 
         jsonData = json.dumps(data)
 
         return jsonData
+
+    def keyhelpCreateRandomEmailPassword(self, kMinPasswordLenght):
+        passwordCharacters = string.ascii_letters + string.digits + string.punctuation
+        emailPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
+
+        return emailPassword

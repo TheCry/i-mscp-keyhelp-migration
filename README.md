@@ -13,7 +13,7 @@ python3 -m pip install mysql-connector
 ```
 
 ## Create the RSA Key Pair as root and copy to i-MSCP server (optional)
-python paramiko ssh has a problem mit public key authentication if your ssh keys were not created like below (https://github.com/paramiko/paramiko/issues/340)
+python paramiko ssh has a problem mit public key authentication if your ssh keys was not created like below (https://github.com/paramiko/paramiko/issues/340)
 ```
 cd ~
 ssh-keygen -b 4096 -m PEM -t rsa

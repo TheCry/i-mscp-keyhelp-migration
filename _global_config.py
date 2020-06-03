@@ -17,15 +17,16 @@ for key, value in logfolderfolders.items():
 logFile = str(loggingFolder+'/'+config['general']['logFile'])
 
 keyhelpDefaultHostingplan = str(config['general']['keyhelpDefaultHostingplan'])
+keyhelpCreateRandomPassword = str(config['general']['keyhelpCreateRandomPassword'])
 keyhelpSendloginCredentials = str(config['general']['keyhelpSendloginCredentials'])
 keyhelpCreateSystemDomain = str(config['general']['keyhelpCreateSystemDomain'])
-keyhelpActivateDnsForDomain = str(config['general']['keyhelpActivateDnsForDomain'])
-if keyhelpActivateDnsForDomain == 'ask':
-	keyhelpActivateDnsForDomain = str(keyhelpActivateDnsForDomain)
-elif keyhelpActivateDnsForDomain == 'false' or keyhelpActivateDnsForDomain == 'true':
-	keyhelpActivateDnsForDomain = bool(strtobool(str(config['general']['keyhelpActivateDnsForDomain'])))
+keyhelpDisableDnsForDomain = str(config['general']['keyhelpDisableDnsForDomain'])
+if keyhelpDisableDnsForDomain == 'ask':
+	keyhelpDisableDnsForDomain = str(keyhelpDisableDnsForDomain)
+elif keyhelpDisableDnsForDomain == 'false' or keyhelpDisableDnsForDomain == 'true':
+	keyhelpDisableDnsForDomain = bool(strtobool(str(config['general']['keyhelpDisableDnsForDomain'])))
 else:
-	keyhelpActivateDnsForDomain = False
+	keyhelpDisableDnsForDomain = False
 
 #### KeyHelp ####
 apiServerFqdn = str(config['keehelp-'+configSection]['apiServerFqdn'])
@@ -77,6 +78,7 @@ def ask_Yes_No(answer):
 			print('Please respond with "yes" or "no"')
 
 def init():
-    global loggingFolder, logFile, keyhelpDefaultHostingplan, keyhelpSendloginCredentials, keyhelpCreateSystemDomain, keyhelpActivateDnsForDomain, \
+    global loggingFolder, logFile, keyhelpDefaultHostingplan, keyhelpSendloginCredentials, keyhelpCreateSystemDomain, keyhelpDisableDnsForDomain, \
     apiServerFqdn, apiKey, apiTimeout, keyhelpMinPasswordLenght, apiServerFqdnVerify, showDebug, keyhelpConfigfile, \
-    imscpServerFqdn, imscpSshUsername, imscpSshPort, imscpSshTimeout, imscpRootPassword, imscpSshPublicKey, imscpDbDumpFolder
+    imscpServerFqdn, imscpSshUsername, imscpSshPort, imscpSshTimeout, imscpRootPassword, imscpSshPublicKey, imscpDbDumpFolder, \
+	keyhelpCreateRandomPassword
