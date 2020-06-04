@@ -304,6 +304,7 @@ if __name__ == "__main__":
         keyhelpAddData = KeyHelpAddDataToServer()
         keyhelpSetDisableDnsForDomain = True
         print('Adding User "' + keyhelpInputData.keyhelpData['kusername'] + '" to Keyhelp')
+
         keyhelpAddData.addKeyHelpDataToApi(apiEndpointClients, keyhelpInputData.keyhelpData)
         if keyhelpAddData.status:
             addedKeyHelpUserId = keyhelpAddData.keyhelpApiReturnData['keyhelpUserId']
@@ -319,6 +320,7 @@ if __name__ == "__main__":
             keyhelpAddApiData = imscpInputData.imscpData
             keyhelpAddApiData['keyhelpSetDisableDnsForDomain'] = keyhelpSetDisableDnsForDomain
             keyhelpAddApiData['addedKeyHelpUserId'] = addedKeyHelpUserId
+
             keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
             if keyhelpAddData.status:
                 keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
@@ -328,18 +330,12 @@ if __name__ == "__main__":
                 # Adding sub domains for domain
                 for imscpSubDomainsArrayKey, imscpSubDomainsArrayValue in imscpInputData.imscpDomainSubDomains.items():
                     # print(imscpSubDomainsArrayKey, '->', imscpSubDomainsArrayValue)
-                    keyhelpAddApiData = {}
-                    subDomainId = ''
-                    keyhelpAddApiData['addedKeyHelpUserId'] = addedKeyHelpUserId
-                    keyhelpAddApiData['iParentDomainId'] = keyHelpParentDomainId
-                    for subDomainKey, subSomainValue in imscpSubDomainsArrayValue.items():
-                        # print(subDomainKey, '->', subSomainValue)
-                        if subDomainKey == 'iSubDomainId':
-                            subDomainId = subSomainValue
-                        if subDomainKey == 'iSubDomainIdna':
-                            keyhelpAddApiData['iSubDomainIdna'] = subSomainValue
-                        if subDomainKey == 'iSubDomainData':
-                            keyhelpAddApiData['iSubDomainData'] = subSomainValue
+                    keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
+                                         'iParentDomainId': keyHelpParentDomainId}
+
+                    subDomainId = imscpSubDomainsArrayValue.get('iSubDomainId')
+                    keyhelpAddApiData['iSubDomainIdna'] = imscpSubDomainsArrayValue.get('iSubDomainIdna')
+                    keyhelpAddApiData['iSubDomainData'] = imscpSubDomainsArrayValue.get('iSubDomainData')
 
                     print('Adding i-MSCP sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '" to domain "' +
                           imscpInputData.imscpData['iUsernameDomainIdna'] + '".')
@@ -350,6 +346,7 @@ if __name__ == "__main__":
                             keyhelpSetDisableDnsForDomain = True
 
                     keyhelpAddApiData['keyhelpSetDisableDnsForDomain'] = keyhelpSetDisableDnsForDomain
+
                     keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                     if keyhelpAddData.status:
                         print('Sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '" added successfully.\n')
@@ -365,20 +362,17 @@ if __name__ == "__main__":
                                 for domKey, domValue in imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId].items():
                                     keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                            for subDomainEmailKey, subDomainEmailValue in imscpEmailsSubDomainsArrayValue.items():
-                                # print(subDomainEmailKey, '->', subDomainEmailValue)
-                                if subDomainEmailKey == 'iEmailMailQuota':
-                                    keyhelpAddApiData['iEmailMailQuota'] = subDomainEmailValue
-                                if subDomainEmailKey == 'iEmailAddress':
-                                    keyhelpAddApiData['iEmailAddress'] = subDomainEmailValue
-                                if subDomainEmailKey == 'iEmailMailPassword':
-                                    keyhelpAddApiData['iEmailMailPassword'] = subDomainEmailValue
+                            keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                            keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
+                                'kdatabaseRootPassword']
+                            keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailQuota')
+                            keyhelpAddApiData['iEmailAddress'] = imscpEmailsSubDomainsArrayValue.get('iEmailAddress')
+                            keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailPassword')
 
                             keyhelpAddApiData['iEmailMailInitialPassword'] = \
                                 keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                             keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                             if keyhelpAddData.status:
                                 print(
                                     'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
@@ -397,22 +391,18 @@ if __name__ == "__main__":
                                 for domKey, domValue in imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId].items():
                                     keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                            for subDomainEmailKey, subDomainEmailValue in imscpEmailsSubDomainsArrayValue.items():
-                                # print(subDomainEmailKey, '->', subDomainEmailValue)
-                                if subDomainEmailKey == 'iEmailMailQuota':
-                                    keyhelpAddApiData['iEmailMailQuota'] = subDomainEmailValue
-                                if subDomainEmailKey == 'iEmailMailForward':
-                                    keyhelpAddApiData['iEmailMailForward'] = subDomainEmailValue
-                                if subDomainEmailKey == 'iEmailAddress':
-                                    keyhelpAddApiData['iEmailAddress'] = subDomainEmailValue
-                                if subDomainEmailKey == 'iEmailMailPassword':
-                                    keyhelpAddApiData['iEmailMailPassword'] = subDomainEmailValue
+                            keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                            keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
+                                'kdatabaseRootPassword']
+                            keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailQuota')
+                            keyhelpAddApiData['iEmailMailForward'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailForward')
+                            keyhelpAddApiData['iEmailAddress'] = imscpEmailsSubDomainsArrayValue.get('iEmailAddress')
+                            keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailPassword')
 
                             keyhelpAddApiData['iEmailMailInitialPassword'] = \
                                 keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                             keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                             if keyhelpAddData.status:
                                 print(
                                     'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
@@ -432,24 +422,17 @@ if __name__ == "__main__":
                                     'subid-' + subDomainId].items():
                                     keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                            for subDomainEmailKey, subDomainEmailValue in imscpEmailsSubDomainsArrayValue.items():
-                                # print(subDomainEmailKey, '->', subDomainEmailValue)
-                                if subDomainEmailKey == 'iEmailMailQuota':
-                                    # 5MB for only Forward
-                                    keyhelpAddApiData['iEmailMailQuota'] = '5242880'
-                                if subDomainEmailKey == 'iEmailMailForward':
-                                    keyhelpAddApiData['iEmailMailForward'] = subDomainEmailValue
-                                if subDomainEmailKey == 'iEmailAddress':
-                                    keyhelpAddApiData['iEmailAddress'] = subDomainEmailValue
-                                if subDomainEmailKey == 'iEmailMailPassword':
-                                    # False because there is no need to update the password with an old one
-                                    keyhelpAddApiData['iEmailMailPassword'] = False
+                            # 5MB for only Forward
+                            keyhelpAddApiData['iEmailMailQuota'] = '5242880'
+                            keyhelpAddApiData['iEmailMailForward'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailForward')
+                            keyhelpAddApiData['iEmailAddress'] = imscpEmailsSubDomainsArrayValue.get('iEmailAddress')
+                            # False because there is no need to update the password with an old one
+                            keyhelpAddApiData['iEmailMailPassword'] = False
 
                             keyhelpAddApiData['iEmailMailInitialPassword'] = \
                                 keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                             keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                             if keyhelpAddData.status:
                                 print(
                                     'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
@@ -471,20 +454,16 @@ if __name__ == "__main__":
                         for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
                             keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                    for domainEmailKey, domainEmailValue in imscpEmailsDomainsArrayValue.items():
-                        # print(domainEmailKey, '->', domainEmailValue)
-                        if domainEmailKey == 'iEmailMailQuota':
-                            keyhelpAddApiData['iEmailMailQuota'] = domainEmailValue
-                        if domainEmailKey == 'iEmailAddress':
-                            keyhelpAddApiData['iEmailAddress'] = domainEmailValue
-                        if domainEmailKey == 'iEmailMailPassword':
-                            keyhelpAddApiData['iEmailMailPassword'] = domainEmailValue
+                    keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                    keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData['kdatabaseRootPassword']
+                    keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsDomainsArrayValue.get('iEmailMailQuota')
+                    keyhelpAddApiData['iEmailAddress'] = imscpEmailsDomainsArrayValue.get('iEmailAddress')
+                    keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsDomainsArrayValue.get('iEmailMailPassword')
 
                     keyhelpAddApiData['iEmailMailInitialPassword'] = \
                         keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                     keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                     if keyhelpAddData.status:
                         print(
                             'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
@@ -503,22 +482,17 @@ if __name__ == "__main__":
                         for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
                             keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                    for domainEmailKey, domainEmailValue in imscpEmailsDomainsArrayValue.items():
-                        # print(subDomainEmailKey, '->', domainEmailValue)
-                        if domainEmailKey == 'iEmailMailQuota':
-                            keyhelpAddApiData['iEmailMailQuota'] = domainEmailValue
-                        if domainEmailKey == 'iEmailMailForward':
-                            keyhelpAddApiData['iEmailMailForward'] = domainEmailValue
-                        if domainEmailKey == 'iEmailAddress':
-                            keyhelpAddApiData['iEmailAddress'] = domainEmailValue
-                        if domainEmailKey == 'iEmailMailPassword':
-                            keyhelpAddApiData['iEmailMailPassword'] = domainEmailValue
+                    keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                    keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData['kdatabaseRootPassword']
+                    keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsDomainsArrayValue.get('iEmailMailQuota')
+                    keyhelpAddApiData['iEmailMailForward'] = imscpEmailsDomainsArrayValue.get('iEmailMailForward')
+                    keyhelpAddApiData['iEmailAddress'] = imscpEmailsDomainsArrayValue.get('iEmailAddress')
+                    keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsDomainsArrayValue.get('iEmailMailPassword')
 
                     keyhelpAddApiData['iEmailMailInitialPassword'] = \
                         keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                     keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                     if keyhelpAddData.status:
                         print(
                             'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
@@ -537,24 +511,17 @@ if __name__ == "__main__":
                         for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
                             keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                    for domainEmailKey, domainEmailValue in imscpEmailsDomainsArrayValue.items():
-                        # print(subDomainEmailKey, '->', domainEmailValue)
-                        if domainEmailKey == 'iEmailMailQuota':
-                            # 5MB for only Forward
-                            keyhelpAddApiData['iEmailMailQuota'] = '5242880'
-                        if domainEmailKey == 'iEmailMailForward':
-                            keyhelpAddApiData['iEmailMailForward'] = domainEmailValue
-                        if domainEmailKey == 'iEmailAddress':
-                            keyhelpAddApiData['iEmailAddress'] = domainEmailValue
-                        if domainEmailKey == 'iEmailMailPassword':
-                            # False because there is no need to update the password with an old one
-                            keyhelpAddApiData['iEmailMailPassword'] = False
+                    # 5MB for only Forward
+                    keyhelpAddApiData['iEmailMailQuota'] = '5242880'
+                    keyhelpAddApiData['iEmailMailForward'] = imscpEmailsDomainsArrayValue.get('iEmailMailForward')
+                    keyhelpAddApiData['iEmailAddress'] = imscpEmailsDomainsArrayValue.get('iEmailAddress')
+                    # False because there is no need to update the password with an old one
+                    keyhelpAddApiData['iEmailMailPassword'] = False
 
                     keyhelpAddApiData['iEmailMailInitialPassword'] = \
                         keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                     keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                     if keyhelpAddData.status:
                         print(
                             'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
@@ -570,18 +537,11 @@ if __name__ == "__main__":
             # Adding i-MSCP alias domains
             for imscpDomainAliasesArrayKey, imscpDomainAliasesArrayValue in imscpInputData.imscpDomainAliases.items():
                 # print(imscpDomainAliasesArrayKey, '->', imscpDomainAliasesArrayValue)
-                keyhelpAddApiData = {}
-                aliasDomainParentId = ''
-                keyhelpAddApiData['addedKeyHelpUserId'] = addedKeyHelpUserId
-                for domainAliasKey, domainAliasValue in imscpDomainAliasesArrayValue.items():
-                    # print(domainAliasKey, '->', domainAliasValue)
-                    if domainAliasKey == 'iAliasDomainId':
-                        aliasDomainParentId = domainAliasValue
-                    if domainAliasKey == 'iAliasDomainIdna':
-                        aliasDomainParentName = domainAliasValue
-                        keyhelpAddApiData['iAliasDomainIdna'] = domainAliasValue
-                    if domainAliasKey == 'iAliasDomainData':
-                        keyhelpAddApiData['iAliasDomainData'] = domainAliasValue
+                keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId}
+                aliasDomainParentId = imscpDomainAliasesArrayValue.get('iAliasDomainId')
+                aliasDomainParentName = imscpDomainAliasesArrayValue.get('iAliasDomainIdna')
+                keyhelpAddApiData['iAliasDomainIdna'] = imscpDomainAliasesArrayValue.get('iAliasDomainIdna')
+                keyhelpAddApiData['iAliasDomainData'] = imscpDomainAliasesArrayValue.get('iAliasDomainData')
 
                 print('Adding i-MSCP alias domain "' + keyhelpAddApiData['iAliasDomainIdna'] + '" to KeyHelpUser "' +
                       keyhelpInputData.keyhelpData['kusername'] + '".')
@@ -592,6 +552,7 @@ if __name__ == "__main__":
                         keyhelpSetDisableDnsForDomain = True
 
                 keyhelpAddApiData['keyhelpSetDisableDnsForDomain'] = keyhelpSetDisableDnsForDomain
+
                 keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                 if keyhelpAddData.status:
                     keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
@@ -601,17 +562,12 @@ if __name__ == "__main__":
                     for imscpAliasSubDomainsArrayKey, imscpAliasSubDomainsArrayValue in \
                             imscpInputData.imscpAliasSubDomains['aliasid-' + aliasDomainParentId].items():
                         # print(imscpAliasSubDomainsArrayKey, '->', imscpAliasSubDomainsArrayValue)
-                        keyhelpAddApiData = {}
-                        keyhelpAddApiData['addedKeyHelpUserId'] = addedKeyHelpUserId
-                        keyhelpAddApiData['iParentDomainId'] = keyHelpParentDomainId
-                        for subAliasSubDomainKey, subAliasSubDomainValue in imscpAliasSubDomainsArrayValue.items():
-                            # print(subAliasSubDomainKey, '->', subAliasSubDomainValue)
-                            if subAliasSubDomainKey == 'iAliasSubDomainId':
-                                aliasSubDomainId = subAliasSubDomainValue
-                            if subAliasSubDomainKey == 'iAliasSubDomainIdna':
-                                keyhelpAddApiData['iAliasSubDomainIdna'] = subAliasSubDomainValue
-                            if subAliasSubDomainKey == 'iAliasSubDomainData':
-                                keyhelpAddApiData['iAliasSubDomainData'] = subAliasSubDomainValue
+                        keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
+                                             'iParentDomainId': keyHelpParentDomainId}
+
+                        aliasSubDomainId = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainId')
+                        keyhelpAddApiData['iAliasSubDomainIdna'] = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainIdna')
+                        keyhelpAddApiData['iAliasSubDomainData'] = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainData')
 
                         print('Adding i-MSCP alias sub domain "' + keyhelpAddApiData[
                             'iAliasSubDomainIdna'] + '" to alias domain "' + aliasDomainParentName + '".')
@@ -622,6 +578,7 @@ if __name__ == "__main__":
                                 keyhelpSetDisableDnsForDomain = True
 
                         keyhelpAddApiData['keyhelpSetDisableDnsForDomain'] = keyhelpSetDisableDnsForDomain
+
                         keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                         if keyhelpAddData.status:
                             print('Alias sub domain "' + keyhelpAddApiData[
@@ -639,20 +596,20 @@ if __name__ == "__main__":
                                         'subid-' + aliasSubDomainId].items():
                                         keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                                for domainEmailKey, domainEmailValue in imscpEmailsAliasSubDomainsArrayValue.items():
-                                    # print(domainEmailKey, '->', domainEmailValue)
-                                    if domainEmailKey == 'iEmailMailQuota':
-                                        keyhelpAddApiData['iEmailMailQuota'] = domainEmailValue
-                                    if domainEmailKey == 'iEmailAddress':
-                                        keyhelpAddApiData['iEmailAddress'] = domainEmailValue
-                                    if domainEmailKey == 'iEmailMailPassword':
-                                        keyhelpAddApiData['iEmailMailPassword'] = domainEmailValue
+                                keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                                keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
+                                    'kdatabaseRootPassword']
+                                keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsAliasSubDomainsArrayValue.get(
+                                    'iEmailMailQuota')
+                                keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasSubDomainsArrayValue.get(
+                                    'iEmailAddress')
+                                keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsAliasSubDomainsArrayValue.get(
+                                    'iEmailMailPassword')
 
                                 keyhelpAddApiData['iEmailMailInitialPassword'] = \
                                     keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                                 keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                                 if keyhelpAddData.status:
                                     print(
                                         'Email address "' + keyhelpAddApiData[
@@ -675,22 +632,22 @@ if __name__ == "__main__":
                                         'subid-' + aliasSubDomainId].items():
                                         keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                                for domainEmailKey, domainEmailValue in imscpEmailsAliasSubDomainsArrayValue.items():
-                                    # print(subDomainEmailKey, '->', domainEmailValue)
-                                    if domainEmailKey == 'iEmailMailQuota':
-                                        keyhelpAddApiData['iEmailMailQuota'] = domainEmailValue
-                                    if domainEmailKey == 'iEmailMailForward':
-                                        keyhelpAddApiData['iEmailMailForward'] = domainEmailValue
-                                    if domainEmailKey == 'iEmailAddress':
-                                        keyhelpAddApiData['iEmailAddress'] = domainEmailValue
-                                    if domainEmailKey == 'iEmailMailPassword':
-                                        keyhelpAddApiData['iEmailMailPassword'] = domainEmailValue
+                                keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                                keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
+                                    'kdatabaseRootPassword']
+                                keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsAliasSubDomainsArrayValue.get(
+                                    'iEmailMailQuota')
+                                keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasSubDomainsArrayValue.get(
+                                    'iEmailMailForward')
+                                keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasSubDomainsArrayValue.get(
+                                    'iEmailAddress')
+                                keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsAliasSubDomainsArrayValue.get(
+                                    'iEmailMailPassword')
 
                                 keyhelpAddApiData['iEmailMailInitialPassword'] = \
                                     keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                                 keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                                 if keyhelpAddData.status:
                                     print(
                                         'Email address "' + keyhelpAddApiData[
@@ -713,24 +670,19 @@ if __name__ == "__main__":
                                         'subid-' + aliasSubDomainId].items():
                                         keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                                for domainEmailKey, domainEmailValue in imscpEmailsAliasSubDomainsArrayValue.items():
-                                    # print(subDomainEmailKey, '->', domainEmailValue)
-                                    if domainEmailKey == 'iEmailMailQuota':
-                                        # 5MB for only Forward
-                                        keyhelpAddApiData['iEmailMailQuota'] = '5242880'
-                                    if domainEmailKey == 'iEmailMailForward':
-                                        keyhelpAddApiData['iEmailMailForward'] = domainEmailValue
-                                    if domainEmailKey == 'iEmailAddress':
-                                        keyhelpAddApiData['iEmailAddress'] = domainEmailValue
-                                    if domainEmailKey == 'iEmailMailPassword':
-                                        # False because there is no need to update the password with an old one
-                                        keyhelpAddApiData['iEmailMailPassword'] = False
+                                # 5MB for only Forward
+                                keyhelpAddApiData['iEmailMailQuota'] = '5242880'
+                                keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasSubDomainsArrayValue.get(
+                                    'iEmailMailForward')
+                                keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasSubDomainsArrayValue.get(
+                                    'iEmailAddress')
+                                # False because there is no need to update the password with an old one
+                                keyhelpAddApiData['iEmailMailPassword'] = False
 
                                 keyhelpAddApiData['iEmailMailInitialPassword'] = \
                                     keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                                 keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                                 if keyhelpAddData.status:
                                     print(
                                         'Email address "' + keyhelpAddApiData[
@@ -754,20 +706,18 @@ if __name__ == "__main__":
                             for domKey, domValue in imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId].items():
                                 keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                        for domainEmailKey, domainEmailValue in imscpEmailsAliasDomainsArrayValue.items():
-                            # print(domainEmailKey, '->', domainEmailValue)
-                            if domainEmailKey == 'iEmailMailQuota':
-                                keyhelpAddApiData['iEmailMailQuota'] = domainEmailValue
-                            if domainEmailKey == 'iEmailAddress':
-                                keyhelpAddApiData['iEmailAddress'] = domainEmailValue
-                            if domainEmailKey == 'iEmailMailPassword':
-                                keyhelpAddApiData['iEmailMailPassword'] = domainEmailValue
+                        keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                        keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
+                            'kdatabaseRootPassword']
+                        keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsAliasDomainsArrayValue.get('iEmailMailQuota')
+                        keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasDomainsArrayValue.get('iEmailAddress')
+                        keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsAliasDomainsArrayValue.get(
+                            'iEmailMailPassword')
 
                         keyhelpAddApiData['iEmailMailInitialPassword'] = \
                             keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                         keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                         if keyhelpAddData.status:
                             print(
                                 'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
@@ -788,22 +738,20 @@ if __name__ == "__main__":
                                 'aliasid-' + aliasDomainParentId].items():
                                 keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                        for domainEmailKey, domainEmailValue in imscpEmailsAliasDomainsArrayValue.items():
-                            # print(subDomainEmailKey, '->', domainEmailValue)
-                            if domainEmailKey == 'iEmailMailQuota':
-                                keyhelpAddApiData['iEmailMailQuota'] = domainEmailValue
-                            if domainEmailKey == 'iEmailMailForward':
-                                keyhelpAddApiData['iEmailMailForward'] = domainEmailValue
-                            if domainEmailKey == 'iEmailAddress':
-                                keyhelpAddApiData['iEmailAddress'] = domainEmailValue
-                            if domainEmailKey == 'iEmailMailPassword':
-                                keyhelpAddApiData['iEmailMailPassword'] = domainEmailValue
+                        keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                        keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
+                            'kdatabaseRootPassword']
+                        keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsAliasDomainsArrayValue.get('iEmailMailQuota')
+                        keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasDomainsArrayValue.get(
+                            'iEmailMailForward')
+                        keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasDomainsArrayValue.get('iEmailAddress')
+                        keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsAliasDomainsArrayValue.get(
+                            'iEmailMailPassword')
 
                         keyhelpAddApiData['iEmailMailInitialPassword'] = \
                             keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                         keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                         if keyhelpAddData.status:
                             print(
                                 'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
@@ -822,24 +770,18 @@ if __name__ == "__main__":
                             for domKey, domValue in imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId].items():
                                 keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
-                        for domainEmailKey, domainEmailValue in imscpEmailsAliasDomainsArrayValue.items():
-                            # print(subDomainEmailKey, '->', domainEmailValue)
-                            if domainEmailKey == 'iEmailMailQuota':
-                                # 5MB for only Forward
-                                keyhelpAddApiData['iEmailMailQuota'] = '5242880'
-                            if domainEmailKey == 'iEmailMailForward':
-                                keyhelpAddApiData['iEmailMailForward'] = domainEmailValue
-                            if domainEmailKey == 'iEmailAddress':
-                                keyhelpAddApiData['iEmailAddress'] = domainEmailValue
-                            if domainEmailKey == 'iEmailMailPassword':
-                                # False because there is no need to update the password with an old one
-                                keyhelpAddApiData['iEmailMailPassword'] = False
+                        # 5MB for only Forward
+                        keyhelpAddApiData['iEmailMailQuota'] = '5242880'
+                        keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasDomainsArrayValue.get(
+                            'iEmailMailForward')
+                        keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasDomainsArrayValue.get('iEmailAddress')
+                        # False because there is no need to update the password with an old one
+                        keyhelpAddApiData['iEmailMailPassword'] = False
 
                         keyhelpAddApiData['iEmailMailInitialPassword'] = \
                             keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
 
                         keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-
                         if keyhelpAddData.status:
                             print(
                                 'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')

@@ -283,6 +283,11 @@ class KeyHelpAddDataToServer:
         elif apiEndPoint == 'emails' and responseApi.status_code == 201:
             _global_config.write_log(
                 'EMail address "' + str(keyHelpData['iEmailAddress'] + '" added successfully'))
+            if keyHelpData['iEmailMailPassword']:
+                self.__updateEmailPasswordWithImscpPassword(keyHelpData, apiPostData['id'])
+                _global_config.write_log(
+                    'EMail address "' + str(keyHelpData['iEmailAddress'] + '" with old i-MSCP password updated'))
+
             self.status = True
         elif apiEndPoint == 'databases' and responseApi.status_code == 201:
             self.keyhelpAddedDbUsernames.append(keyHelpData['iDatabaseUsername'])
@@ -428,26 +433,53 @@ class KeyHelpAddDataToServer:
             data['forwardings'] = data_forwardings
 
         if apiEndPoint == 'databases':
-            data_remote_access = []
+            data_remote_hosts = []
 
             if 'iDatabaseUserHost' in keyHelpData:
                 if keyHelpData['iDatabaseUserHost'] != 'localhost':
                     keyHelpRemoteAccessData = keyHelpData['iDatabaseUserHost'].split(",")
                     for ipaddr in keyHelpRemoteAccessData:
-                        data_remote_access.append(ipaddr)
+                        data_remote_hosts.append(ipaddr)
 
             data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
             data['database_name'] = keyHelpData['iDatabaseName']
             data['database_username'] = keyHelpData['iDatabaseUsername']
             data['password'] = keyHelpData['iDatabaseUserPassword']
             data['description'] = "Database migrated from i-MSCP"
-            data['remote_access'] = data_remote_access
+            data['remote_hosts'] = data_remote_hosts
 
             # print(str(data)+'\n')
 
         jsonData = json.dumps(data)
 
         return jsonData
+
+    def __updateEmailPasswordWithImscpPassword(self, keyHelpData, addedEmailId):
+        try:
+            db_connection = mysql.connector.connect(
+                host="localhost",
+                user="" + keyHelpData['kdatabaseRoot'] + "",
+                passwd="" + keyHelpData['kdatabaseRootPassword'] + "",
+                database="keyhelp"
+            )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with the user name or password")
+                exit(1)
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+                exit(1)
+            else:
+                print(err)
+                exit(1)
+        else:
+            cursor = db_connection.cursor()
+            cursor.execute("UPDATE mail_users SET password = '" + str(keyHelpData[
+                'iEmailMailPassword']) + "' WHERE id = '" + str(addedEmailId) + "';")
+
+            db_connection.commit()
+            cursor.close()
+            db_connection.close()
 
     def keyhelpCreateRandomEmailPassword(self, kMinPasswordLenght):
         passwordCharacters = string.ascii_letters + string.digits + string.punctuation
