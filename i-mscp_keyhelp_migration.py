@@ -2,7 +2,7 @@
 
 # apt-get install python3-requests python3-paramiko python3-distutils-extra
 
-import requests, time, json, re, configparser, io, os, sys, idna, paramiko, mysql.connector
+import requests, time, json, re, configparser, io, os, sys, idna, paramiko, mysql.connector, subprocess
 from distutils.util import strtobool
 from paramiko.ssh_exception import BadHostKeyException, AuthenticationException, SSHException
 from mysql.connector import errorcode
@@ -357,7 +357,7 @@ if __name__ == "__main__":
                                 imscpInputData.imscpDomainSubEmailAddressNormal['subid-' + subDomainId].items():
                             # print(imscpEmailsSubDomainsArrayKey, '->', imscpEmailsSubDomainsArrayValue)
                             keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                                 'addedKeyHelpUserId': addedKeyHelpUserId}
+                                                 'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                             if bool(imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId]):
                                 for domKey, domValue in imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId].items():
                                     keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
@@ -386,7 +386,7 @@ if __name__ == "__main__":
                                 imscpInputData.imscpDomainSubEmailAddressNormalForward['subid-' + subDomainId].items():
                             # print(imscpEmailsSubDomainsArrayKey, '->', imscpEmailsSubDomainsArrayValue)
                             keyhelpAddApiData = {'emailStoreForward': True, 'iEmailCatchall': '',
-                                                 'addedKeyHelpUserId': addedKeyHelpUserId}
+                                                 'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                             if bool(imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId]):
                                 for domKey, domValue in imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId].items():
                                     keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
@@ -416,7 +416,7 @@ if __name__ == "__main__":
                                 imscpInputData.imscpDomainSubEmailAddressForward['subid-' + subDomainId].items():
                             # print(imscpEmailsSubDomainsArrayKey, '->', imscpEmailsSubDomainsArrayValue)
                             keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                                 'addedKeyHelpUserId': addedKeyHelpUserId}
+                                                 'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
                             if bool(imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId]):
                                 for domKey, domValue in imscpInputData.imscpDomainSubEmailAddressNormalCatchAll[
                                     'subid-' + subDomainId].items():
@@ -449,7 +449,7 @@ if __name__ == "__main__":
                         imscpInputData.imscpDomainEmailAddressNormal.items():
                     # print(imscpEmailsDomainsArrayKey, '->', imscpEmailsDomainsArrayValue)
                     keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                         'addedKeyHelpUserId': addedKeyHelpUserId}
+                                         'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                     if bool(imscpInputData.imscpDomainEmailAddressNormalCatchAll):
                         for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
                             keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
@@ -477,7 +477,7 @@ if __name__ == "__main__":
                         imscpInputData.imscpDomainEmailAddressNormalForward.items():
                     # print(imscpEmailsDomainsArrayKey, '->', imscpEmailsDomainsArrayValue)
                     keyhelpAddApiData = {'emailStoreForward': True, 'iEmailCatchall': '',
-                                         'addedKeyHelpUserId': addedKeyHelpUserId}
+                                         'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                     if bool(imscpInputData.imscpDomainEmailAddressNormalCatchAll):
                         for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
                             keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
@@ -506,7 +506,7 @@ if __name__ == "__main__":
                         imscpInputData.imscpDomainEmailAddressForward.items():
                     # print(imscpEmailsDomainsArrayKey, '->', imscpEmailsDomainsArrayValue)
                     keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                         'addedKeyHelpUserId': addedKeyHelpUserId}
+                                         'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
                     if bool(imscpInputData.imscpDomainEmailAddressNormalCatchAll):
                         for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
                             keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
@@ -589,7 +589,7 @@ if __name__ == "__main__":
                                     imscpInputData.imscpAliasSubEmailAddressNormal['subid-' + aliasSubDomainId].items():
                                 # print(imscpEmailsAliasSubDomainsArrayKey, '->', imscpEmailsAliasSubDomainsArrayValue)
                                 keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                                     'addedKeyHelpUserId': addedKeyHelpUserId}
+                                                     'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                                 if bool(imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
                                             'subid-' + aliasSubDomainId]):
                                     for domKey, domValue in imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
@@ -625,7 +625,7 @@ if __name__ == "__main__":
                                         'subid-' + aliasSubDomainId].items():
                                 # print(imscpEmailsAliasSubDomainsArrayKey, '->', imscpEmailsAliasSubDomainsArrayValue)
                                 keyhelpAddApiData = {'emailStoreForward': True, 'iEmailCatchall': '',
-                                                     'addedKeyHelpUserId': addedKeyHelpUserId}
+                                                     'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                                 if bool(imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
                                             'subid-' + aliasSubDomainId]):
                                     for domKey, domValue in imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
@@ -663,7 +663,7 @@ if __name__ == "__main__":
                                         'subid-' + aliasSubDomainId].items():
                                 # print(imscpEmailsAliasSubDomainsArrayKey, '->', imscpEmailsAliasSubDomainsArrayValue)
                                 keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                                     'addedKeyHelpUserId': addedKeyHelpUserId}
+                                                     'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
                                 if bool(imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
                                             'subid-' + aliasSubDomainId]):
                                     for domKey, domValue in imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
@@ -701,7 +701,7 @@ if __name__ == "__main__":
                             imscpInputData.imscpAliasEmailAddressNormal['aliasid-' + aliasDomainParentId].items():
                         # print(imscpEmailsAliasDomainsArrayKey, '->', imscpEmailsAliasDomainsArrayValue)
                         keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                             'addedKeyHelpUserId': addedKeyHelpUserId}
+                                             'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                         if bool(imscpInputData.imscpAliasEmailAddressNormalCatchAll):
                             for domKey, domValue in imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId].items():
                                 keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
@@ -732,7 +732,7 @@ if __name__ == "__main__":
                                 'aliasid-' + aliasDomainParentId].items():
                         # print(imscpEmailsAliasDomainsArrayKey, '->', imscpEmailsAliasDomainsArrayValue)
                         keyhelpAddApiData = {'emailStoreForward': True, 'iEmailCatchall': '',
-                                             'addedKeyHelpUserId': addedKeyHelpUserId}
+                                             'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                         if bool(imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId]):
                             for domKey, domValue in imscpInputData.imscpAliasEmailAddressNormalCatchAll[
                                 'aliasid-' + aliasDomainParentId].items():
@@ -765,7 +765,7 @@ if __name__ == "__main__":
                             imscpInputData.imscpAliasEmailAddressForward['aliasid-' + aliasDomainParentId].items():
                         # print(imscpEmailsAliasDomainsArrayKey, '->', imscpEmailsAliasDomainsArrayValue)
                         keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                             'addedKeyHelpUserId': addedKeyHelpUserId}
+                                             'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
                         if bool(imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId]):
                             for domKey, domValue in imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId].items():
                                 keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
@@ -952,7 +952,40 @@ if __name__ == "__main__":
                             keyhelpInputData.keyhelpData['kdatabaseRoot']) + " -p" + str(
                             keyhelpInputData.keyhelpData['kdatabaseRootPassword']) + " " + str(newDatabaseName))
 
-                print('\nStart syncing emails.')
+                print('\nStart syncing emails.... Please wait')
+                for rsyncEmailAddress in keyhelpAddData.keyhelpAddedEmailAddresses:
+                    emailAddressData = rsyncEmailAddress.split("@")
+                    emailAddressData[1].strip()
+                    if imscpSshPublicKey:
+                        cmd = 'rsync -aHAXSz --info=progress --numeric-ids -e "ssh -i ' + imscpSshPublicKey + ' -p ' + \
+                                imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                imscpSshUsername + '@' + imscpServerFqdn + ':/var/mail/virtual/' + \
+                                emailAddressData[1] + '/' + emailAddressData[0] + '/ /var/mail/vhosts/' + \
+                                emailAddressData[1] + '/' + emailAddressData[0] + '/'
+                    else:
+                        cmd = 'rsync -aHAXSz --info=progress --numeric-ids -e "sshpass -p ' + imscpRootPassword + ' ssh -p ' + \
+                              imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                              imscpSshUsername + '@' + imscpServerFqdn + ':/var/mail/virtual/' + \
+                              emailAddressData[1] + '/' + emailAddressData[0] + '/ /var/mail/vhosts/' + \
+                              emailAddressData[1] + '/' + emailAddressData[0] + '/'
+                    proc = subprocess.Popen(cmd, shell=True,    stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                    while True:
+                        output = proc.stdout.readline().decode('utf-8')
+                        if not output:
+                            break
+                        if '-chk' in str(output):
+                            m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
+                            total_files = int(m[0][1])
+                            progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
+                            sys.stdout.write('\rSyncing of emails for ' + str(rsyncEmailAddress) + ' done: ' + str(round(progress, 2)) + '%')
+                            sys.stdout.flush()
+                            if int(m[0][0]) == 0:
+                                break
+                    print('\nFinished syncing email address "' + str(rsyncEmailAddress) + '".')
+                    os.system('chown -R vmail:vmail /var/mail/vhosts/' + emailAddressData[1] + '/' + emailAddressData[
+                        0] + '/')
+                    print('System owner for email address "' + str(rsyncEmailAddress) + '". successfully updated.\n')
+                    time.sleep(1)
             else:
                 print('No databases available for the i-MSCP domain ' + imscpInputData.imscpData['iUsernameDomain'])
         else:

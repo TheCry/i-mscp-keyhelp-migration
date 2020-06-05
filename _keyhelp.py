@@ -75,7 +75,7 @@ class KeyhelpGetData:
 
     def checkExistKeyhelpUsername(self, kUsername):
         if (len(kUsername) > 0):
-            if kUsername.isalnum():
+            if re.match("^[a-zA-Z0-9-]*$", str(kUsername)):
                 responseApi = requests.get(apiUrl + apiEndpointClients + '/name/' + kUsername, headers=headers,
                                            timeout=apiTimeout, verify=apiServerFqdnVerify)
                 apiGetData = responseApi.json()
@@ -97,7 +97,7 @@ class KeyhelpGetData:
                         responseApi.status_code, apiGetData['username'], apiGetData['id']))
                     return False
             else:
-                print('Your Keyhelp username contains non alphanumeric chars!')
+                print('Your Keyhelp username contains non chars which are not allowed (A-z, 0-9, -)!')
                 return False
         else:
             print('Your Keyhelp username is empty!')
@@ -241,6 +241,7 @@ class KeyHelpAddDataToServer:
         self.status = False
         self.keyhelpApiReturnData = dict()
         self.keyhelpAddedDbUsernames = []
+        self.keyhelpAddedEmailAddresses = []
 
     def addKeyHelpDataToApi(self, apiEndPoint, keyHelpData):
         apiJsonData = self.__makeClientsJsonData(keyHelpData, apiEndPoint)
@@ -295,7 +296,8 @@ class KeyHelpAddDataToServer:
                 self.__updateEmailPasswordWithImscpPassword(keyHelpData, apiPostData['id'])
                 _global_config.write_log(
                     'EMail address "' + str(keyHelpData['iEmailAddress'] + '" with old i-MSCP password updated'))
-
+            if keyHelpData['emailNeedRsync']:
+                self.keyhelpAddedEmailAddresses.append(keyHelpData['iEmailAddress'])
             self.status = True
         elif apiEndPoint == 'databases' and responseApi.status_code == 201:
             self.keyhelpAddedDbUsernames.append(keyHelpData['iDatabaseUsername'])
