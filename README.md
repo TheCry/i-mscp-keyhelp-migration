@@ -8,7 +8,7 @@ Das Script ist noch in der Entwicklung und nicht Produktiv!
 
 ## Installation packages
 ```
-apt-get install python3-requests python3-paramiko python3-distutils-extra
+apt-get install sshpass python3-requests python3-paramiko python3-distutils-extra
 python3 -m pip install mysql-connector
 ```
 
