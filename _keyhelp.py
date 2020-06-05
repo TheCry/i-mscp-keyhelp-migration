@@ -8,6 +8,7 @@ _global_config.init()
 
 #### General ####
 showDebug = _global_config.showDebug
+keyhelpSleeptime = _global_config.keyhelpSleeptime
 
 #### KeyHelp ####
 apiServerFqdn = _global_config.apiServerFqdn
@@ -74,25 +75,29 @@ class KeyhelpGetData:
 
     def checkExistKeyhelpUsername(self, kUsername):
         if (len(kUsername) > 0):
-            responseApi = requests.get(apiUrl + apiEndpointClients + '/name/' + kUsername, headers=headers,
-                                       timeout=apiTimeout, verify=apiServerFqdnVerify)
-            apiGetData = responseApi.json()
-            if responseApi.status_code == 404:
-                self.__checkExistKeyhelpUsernameAsAdmin(kUsername)
-                if not self.KeyHelpAdminExists:
-                    _global_config.write_log(
-                        'Debug KeyHelp informations:\nKeyHelp panel username: "' + kUsername + '"\n')
-                    print('KeyHelp username is ok.')
-                    self.keyhelpData['kusername'] = kUsername
-                    self.complete = False
-                    return True
+            if kUsername.isalnum():
+                responseApi = requests.get(apiUrl + apiEndpointClients + '/name/' + kUsername, headers=headers,
+                                           timeout=apiTimeout, verify=apiServerFqdnVerify)
+                apiGetData = responseApi.json()
+                if responseApi.status_code == 404:
+                    self.__checkExistKeyhelpUsernameAsAdmin(kUsername)
+                    if not self.KeyHelpAdminExists:
+                        _global_config.write_log(
+                            'Debug KeyHelp informations:\nKeyHelp panel username: "' + kUsername + '"\n')
+                        print('KeyHelp username is ok.')
+                        self.keyhelpData['kusername'] = kUsername
+                        self.complete = False
+                        return True
+                    else:
+                        print('KeyHelp username "' + kUsername + '" allready exists!')
+                        self.complete = False
+                        return False
                 else:
-                    print('KeyHelp username "' + kUsername + '" allready exists!')
-                    self.complete = False
+                    print("KeyHelp username allready exists: Code: %i - %s, Id: %s" % (
+                        responseApi.status_code, apiGetData['username'], apiGetData['id']))
                     return False
             else:
-                print("KeyHelp username allready exists: Code: %i - %s, Id: %s" % (
-                responseApi.status_code, apiGetData['username'], apiGetData['id']))
+                print('Your Keyhelp username contains non alphanumeric chars!')
                 return False
         else:
             print('Your Keyhelp username is empty!')
@@ -280,6 +285,9 @@ class KeyHelpAddDataToServer:
                 self.status = True
             else:
                 print('Unknown API action!')
+
+            print('Please wait...')
+            time.sleep(int(keyhelpSleeptime))
         elif apiEndPoint == 'emails' and responseApi.status_code == 201:
             _global_config.write_log(
                 'EMail address "' + str(keyHelpData['iEmailAddress'] + '" added successfully'))

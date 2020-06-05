@@ -15,6 +15,7 @@ for key, value in logfolderfolders.items():
 		loggingFolder = value
 
 logFile = str(loggingFolder+'/'+config['general']['logFile'])
+keyhelpSleeptime = str(config['general']['keyhelpSleeptime'])
 
 keyhelpDefaultHostingplan = str(config['general']['keyhelpDefaultHostingplan'])
 keyhelpCreateRandomPassword = str(config['general']['keyhelpCreateRandomPassword'])
@@ -78,7 +79,8 @@ def ask_Yes_No(answer):
 			print('Please respond with "yes" or "no"')
 
 def init():
-    global loggingFolder, logFile, keyhelpDefaultHostingplan, keyhelpSendloginCredentials, keyhelpCreateSystemDomain, keyhelpDisableDnsForDomain, \
-    apiServerFqdn, apiKey, apiTimeout, keyhelpMinPasswordLenght, apiServerFqdnVerify, showDebug, keyhelpConfigfile, \
-    imscpServerFqdn, imscpSshUsername, imscpSshPort, imscpSshTimeout, imscpRootPassword, imscpSshPublicKey, imscpDbDumpFolder, \
-	keyhelpCreateRandomPassword
+	global loggingFolder, logFile, keyhelpSleeptime, keyhelpDefaultHostingplan, keyhelpSendloginCredentials, \
+		keyhelpCreateSystemDomain, keyhelpDisableDnsForDomain, apiServerFqdn, apiKey, apiTimeout, \
+		keyhelpMinPasswordLenght, apiServerFqdnVerify, showDebug, keyhelpConfigfile, imscpServerFqdn, imscpSshUsername, \
+		imscpSshPort, imscpSshTimeout, imscpRootPassword, imscpSshPublicKey, imscpDbDumpFolder, \
+		keyhelpCreateRandomPassword
