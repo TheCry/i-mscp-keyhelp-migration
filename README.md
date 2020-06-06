@@ -6,6 +6,11 @@ Das Script ist noch in der Entwicklung und nicht Produktiv!
 * min. phython 3.5
 * run the script on the KeyHelp server
 
+## Required settings in KeyHelp
+* SETTINGS => Configuration => Database => Allow remote access = enable
+* SETTINGS => Configuration => Miscellaneous => Notifications => Send 'Email account has been setup successfully' notification = disable
+* SETTINGS => Configuration => Account Templates => Database remote access = enable
+
 ## Installation packages
 ```
 apt-get install sshpass python3-requests python3-paramiko python3-distutils-extra
