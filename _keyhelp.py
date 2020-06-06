@@ -76,8 +76,18 @@ class KeyhelpGetData:
     def checkExistKeyhelpUsername(self, kUsername):
         if (len(kUsername) > 0):
             if re.match("^[a-zA-Z0-9-]*$", str(kUsername)):
-                responseApi = requests.get(apiUrl + apiEndpointClients + '/name/' + kUsername, headers=headers,
-                                           timeout=apiTimeout, verify=apiServerFqdnVerify)
+                try:
+                    responseApi = requests.get(apiUrl + apiEndpointClients + '/name/' + kUsername, headers=headers,
+                                               timeout=apiTimeout, verify=apiServerFqdnVerify)
+                except requests.exceptions.HTTPError as errorApi:
+                    raise SystemExit("An Http Error occurred:" + str(errorApi))
+                except requests.exceptions.ConnectionError as errorApi:
+                    raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+                except requests.exceptions.Timeout as errorApi:
+                    raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+                except requests.exceptions.RequestException as errorApi:
+                    raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
                 apiGetData = responseApi.json()
                 if responseApi.status_code == 404:
                     self.__checkExistKeyhelpUsernameAsAdmin(kUsername)
@@ -134,8 +144,18 @@ class KeyhelpGetData:
             db_connection.close()
 
     def checkExistDefaultHostingplan(self, kDefaultHostingplan):
-        responseApi = requests.get(apiUrl + apiEndpointHostingplans + '/name/' + kDefaultHostingplan, headers=headers,
-                                   timeout=apiTimeout, verify=apiServerFqdnVerify)
+        try:
+            responseApi = requests.get(apiUrl + apiEndpointHostingplans + '/name/' + kDefaultHostingplan,
+                                       headers=headers, timeout=apiTimeout, verify=apiServerFqdnVerify)
+        except requests.exceptions.HTTPError as errorApi:
+            raise SystemExit("An Http Error occurred:" + str(errorApi))
+        except requests.exceptions.ConnectionError as errorApi:
+            raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+        except requests.exceptions.Timeout as errorApi:
+            raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+        except requests.exceptions.RequestException as errorApi:
+            raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
         apiGetData = responseApi.json()
         if responseApi.status_code == 200:
             _global_config.write_log(
@@ -150,8 +170,18 @@ class KeyhelpGetData:
             return False
 
     def checkExistHostingplan(self, kHostingplan):
-        responseApi = requests.get(apiUrl + apiEndpointHostingplans + '/name/' + kHostingplan, headers=headers,
-                                   timeout=apiTimeout, verify=apiServerFqdnVerify)
+        try:
+            responseApi = requests.get(apiUrl + apiEndpointHostingplans + '/name/' + kHostingplan, headers=headers,
+                                       timeout=apiTimeout, verify=apiServerFqdnVerify)
+        except requests.exceptions.HTTPError as errorApi:
+            raise SystemExit("An Http Error occurred:" + str(errorApi))
+        except requests.exceptions.ConnectionError as errorApi:
+            raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+        except requests.exceptions.Timeout as errorApi:
+            raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+        except requests.exceptions.RequestException as errorApi:
+            raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
         apiGetData = responseApi.json()
         if responseApi.status_code == 200:
             print('KeyHelp hostingplan "' + kHostingplan + '" exists.\n')
@@ -245,7 +275,18 @@ class KeyHelpAddDataToServer:
 
     def addKeyHelpDataToApi(self, apiEndPoint, keyHelpData):
         apiJsonData = self.__makeClientsJsonData(keyHelpData, apiEndPoint)
-        responseApi = requests.post(apiUrl + apiEndPoint + '/', data=apiJsonData, headers=headers, timeout=apiTimeout,verify=apiServerFqdnVerify)
+        try:
+            responseApi = requests.post(apiUrl + apiEndPoint + '/', data=apiJsonData, headers=headers,
+                                        timeout=apiTimeout, verify=apiServerFqdnVerify)
+        except requests.exceptions.HTTPError as errorApi:
+            raise SystemExit("An Http Error occurred:" + str(errorApi))
+        except requests.exceptions.ConnectionError as errorApi:
+            raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+        except requests.exceptions.Timeout as errorApi:
+            raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+        except requests.exceptions.RequestException as errorApi:
+            raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
         apiPostData = responseApi.json()
 
         if apiEndPoint == 'clients' and responseApi.status_code == 201:
@@ -351,7 +392,6 @@ class KeyHelpAddDataToServer:
             data['suspend_on'] = ''
             data['send_login_credentials'] = bool(strtobool(str(keyhelpSendloginCredentials)))
             data['create_system_domain'] = bool(strtobool(str(keyhelpCreateSystemDomain)))
-            # data['skeleton'] = "wordpress" # Don't know what it is
             data_contact['first_name'] = keyHelpData['ksurname']
             data_contact['last_name'] = keyHelpData['kname']
             data_contact['company'] = ''
@@ -410,10 +450,11 @@ class KeyHelpAddDataToServer:
             data['is_email_domain'] = bool(strtobool(str('true')))
             data['create_www_subdomain'] = bool(strtobool(str('true')))
             data['create_system_domain'] = bool(strtobool(str(keyhelpCreateSystemDomain)))
-            # data['skeleton'] = "wordpress" # Don't know what it is
             if not keyHelpData['iDomainUrlForward'] == 'no':
                 data_target['target'] = keyHelpData['iDomainUrlForward']
                 data_target['forwarding_type'] = '301'
+            else:
+                data_target['target'] = keyHelpDataDomain + '/'
             data['target'] = data_target
             data['security'] = data_security
 
