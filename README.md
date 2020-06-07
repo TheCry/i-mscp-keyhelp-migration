@@ -10,6 +10,7 @@ Das Script ist noch in der Entwicklung und nicht Produktiv!
 * SETTINGS => Configuration => Database => Allow remote access = enable
 * SETTINGS => Configuration => Miscellaneous => Notifications => Send 'Email account has been setup successfully' notification = disable
 * SETTINGS => Configuration => Account Templates => Database remote access = enable
+* SETTINGS => Configuration => FTP server => Custom FTP usernames = enable
 
 ## Installation packages
 ```
