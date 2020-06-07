@@ -4,6 +4,7 @@ from paramiko.ssh_exception import BadHostKeyException, AuthenticationException,
 from mysql.connector import errorcode
 
 import _global_config
+
 _global_config.init()
 
 #### General ####
@@ -21,9 +22,10 @@ keyhelpSendloginCredentials = _global_config.keyhelpSendloginCredentials
 keyhelpCreateSystemDomain = _global_config.keyhelpCreateSystemDomain
 
 if not apiServerFqdnVerify:
-	from urllib3.exceptions import InsecureRequestWarning
-	# Suppress only the single warning from urllib3 needed.
-	requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+    from urllib3.exceptions import InsecureRequestWarning
+
+    # Suppress only the single warning from urllib3 needed.
+    requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 apiUrl = 'https://' + apiServerFqdn + '/api/v1/'
 apiEndpointServer = 'server'
@@ -35,8 +37,9 @@ apiEndPointEmails = 'emails'
 apiEndpointDatabases = 'databases'
 apiEndpointFtpusers = 'ftp-users'
 headers = {
-	'X-API-Key': apiKey
+    'X-API-Key': apiKey
 }
+
 
 class KeyhelpGetData:
     def __init__(self):
@@ -345,11 +348,16 @@ class KeyHelpAddDataToServer:
             _global_config.write_log(
                 '\nDatabase "' + str(keyHelpData['iDatabaseName'] + '" added successfully'))
             _global_config.write_log(
-                'Database "' + str(keyHelpData['iDatabaseName'] + '" is the new database for the i-MSCP database: ' + keyHelpData['iOldDatabaseName']))
+                'Database "' + str(
+                    keyHelpData['iDatabaseName'] + '" is the new database for the i-MSCP database: ' + keyHelpData[
+                        'iOldDatabaseName']))
             _global_config.write_log(
-                'Database username for "' + str(keyHelpData['iDatabaseName'] + '":  ' + keyHelpData['iDatabaseUsername']))
+                'Database username for "' + str(
+                    keyHelpData['iDatabaseName'] + '":  ' + keyHelpData['iDatabaseUsername']))
             _global_config.write_log(
-                'Database username "' + str(keyHelpData['iDatabaseUsername'] + '" is the new db user for the i-MSCP db user: ' + keyHelpData['iOldDatabaseUsername']))
+                'Database username "' + str(
+                    keyHelpData['iDatabaseUsername'] + '" is the new db user for the i-MSCP db user: ' + keyHelpData[
+                        'iOldDatabaseUsername']))
             _global_config.write_log(
                 'Database password for "' + str(
                     keyHelpData['iDatabaseUsername'] + '": ' + keyHelpData['iDatabaseUserPassword']))
@@ -357,11 +365,23 @@ class KeyHelpAddDataToServer:
                 'Database host for "' + str(
                     keyHelpData['iDatabaseUsername'] + '": ' + keyHelpData['iDatabaseUserHost']) + '\n')
             self.status = True
+        elif apiEndPoint == 'ftp-users' and responseApi.status_code == 201:
+            _global_config.write_log(
+                'FTP user "' + str(keyHelpData['iFtpUsername'] + '" added successfully'))
+            if keyHelpData['iFtpUserPassword']:
+                self.__updateFtpPasswordWithImscpPassword(keyHelpData, apiPostData['id'])
+                _global_config.write_log(
+                    'FTP user "' + str(keyHelpData['iFtpUsername'] + '" with old i-MSCP password updated'))
+                _global_config.write_log(
+                    'FTP user homedir is now "' + str(
+                        keyHelpData['iFtpUserHomeDir'] + '". In i-MSCP it was: ' +
+                        keyHelpData[
+                            'iOldFtpUserHomeDir']))
         else:
             _global_config.write_log("KeyHelp API Message: %i - %s, Message %s" % (
-            responseApi.status_code, responseApi.reason, apiPostData['message']))
+                responseApi.status_code, responseApi.reason, apiPostData['message']))
             print("KeyHelp API Message: %i - %s, Message %s" % (
-            responseApi.status_code, responseApi.reason, apiPostData['message']))
+                responseApi.status_code, responseApi.reason, apiPostData['message']))
             self.status = False
 
     def __makeClientsJsonData(self, keyHelpData, apiEndPoint):
@@ -496,7 +516,6 @@ class KeyHelpAddDataToServer:
                 for emailaddr in keyHelpForwardData:
                     data_forwardings.append(emailaddr)
 
-
             data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
             data['email'] = keyHelpData['iEmailAddress']
             data['password'] = keyHelpData['iEmailMailInitialPassword']
@@ -525,6 +544,13 @@ class KeyHelpAddDataToServer:
 
             # print(str(data)+'\n')
 
+        if apiEndPoint == 'ftp-users':
+            data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
+            data['username'] = keyHelpData['iFtpUsername']
+            data['description'] = "FTP user migrated from i-MSCP"
+            data['home_directory'] = '/www/' + keyHelpData['iFtpUserHomeDir']
+            data['password'] = keyHelpData['iFtpInitialPassword']
+
         jsonData = json.dumps(data)
 
         return jsonData
@@ -549,8 +575,36 @@ class KeyHelpAddDataToServer:
                 exit(1)
         else:
             cursor = db_connection.cursor()
-            cursor.execute("UPDATE mail_users SET password = '" + str(keyHelpData[
-                'iEmailMailPassword']) + "' WHERE id = '" + str(addedEmailId) + "';")
+            cursor.execute(
+                "UPDATE mail_users SET password = '" + str(keyHelpData['iEmailMailPassword']) + "' WHERE id = '" + str(
+                    addedEmailId) + "';")
+
+            db_connection.commit()
+            cursor.close()
+            db_connection.close()
+
+    def __updateFtpPasswordWithImscpPassword(self, keyHelpData, addedFtpUserId):
+        try:
+            db_connection = mysql.connector.connect(
+                host="localhost",
+                user="" + keyHelpData['kdatabaseRoot'] + "",
+                passwd="" + keyHelpData['kdatabaseRootPassword'] + "",
+                database="keyhelp"
+            )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with the user name or password")
+                exit(1)
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+                exit(1)
+            else:
+                print(err)
+                exit(1)
+        else:
+            cursor = db_connection.cursor()
+            cursor.execute("UPDATE ftp_users SET password = '" + str(
+                keyHelpData['iFtpUserPassword']) + "' WHERE id = '" + str(addedFtpUserId) + "';")
 
             db_connection.commit()
             cursor.close()
@@ -561,6 +615,12 @@ class KeyHelpAddDataToServer:
         emailPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
 
         return emailPassword
+
+    def keyhelpCreateRandomFtpPassword(self, kMinPasswordLenght):
+        passwordCharacters = string.ascii_letters + string.digits + string.punctuation
+        ftpPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
+
+        return ftpPassword
 
     def keyhelpCreateRandomDatabaseUserPassword(self, kMinPasswordLenght):
         passwordCharacters = string.ascii_letters + string.digits + string.punctuation
@@ -580,7 +640,8 @@ class KeyHelpAddDataToServer:
                 print('Mountpoint for ' + kDomainName + ': ' + str(iMountPointFolderData[1]) + str(iHtdocFolder))
                 return str(iMountPointFolderData[1]) + str(iHtdocFolder)
             elif len(iMountPointFolderData) == 3:
-                print('Mountpoint for ' + kDomainName + ': ' + str(iMountPointFolderData[2]) + '.' + str(iMountPointFolderData[1]) + str(iHtdocFolder))
+                print('Mountpoint for ' + kDomainName + ': ' + str(iMountPointFolderData[2]) + '.' + str(
+                    iMountPointFolderData[1]) + str(iHtdocFolder))
                 return str(iMountPointFolderData[2]) + '.' + str(iMountPointFolderData[1]) + str(iHtdocFolder)
             else:
                 return str(kDomainName) + str(iHtdocFolder)

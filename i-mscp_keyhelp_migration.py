@@ -224,6 +224,7 @@ if __name__ == "__main__":
         _global_config.write_log('i-MSCP domain databases:\n' + str(imscpInputData.imscpDomainDatabaseNames) + '\n')
         _global_config.write_log(
             'i-MSCP domain database usernames:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
+        _global_config.write_log('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
 
         if os.path.exists(
                 loggingFolder + '/' + imscpInputData.imscpData['iUsernameDomainIdna'] + '_get_data_from_imscp.log'):
@@ -271,6 +272,7 @@ if __name__ == "__main__":
                 imscpInputData.imscpAliasSubEmailAddressForward) + '\n')
             print('i-MSCP domain databases):\n' + str(imscpInputData.imscpDomainDatabaseNames) + '\n')
             print('i-MSCP domain database users:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
+            print('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
 
     except AuthenticationException:
         print('Authentication failed, please verify your credentials!')
@@ -798,7 +800,7 @@ if __name__ == "__main__":
 
             # Adding databases and database usernames
             if bool(imscpInputData.imscpDomainDatabaseNames):
-                print('Start adding databses and database usernames.\n')
+                print('Start adding databases and database usernames.\n')
                 keyhelpAddedDatabases = {}
                 for imscpDatabasesArrayKey, imscpDatabasesArrayValue in imscpInputData.imscpDomainDatabaseNames.items():
                     # print(imscpDatabasesArrayKey, '->', imscpDatabasesArrayValue)
@@ -854,6 +856,32 @@ if __name__ == "__main__":
                     else:
                         _global_config.write_log('ERROR "' + keyhelpAddApiData['iDatabaseName'] + '" failed to add.')
                         print('ERROR "' + keyhelpAddApiData['iDatabaseName'] + '" failed to add.\n')
+            else:
+                print('No databases and database usernames to add.\n')
+
+            # Adding ftp users
+            if bool(imscpInputData.imscpFtpUserNames):
+                print('Start adding FTP users.\n')
+                for ftpUserKey, ftpUserValue in imscpInputData.imscpFtpUserNames.items():
+                    # print(ftpUserKey, '->', dbUserValue)
+                    keyhelpAddApiData = {'iFtpUsername': str(ftpUserValue.get('iFtpUsername')),
+                                         'iFtpUserPassword': str(ftpUserValue.get('iFtpUserPassword')),
+                                         'iFtpUserHomeDir': imscpInputData.imscpData['iUsernameDomainIdna'],
+                                         'iOldFtpUserHomeDir': str(ftpUserValue.get('iFtpUserHomeDir')),
+                                         'addedKeyHelpUserId': addedKeyHelpUserId,
+                                         'iFtpInitialPassword': keyhelpAddData.keyhelpCreateRandomFtpPassword(
+                                             keyhelpMinPasswordLenght),
+                                         'kdatabaseRoot': keyhelpInputData.keyhelpData['kdatabaseRoot'],
+                                         'kdatabaseRootPassword': keyhelpInputData.keyhelpData[
+                                             'kdatabaseRootPassword']}
+                    keyhelpAddData.addKeyHelpDataToApi(apiEndpointFtpusers, keyhelpAddApiData)
+                    if keyhelpAddData.status:
+                        print('FTP user "' + keyhelpAddApiData['iFtpUsername'] + '" added successfully.\n')
+                    else:
+                        _global_config.write_log('ERROR "' + keyhelpAddApiData['iFtpUsername'] + '" failed to add.')
+                        print('ERROR "' + keyhelpAddApiData['iFtpUsername'] + '" failed to add.\n')
+            else:
+                print('No FTP users to add.\n')
         else:
             _global_config.write_log('ERROR "' + keyhelpInputData.keyhelpData['kusername'] + '" failed to add.')
             print('ERROR "' + keyhelpInputData.keyhelpData['kusername'] + '" failed to add.\n')

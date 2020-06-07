@@ -45,6 +45,7 @@ class imscpGetData:
         self.imscpAliasSubEmailAddressForward = {}
         self.imscpDomainDatabaseNames = {}
         self.imscpDomainDatabaseUsernames = {}
+        self.imscpFtpUserNames = {}
 
     def getImscpMySqlCredentials(self, client):
         if imscpSshPublicKey:
@@ -123,7 +124,7 @@ class imscpGetData:
             stdin, stdout, stderr = client.exec_command(
                 'mysql -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
                 self.imscpData['imysqluser'] + ' -p' + self.imscpData[
-                    'imysqlpassword'] + ' -e "SELECT domain_id, domain_name, document_root, url_forward FROM ' +
+                    'imysqlpassword'] + ' -e "SELECT domain_id, domain_name, domain_admin_id, document_root, url_forward FROM ' +
                 self.imscpData[
                     'imysqldatabase'] + '.domain WHERE domain_name = \'' + iUsernameIdna + '\' AND domain_status = \'ok\'"')
             i = 0
@@ -140,11 +141,13 @@ class imscpGetData:
                 imscpUsernameData[1].strip()
                 imscpUsernameData[2].strip()
                 imscpUsernameData[3].strip()
+                imscpUsernameData[4].strip()
                 self.imscpData['iUsernameDomainId'] = imscpUsernameData[0]
                 self.imscpData['iUsernameDomain'] = iUsername
                 self.imscpData['iUsernameDomainIdna'] = imscpUsernameData[1]
-                self.imscpData['iDomainData'] = imscpUsernameData[1] + '|' + imscpUsernameData[2] + '|' + \
-                                                imscpUsernameData[3]
+                self.imscpData['iUsernameDomainAdminId'] = imscpUsernameData[2]
+                self.imscpData['iDomainData'] = imscpUsernameData[1] + '|' + imscpUsernameData[3] + '|' + \
+                                                imscpUsernameData[4]
 
                 _global_config.write_log('Debug i-MSCP informations:\nYour Domain: "' + iUsername + '"')
                 _global_config.write_log('Your Domain IDN converted: "' + iUsernameIdna + '"\n')
@@ -166,6 +169,9 @@ class imscpGetData:
                 print('Get i-MSCP database data')
                 self.__getImscpDomainDatabases(self.imscpData['iUsernameDomainId'], self.imscpData['iUsernameDomain'],
                                                self.imscpData['iUsernameDomainIdna'], client)
+                print('Get i-MSCP FTP user data')
+                self.__getImscpFtpUsers(self.imscpData['iUsernameDomainIdna'], self.imscpData['iUsernameDomainAdminId'],
+                                        client)
 
                 self.complete = True
                 return True
@@ -308,6 +314,56 @@ class imscpGetData:
                 print(
                     'Debug i-MSCP informations alias domains:\nNo alias domains found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
+    def __getImscpFtpUsers(self, iUsernameDomain, iUsernameDomainAdminId, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, \
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+                'imysqluser'] + ' -p' + self.imscpData['imysqlpassword'] + ' -e "SELECT userid, passwd, homedir FROM ' +
+            self.imscpData['imysqldatabase'] + '.ftp_users WHERE admin_id = \'' + iUsernameDomainAdminId + '\'"')
+        i = 0
+        dataLine = ''
+        self.imscpFtpUserNames = {}
+        for line in stdout:
+            if i > 0:
+                dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+                dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+                imscpDomainFtpUserData = dataLine.split("|")
+                imscpDomainFtpUserData[0].strip()
+                imscpDomainFtpUserData[1].strip()
+                imscpDomainFtpUserData[2].strip()
+
+                index = i
+
+                self.imscpFtpUserNames[index] = {}
+                self.imscpFtpUserNames[index]['iFtpUsername'] = imscpDomainFtpUserData[0]
+                self.imscpFtpUserNames[index]['iFtpUserPassword'] = imscpDomainFtpUserData[1]
+                self.imscpFtpUserNames[index]['iFtpUserHomeDir'] = imscpDomainFtpUserData[2]
+
+                _global_config.write_log(
+                    'Debug i-MSCP informations FTP users:\nFTP user "' + self.imscpFtpUserNames[index][
+                        'iFtpUsername'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+                if showDebug:
+                    print('Debug i-MSCP informations FTP users:\nFTP user "' + self.imscpFtpUserNames[index][
+                        'iFtpUsername'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+
+            i += 1
+
+        if i == 0:
+            _global_config.write_log(
+                'Debug i-MSCP informations FTP users:\nNo FTP user found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+            if showDebug:
+                print(
+                    'Debug i-MSCP informations FTP users:\nNo FTP user found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+        else:
+            _global_config.write_log(
+                '======================= End data for FTP users "' + iUsernameDomain + '" =======================\n\n\n')
+
     def __getImscpDomainDatabases(self, iUsernameDomainId, iUsernameDomain, iUsernameDomainIdna, client):
         if imscpSshPublicKey:
             client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, \
@@ -348,9 +404,6 @@ class imscpGetData:
                                                    self.imscpDomainDatabaseNames[index]['iDatabaseId'],
                                                    self.imscpDomainDatabaseNames[index]['iDatabaseName'], client)
 
-                _global_config.write_log(
-                    '======================= End data for database "' + iUsernameDomain + '" =======================\n\n\n')
-
             i += 1
 
         if i == 0:
@@ -359,6 +412,9 @@ class imscpGetData:
             if showDebug:
                 print(
                     'Debug i-MSCP informations database:\nNo database found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+        else:
+            _global_config.write_log(
+                '======================= End data for database "' + iUsernameDomain + '" =======================\n\n\n')
 
     def __getImscpDomainDatabaseUsers(self, iUsernameDomainId, iUsernameDomain, iDatabaseId, iDatabaseName, client):
         if imscpSshPublicKey:
@@ -401,9 +457,6 @@ class imscpGetData:
                           self.imscpDomainDatabaseUsernames[index][
                               'iDatabaseUsername'] + '" found for the i-MSCP database "' + iDatabaseName + '" (domain: ' + iUsernameDomain + ')\n')
 
-                _global_config.write_log(
-                    '======================= End data for database users - "' + iDatabaseName + '" - Domain "' + iUsernameDomain + '" =======================\n\n\n')
-
             i += 1
 
         if i == 0:
@@ -413,6 +466,9 @@ class imscpGetData:
             if showDebug:
                 print('Debug i-MSCP informations database users:\nNo database users found for the database "' +
                       self.imscpDomainDatabaseUsernames[index]['iDatabaseUsername'] + '"\n')
+        else:
+            _global_config.write_log(
+                '======================= End data for database users - "' + iDatabaseName + '" - Domain "' + iUsernameDomain + '" =======================\n\n\n')
 
     def __getImscpAliasSubDomains(self, iAliasDomainid, iAliasDomain, iAliasDomainIdna, client):
         if imscpSshPublicKey:
