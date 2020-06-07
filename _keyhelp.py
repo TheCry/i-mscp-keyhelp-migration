@@ -415,21 +415,45 @@ class KeyHelpAddDataToServer:
                 keyHelpDataDomain = keyHelpData['iUsernameDomainIdna']
                 keyHelpAdditionalDomainData = keyHelpData['iDomainData'].split("|")
                 keyHelpAdditionalDomainData[0].strip()
-                keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[0]
+                keyHelpAdditionalDomainData[1].strip()
+                keyHelpAdditionalDomainData[2].strip()
+                keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
+                                                                                    keyHelpAdditionalDomainData[1],
+                                                                                    keyHelpDataDomain,
+                                                                                    keyHelpData['iUsernameDomainIdna'])
+                keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
             elif 'iAliasDomainIdna' in keyHelpData:
                 keyHelpDataDomain = keyHelpData['iAliasDomainIdna']
                 keyHelpAdditionalDomainData = keyHelpData['iAliasDomainData'].split("|")
+                keyHelpAdditionalDomainData[0].strip()
+                keyHelpAdditionalDomainData[1].strip()
                 keyHelpAdditionalDomainData[2].strip()
+                keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
+                                                                                    keyHelpAdditionalDomainData[1],
+                                                                                    keyHelpDataDomain,
+                                                                                    keyHelpData['iFirstDomainIdna'])
                 keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
             elif 'iSubDomainIdna' in keyHelpData:
                 keyHelpDataDomain = keyHelpData['iSubDomainIdna']
                 keyHelpAdditionalDomainData = keyHelpData['iSubDomainData'].split("|")
+                keyHelpAdditionalDomainData[0].strip()
+                keyHelpAdditionalDomainData[1].strip()
                 keyHelpAdditionalDomainData[2].strip()
+                keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
+                                                                                    keyHelpAdditionalDomainData[1],
+                                                                                    keyHelpDataDomain,
+                                                                                    keyHelpData['iFirstDomainIdna'])
                 keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
             elif 'iAliasSubDomainIdna' in keyHelpData:
                 keyHelpDataDomain = keyHelpData['iAliasSubDomainIdna']
                 keyHelpAdditionalDomainData = keyHelpData['iAliasSubDomainData'].split("|")
+                keyHelpAdditionalDomainData[0].strip()
+                keyHelpAdditionalDomainData[1].strip()
                 keyHelpAdditionalDomainData[2].strip()
+                keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
+                                                                                    keyHelpAdditionalDomainData[1],
+                                                                                    keyHelpDataDomain,
+                                                                                    keyHelpData['iFirstDomainIdna'])
                 keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
             else:
                 print('Fatal Error. No domain name available')
@@ -454,7 +478,7 @@ class KeyHelpAddDataToServer:
                 data_target['target'] = keyHelpData['iDomainUrlForward']
                 data_target['forwarding_type'] = '301'
             else:
-                data_target['target'] = keyHelpDataDomain + '/'
+                data_target['target'] = keyHelpData['iDomainUrlMountpoint']
             data['target'] = data_target
             data['security'] = data_security
 
@@ -543,3 +567,20 @@ class KeyHelpAddDataToServer:
         emailPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
 
         return emailPassword
+
+    def __keyhelpBuildMountpoint(self, iMountpoint, iHtdocFolder, kDomainName, iFirstDomainName):
+        if len(str(iMountpoint)) == 1:
+            iHtdocFolder = re.sub(r"/htdocs", "", str(iHtdocFolder), flags=re.UNICODE)
+            print('Mountpoint for ' + kDomainName + ': ' + str(iFirstDomainName) + str(iHtdocFolder))
+            return str(iFirstDomainName) + str(iHtdocFolder)
+        else:
+            iMountPointFolderData = iMountpoint.split("/")
+            iHtdocFolder = re.sub(r"/htdocs", "", str(iHtdocFolder), flags=re.UNICODE)
+            if len(iMountPointFolderData) == 2:
+                print('Mountpoint for ' + kDomainName + ': ' + str(iMountPointFolderData[1]) + str(iHtdocFolder))
+                return str(iMountPointFolderData[1]) + str(iHtdocFolder)
+            elif len(iMountPointFolderData) == 3:
+                print('Mountpoint for ' + kDomainName + ': ' + str(iMountPointFolderData[2]) + '.' + str(iMountPointFolderData[1]) + str(iHtdocFolder))
+                return str(iMountPointFolderData[2]) + '.' + str(iMountPointFolderData[1]) + str(iHtdocFolder)
+            else:
+                return str(kDomainName) + str(iHtdocFolder)

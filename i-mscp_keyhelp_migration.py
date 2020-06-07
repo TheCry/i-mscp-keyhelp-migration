@@ -331,7 +331,8 @@ if __name__ == "__main__":
                 for imscpSubDomainsArrayKey, imscpSubDomainsArrayValue in imscpInputData.imscpDomainSubDomains.items():
                     # print(imscpSubDomainsArrayKey, '->', imscpSubDomainsArrayValue)
                     keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
-                                         'iParentDomainId': keyHelpParentDomainId}
+                                         'iParentDomainId': keyHelpParentDomainId,
+                                         'iFirstDomainIdna': imscpInputData.imscpData['iUsernameDomainIdna']}
 
                     subDomainId = imscpSubDomainsArrayValue.get('iSubDomainId')
                     keyhelpAddApiData['iSubDomainIdna'] = imscpSubDomainsArrayValue.get('iSubDomainIdna')
@@ -537,7 +538,8 @@ if __name__ == "__main__":
             # Adding i-MSCP alias domains
             for imscpDomainAliasesArrayKey, imscpDomainAliasesArrayValue in imscpInputData.imscpDomainAliases.items():
                 # print(imscpDomainAliasesArrayKey, '->', imscpDomainAliasesArrayValue)
-                keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId}
+                keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
+                                     'iFirstDomainIdna': imscpInputData.imscpData['iUsernameDomainIdna']}
                 aliasDomainParentId = imscpDomainAliasesArrayValue.get('iAliasDomainId')
                 aliasDomainParentName = imscpDomainAliasesArrayValue.get('iAliasDomainIdna')
                 keyhelpAddApiData['iAliasDomainIdna'] = imscpDomainAliasesArrayValue.get('iAliasDomainIdna')
@@ -563,7 +565,8 @@ if __name__ == "__main__":
                             imscpInputData.imscpAliasSubDomains['aliasid-' + aliasDomainParentId].items():
                         # print(imscpAliasSubDomainsArrayKey, '->', imscpAliasSubDomainsArrayValue)
                         keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
-                                             'iParentDomainId': keyHelpParentDomainId}
+                                             'iParentDomainId': keyHelpParentDomainId,
+                                             'iFirstDomainIdna': imscpInputData.imscpData['iUsernameDomainIdna']}
 
                         aliasSubDomainId = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainId')
                         keyhelpAddApiData['iAliasSubDomainIdna'] = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainIdna')
