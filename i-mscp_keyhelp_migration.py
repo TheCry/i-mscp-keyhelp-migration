@@ -225,6 +225,7 @@ if __name__ == "__main__":
         _global_config.write_log(
             'i-MSCP domain database usernames:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
         _global_config.write_log('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
+        _global_config.write_log('i-MSCP SSL certs:\n' + str(imscpInputData.imscpSslCerts) + '\n')
 
         if os.path.exists(
                 loggingFolder + '/' + imscpInputData.imscpData['iUsernameDomainIdna'] + '_get_data_from_imscp.log'):
@@ -273,6 +274,7 @@ if __name__ == "__main__":
             print('i-MSCP domain databases):\n' + str(imscpInputData.imscpDomainDatabaseNames) + '\n')
             print('i-MSCP domain database users:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
             print('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
+            print('i-MSCP SSL certs:\n' + str(imscpInputData.imscpSslCerts) + '\n')
 
     except AuthenticationException:
         print('Authentication failed, please verify your credentials!')
@@ -329,6 +331,51 @@ if __name__ == "__main__":
                 domainParentId = imscpInputData.imscpData['iUsernameDomainId']
                 print('Domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" added successfully.\n')
 
+                if bool(imscpInputData.imscpSslCerts['domainid-' + imscpInputData.imscpData['iUsernameDomainId']]):
+                    # Adding SSL cert if exist
+                    print('Adding SSL cert for domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '".')
+                    for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts[
+                        'domainid-' + imscpInputData.imscpData['iUsernameDomainId']].items():
+                        # print(imscpSslKey, '->', imscpSslValue)
+                        keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
+                                             'keyhelpDomainId': keyhelpAddData.keyhelpApiReturnData[
+                                                 'keyhelpDomainId'],
+                                             'iSslDomainIdna': imscpInputData.imscpData['iUsernameDomainIdna'],
+                                             'iSslPrivateKey': imscpSslValue.get('iSslPrivateKey'),
+                                             'iSslCertificate': imscpSslValue.get('iSslCertificate'),
+                                             'iSslCaBundle': imscpSslValue.get('iSslCaBundle'),
+                                             'iSslHstsMaxAge': imscpSslValue.get('iSslHstsMaxAge')}
+
+                        if imscpSslValue.get('iSslAllowHsts') == 'on':
+                            keyhelpAddApiData['iSslAllowHsts'] = 'true'
+                        else:
+                            keyhelpAddApiData['iSslAllowHsts'] = 'false'
+                        if imscpSslValue.get('iSslHstsIncludeSubdomains') == 'on':
+                            keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'true'
+                        else:
+                            keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'false'
+
+                    keyhelpAddData.addKeyHelpDataToApi(apiEndpointCertificates, keyhelpAddApiData)
+                    if keyhelpAddData.status:
+                        print('SSL cert for domain "' + keyhelpAddApiData['iSslDomainIdna'] + '" added successfully.\n')
+                        print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+
+                        keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
+                            'keyhelpSslId']
+
+                        keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
+                        if keyhelpAddData.status:
+                            print('Domain "' + keyhelpAddApiData[
+                                'iSslDomainIdna'] + '" updated succesfully with SSL cert.\n')
+                        else:
+                            _global_config.write_log(
+                                'ERROR updating "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
+                            print('ERROR updating "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+                    else:
+                        _global_config.write_log(
+                            'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.')
+                        print('ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.\n')
+
                 # Adding sub domains for domain
                 for imscpSubDomainsArrayKey, imscpSubDomainsArrayValue in imscpInputData.imscpDomainSubDomains.items():
                     # print(imscpSubDomainsArrayKey, '->', imscpSubDomainsArrayValue)
@@ -353,8 +400,55 @@ if __name__ == "__main__":
                     keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                     if keyhelpAddData.status:
                         print('Sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '" added successfully.\n')
-                        print('Adding email addresses for sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '".')
+                        if bool(imscpInputData.imscpSslCerts['subid-' + subDomainId]):
+                            # Adding SSL cert if exist
+                            print(
+                                'Adding SSL cert for sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '".')
+                            for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts['subid-' + subDomainId].items():
+                                # print(imscpSslKey, '->', imscpSslValue)
+                                keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
+                                                     'keyhelpDomainId': keyhelpAddData.keyhelpApiReturnData[
+                                                         'keyhelpDomainId'],
+                                                     'iSslDomainIdna': imscpInputData.imscpData['iSubDomainIdna'],
+                                                     'iSslPrivateKey': imscpSslValue.get('iSslPrivateKey'),
+                                                     'iSslCertificate': imscpSslValue.get('iSslCertificate'),
+                                                     'iSslCaBundle': imscpSslValue.get('iSslCaBundle'),
+                                                     'iSslHstsMaxAge': imscpSslValue.get('iSslHstsMaxAge')}
 
+                                if imscpSslValue.get('iSslAllowHsts') == 'on':
+                                    keyhelpAddApiData['iSslAllowHsts'] = 'true'
+                                else:
+                                    keyhelpAddApiData['iSslAllowHsts'] = 'false'
+                                if imscpSslValue.get('iSslHstsIncludeSubdomains') == 'on':
+                                    keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'true'
+                                else:
+                                    keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'false'
+
+                            keyhelpAddData.addKeyHelpDataToApi(apiEndpointCertificates, keyhelpAddApiData)
+                            if keyhelpAddData.status:
+                                print('SSL cert for domain "' + keyhelpAddApiData[
+                                    'iSslDomainIdna'] + '" added successfully.\n')
+                                print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+
+                                keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
+                                    'keyhelpSslId']
+
+                                keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
+                                if keyhelpAddData.status:
+                                    print('Domain "' + keyhelpAddApiData[
+                                        'iSslDomainIdna'] + '" updated succesfully with SSL cert.\n')
+                                else:
+                                    _global_config.write_log(
+                                        'ERROR updating "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
+                                    print(
+                                        'ERROR updating "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+                            else:
+                                _global_config.write_log(
+                                    'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.')
+                                print(
+                                    'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.\n')
+
+                        print('Adding email addresses for sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '".')
                         # Adding i-MSCP sub domain normal email addresses
                         for imscpEmailsSubDomainsArrayKey, imscpEmailsSubDomainsArrayValue in \
                                 imscpInputData.imscpDomainSubEmailAddressNormal['subid-' + subDomainId].items():
@@ -562,6 +656,54 @@ if __name__ == "__main__":
                     keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
                     print('Domain "' + keyhelpAddApiData['iAliasDomainIdna'] + '" added successfully.\n')
 
+                    if bool(imscpInputData.imscpSslCerts['aliasid-' + aliasDomainParentId]):
+                        # Adding SSL cert if exist
+                        print(
+                            'Adding SSL cert for alias domain "' + aliasDomainParentName + '".')
+                        for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts['aliasid-' + aliasDomainParentId].items():
+                            # print(imscpSslKey, '->', imscpSslValue)
+                            keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
+                                                 'keyhelpDomainId': keyhelpAddData.keyhelpApiReturnData[
+                                                     'keyhelpDomainId'],
+                                                 'iSslDomainIdna': aliasDomainParentName,
+                                                 'iSslPrivateKey': imscpSslValue.get('iSslPrivateKey'),
+                                                 'iSslCertificate': imscpSslValue.get('iSslCertificate'),
+                                                 'iSslCaBundle': imscpSslValue.get('iSslCaBundle'),
+                                                 'iSslHstsMaxAge': imscpSslValue.get('iSslHstsMaxAge')}
+
+                            if imscpSslValue.get('iSslAllowHsts') == 'on':
+                                keyhelpAddApiData['iSslAllowHsts'] = 'true'
+                            else:
+                                keyhelpAddApiData['iSslAllowHsts'] = 'false'
+                            if imscpSslValue.get('iSslHstsIncludeSubdomains') == 'on':
+                                keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'true'
+                            else:
+                                keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'false'
+
+                        keyhelpAddData.addKeyHelpDataToApi(apiEndpointCertificates, keyhelpAddApiData)
+                        if keyhelpAddData.status:
+                            print('SSL cert for domain "' + keyhelpAddApiData[
+                                'iSslDomainIdna'] + '" added successfully.\n')
+                            print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+
+                            keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
+                                'keyhelpSslId']
+
+                            keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
+                            if keyhelpAddData.status:
+                                print('Domain "' + keyhelpAddApiData[
+                                    'iSslDomainIdna'] + '" updated succesfully with SSL cert.\n')
+                            else:
+                                _global_config.write_log(
+                                    'ERROR updating "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
+                                print(
+                                    'ERROR updating "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+                        else:
+                            _global_config.write_log(
+                                'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.')
+                            print(
+                                'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.\n')
+
                     # Adding sub domains for alias domain
                     for imscpAliasSubDomainsArrayKey, imscpAliasSubDomainsArrayValue in \
                             imscpInputData.imscpAliasSubDomains['aliasid-' + aliasDomainParentId].items():
@@ -573,6 +715,8 @@ if __name__ == "__main__":
                         aliasSubDomainId = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainId')
                         keyhelpAddApiData['iAliasSubDomainIdna'] = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainIdna')
                         keyhelpAddApiData['iAliasSubDomainData'] = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainData')
+
+                        iAliasSubDomainIdna = keyhelpAddApiData['iAliasSubDomainIdna']
 
                         print('Adding i-MSCP alias sub domain "' + keyhelpAddApiData[
                             'iAliasSubDomainIdna'] + '" to alias domain "' + aliasDomainParentName + '".')
@@ -588,6 +732,59 @@ if __name__ == "__main__":
                         if keyhelpAddData.status:
                             print('Alias sub domain "' + keyhelpAddApiData[
                                 'iAliasSubDomainIdna'] + '" added successfully.\n')
+
+                            if bool(imscpInputData.imscpSslCerts['aliassubid-' + aliasSubDomainId]):
+                                # Adding SSL cert if exist
+                                print(
+                                    'Adding SSL cert for sub alias domain "' + iAliasSubDomainIdna + '".')
+                                for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts[
+                                    'aliassubid-' + aliasSubDomainId].items():
+                                    # print(imscpSslKey, '->', imscpSslValue)
+                                    keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
+                                                         'keyhelpDomainId': keyhelpAddData.keyhelpApiReturnData[
+                                                             'keyhelpDomainId'],
+                                                         'iSslDomainIdna': iAliasSubDomainIdna,
+                                                         'iSslPrivateKey': imscpSslValue.get('iSslPrivateKey'),
+                                                         'iSslCertificate': imscpSslValue.get('iSslCertificate'),
+                                                         'iSslCaBundle': imscpSslValue.get('iSslCaBundle'),
+                                                         'iSslHstsMaxAge': imscpSslValue.get('iSslHstsMaxAge')}
+
+                                    if imscpSslValue.get('iSslAllowHsts') == 'on':
+                                        keyhelpAddApiData['iSslAllowHsts'] = 'true'
+                                    else:
+                                        keyhelpAddApiData['iSslAllowHsts'] = 'false'
+                                    if imscpSslValue.get('iSslHstsIncludeSubdomains') == 'on':
+                                        keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'true'
+                                    else:
+                                        keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'false'
+
+                                keyhelpAddData.addKeyHelpDataToApi(apiEndpointCertificates, keyhelpAddApiData)
+                                if keyhelpAddData.status:
+                                    print('SSL cert for domain "' + keyhelpAddApiData[
+                                        'iSslDomainIdna'] + '" added successfully.\n')
+                                    print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+
+                                    keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
+                                                             'keyhelpSslId']
+
+                                    keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
+                                    if keyhelpAddData.status:
+                                        print('Domain "' + keyhelpAddApiData[
+                                            'iSslDomainIdna'] + '" updated succesfully with SSL cert.\n')
+                                    else:
+                                        _global_config.write_log(
+                                            'ERROR updating "' + keyhelpAddApiData[
+                                                'iSslDomainIdna'] + '" with SSL cert.')
+                                        print(
+                                            'ERROR updating "' + keyhelpAddApiData[
+                                                'iSslDomainIdna'] + '" with SSL cert.\n')
+                                else:
+                                    _global_config.write_log(
+                                        'ERROR SSL cert for "' + keyhelpAddApiData[
+                                            'iSslDomainIdna'] + '" failed to add.')
+                                    print(
+                                        'ERROR SSL cert for "' + keyhelpAddApiData[
+                                            'iSslDomainIdna'] + '" failed to add.\n')
 
                             # Adding i-MSCP alias sub domain normal email addresses
                             for imscpEmailsAliasSubDomainsArrayKey, imscpEmailsAliasSubDomainsArrayValue in \

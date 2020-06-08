@@ -276,6 +276,34 @@ class KeyHelpAddDataToServer:
         self.keyhelpAddedDbUsernames = []
         self.keyhelpAddedEmailAddresses = []
 
+    def updateKeyHelpDataToApi(self, apiEndPoint, keyHelpData):
+        apiJsonData = self.__makeClientsJsonData(keyHelpData, apiEndPoint, updateData=True)
+        try:
+            responseApi = requests.put(apiUrl + apiEndPoint + '/' + str(keyHelpData['keyhelpDomainId']), data=apiJsonData,
+                                       headers=headers, timeout=apiTimeout, verify=apiServerFqdnVerify)
+        except requests.exceptions.HTTPError as errorApi:
+            raise SystemExit("An Http Error occurred:" + str(errorApi))
+        except requests.exceptions.ConnectionError as errorApi:
+            raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+        except requests.exceptions.Timeout as errorApi:
+            raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+        except requests.exceptions.RequestException as errorApi:
+            raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
+        apiPostData = responseApi.json()
+        if apiEndPoint == 'domains' and responseApi.status_code == 200:
+            _global_config.write_log(
+                'KeyHelp domain "' + str(keyHelpData['iSslDomainIdna'] + '" updated successfully'))
+            print('Please wait...')
+            time.sleep(int(keyhelpSleeptime))
+        else:
+            _global_config.write_log("KeyHelp API Message: %i - %s, Message %s" % (
+                responseApi.status_code, responseApi.reason, apiPostData['message']))
+            print("KeyHelp API Message: %i - %s, Message %s" % (
+                responseApi.status_code, responseApi.reason, apiPostData['message']))
+            self.status = False
+
+
     def addKeyHelpDataToApi(self, apiEndPoint, keyHelpData):
         apiJsonData = self.__makeClientsJsonData(keyHelpData, apiEndPoint)
         try:
@@ -377,6 +405,11 @@ class KeyHelpAddDataToServer:
                         keyHelpData['iFtpUserHomeDir'] + '". In i-MSCP it was: ' +
                         keyHelpData[
                             'iOldFtpUserHomeDir']))
+        elif apiEndPoint == 'certificates' and responseApi.status_code == 201:
+            self.keyhelpApiReturnData['keyhelpSslId'] = apiPostData['id']
+            _global_config.write_log(
+                'SSL cert for domain "' + str(keyHelpData['iSslDomainIdna'] + '" added successfully'))
+            self.status = True
         else:
             _global_config.write_log("KeyHelp API Message: %i - %s, Message %s" % (
                 responseApi.status_code, responseApi.reason, apiPostData['message']))
@@ -384,7 +417,7 @@ class KeyHelpAddDataToServer:
                 responseApi.status_code, responseApi.reason, apiPostData['message']))
             self.status = False
 
-    def __makeClientsJsonData(self, keyHelpData, apiEndPoint):
+    def __makeClientsJsonData(self, keyHelpData, apiEndPoint, updateData=False):
         #### KeyHelp Daten welche befüllt wurden
         # keyhelpInputData.keyhelpData['kdatabaseRoot']
         # keyhelpInputData.keyhelpData['kdatabaseRootPassword']
@@ -425,82 +458,93 @@ class KeyHelpAddDataToServer:
             data['contact_data'] = data_contact
 
         if apiEndPoint == 'domains':
-            keyHelpDataDomain = ''
-            if 'iParentDomainId' in keyHelpData:
-                keyHelpDataParentDomainId = int(keyHelpData['iParentDomainId'])
+            if updateData:
+                data_security = {}
+                data['security'] = {}
+                data_security['id_certificate'] = keyHelpData['keyhelpSslId']
+                data_security['force_https'] = bool(strtobool(str('true')))
+                data_security['is_hsts'] = bool(strtobool(str(keyHelpData['iSslAllowHsts'])))
+                data_security['hsts_max_age'] = keyHelpData['iSslHstsMaxAge']
+                data_security['hsts_include'] = bool(strtobool(str(keyHelpData['iSslHstsIncludeSubdomains'])))
+                data['security'] = data_security
             else:
-                keyHelpDataParentDomainId = 0
+                keyHelpDataDomain = ''
+                if 'iParentDomainId' in keyHelpData:
+                    keyHelpDataParentDomainId = int(keyHelpData['iParentDomainId'])
+                else:
+                    keyHelpDataParentDomainId = 0
 
-            if 'iUsernameDomainIdna' in keyHelpData:
-                keyHelpDataDomain = keyHelpData['iUsernameDomainIdna']
-                keyHelpAdditionalDomainData = keyHelpData['iDomainData'].split("|")
-                keyHelpAdditionalDomainData[0].strip()
-                keyHelpAdditionalDomainData[1].strip()
-                keyHelpAdditionalDomainData[2].strip()
-                keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
-                                                                                    keyHelpAdditionalDomainData[1],
-                                                                                    keyHelpDataDomain,
-                                                                                    keyHelpData['iUsernameDomainIdna'])
-                keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
-            elif 'iAliasDomainIdna' in keyHelpData:
-                keyHelpDataDomain = keyHelpData['iAliasDomainIdna']
-                keyHelpAdditionalDomainData = keyHelpData['iAliasDomainData'].split("|")
-                keyHelpAdditionalDomainData[0].strip()
-                keyHelpAdditionalDomainData[1].strip()
-                keyHelpAdditionalDomainData[2].strip()
-                keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
-                                                                                    keyHelpAdditionalDomainData[1],
-                                                                                    keyHelpDataDomain,
-                                                                                    keyHelpData['iFirstDomainIdna'])
-                keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
-            elif 'iSubDomainIdna' in keyHelpData:
-                keyHelpDataDomain = keyHelpData['iSubDomainIdna']
-                keyHelpAdditionalDomainData = keyHelpData['iSubDomainData'].split("|")
-                keyHelpAdditionalDomainData[0].strip()
-                keyHelpAdditionalDomainData[1].strip()
-                keyHelpAdditionalDomainData[2].strip()
-                keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
-                                                                                    keyHelpAdditionalDomainData[1],
-                                                                                    keyHelpDataDomain,
-                                                                                    keyHelpData['iFirstDomainIdna'])
-                keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
-            elif 'iAliasSubDomainIdna' in keyHelpData:
-                keyHelpDataDomain = keyHelpData['iAliasSubDomainIdna']
-                keyHelpAdditionalDomainData = keyHelpData['iAliasSubDomainData'].split("|")
-                keyHelpAdditionalDomainData[0].strip()
-                keyHelpAdditionalDomainData[1].strip()
-                keyHelpAdditionalDomainData[2].strip()
-                keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
-                                                                                    keyHelpAdditionalDomainData[1],
-                                                                                    keyHelpDataDomain,
-                                                                                    keyHelpData['iFirstDomainIdna'])
-                keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
-            else:
-                print('Fatal Error. No domain name available')
-                exit(1)
+                if 'iUsernameDomainIdna' in keyHelpData:
+                    keyHelpDataDomain = keyHelpData['iUsernameDomainIdna']
+                    keyHelpAdditionalDomainData = keyHelpData['iDomainData'].split("|")
+                    keyHelpAdditionalDomainData[0].strip()
+                    keyHelpAdditionalDomainData[1].strip()
+                    keyHelpAdditionalDomainData[2].strip()
+                    keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
+                                                                                        keyHelpAdditionalDomainData[1],
+                                                                                        keyHelpDataDomain,
+                                                                                        keyHelpData[
+                                                                                            'iUsernameDomainIdna'])
+                    keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
+                elif 'iAliasDomainIdna' in keyHelpData:
+                    keyHelpDataDomain = keyHelpData['iAliasDomainIdna']
+                    keyHelpAdditionalDomainData = keyHelpData['iAliasDomainData'].split("|")
+                    keyHelpAdditionalDomainData[0].strip()
+                    keyHelpAdditionalDomainData[1].strip()
+                    keyHelpAdditionalDomainData[2].strip()
+                    keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
+                                                                                        keyHelpAdditionalDomainData[1],
+                                                                                        keyHelpDataDomain,
+                                                                                        keyHelpData['iFirstDomainIdna'])
+                    keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
+                elif 'iSubDomainIdna' in keyHelpData:
+                    keyHelpDataDomain = keyHelpData['iSubDomainIdna']
+                    keyHelpAdditionalDomainData = keyHelpData['iSubDomainData'].split("|")
+                    keyHelpAdditionalDomainData[0].strip()
+                    keyHelpAdditionalDomainData[1].strip()
+                    keyHelpAdditionalDomainData[2].strip()
+                    keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
+                                                                                        keyHelpAdditionalDomainData[1],
+                                                                                        keyHelpDataDomain,
+                                                                                        keyHelpData['iFirstDomainIdna'])
+                    keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
+                elif 'iAliasSubDomainIdna' in keyHelpData:
+                    keyHelpDataDomain = keyHelpData['iAliasSubDomainIdna']
+                    keyHelpAdditionalDomainData = keyHelpData['iAliasSubDomainData'].split("|")
+                    keyHelpAdditionalDomainData[0].strip()
+                    keyHelpAdditionalDomainData[1].strip()
+                    keyHelpAdditionalDomainData[2].strip()
+                    keyHelpData['iDomainUrlMountpoint'] = self.__keyhelpBuildMountpoint(keyHelpAdditionalDomainData[0],
+                                                                                        keyHelpAdditionalDomainData[1],
+                                                                                        keyHelpDataDomain,
+                                                                                        keyHelpData['iFirstDomainIdna'])
+                    keyHelpData['iDomainUrlForward'] = keyHelpAdditionalDomainData[2]
+                else:
+                    print('Fatal Error. No domain name available')
+                    exit(1)
 
-            data_target = {}
-            data['target'] = {}
-            data_security = {}
-            data['security'] = {}
+                data_target = {}
+                data['target'] = {}
+                data_security = {}
+                data['security'] = {}
 
-            data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
-            data['id_parent_domain'] = keyHelpDataParentDomainId
-            data['domain'] = keyHelpDataDomain
-            data['php_version'] = ""
-            data['is_disabled'] = bool(strtobool(str('false')))
-            data['delete_on'] = ''
-            data['is_dns_disabled'] = bool(strtobool(str(keyHelpData['keyhelpSetDisableDnsForDomain'])))
-            data['is_email_domain'] = bool(strtobool(str('true')))
-            data['create_www_subdomain'] = bool(strtobool(str('true')))
-            data['create_system_domain'] = bool(strtobool(str(keyhelpCreateSystemDomain)))
-            if not keyHelpData['iDomainUrlForward'] == 'no':
-                data_target['target'] = keyHelpData['iDomainUrlForward']
-                data_target['forwarding_type'] = '301'
-            else:
-                data_target['target'] = keyHelpData['iDomainUrlMountpoint']
-            data['target'] = data_target
-            data['security'] = data_security
+                data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
+                data['id_parent_domain'] = keyHelpDataParentDomainId
+                data['domain'] = keyHelpDataDomain
+                data['php_version'] = ""
+                data['is_disabled'] = bool(strtobool(str('false')))
+                data['delete_on'] = ''
+                data['is_dns_disabled'] = bool(strtobool(str(keyHelpData['keyhelpSetDisableDnsForDomain'])))
+                data['is_email_domain'] = bool(strtobool(str('true')))
+                data['create_www_subdomain'] = bool(strtobool(str('true')))
+                data['create_system_domain'] = bool(strtobool(str(keyhelpCreateSystemDomain)))
+                if not keyHelpData['iDomainUrlForward'] == 'no':
+                    data_target['target'] = keyHelpData['iDomainUrlForward']
+                    data_target['forwarding_type'] = '301'
+                else:
+                    data_target['target'] = keyHelpData['iDomainUrlMountpoint']
+                data['target'] = data_target
+                data['security'] = data_security
 
         if apiEndPoint == 'emails':
             data_aliases = []
@@ -550,6 +594,13 @@ class KeyHelpAddDataToServer:
             data['description'] = "FTP user migrated from i-MSCP"
             data['home_directory'] = '/www/' + keyHelpData['iFtpUserHomeDir']
             data['password'] = keyHelpData['iFtpInitialPassword']
+
+        if apiEndPoint == 'certificates':
+            data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
+            data['name'] = 'Import from i-MSCP: ' + keyHelpData['iSslDomainIdna']
+            data['private_key'] = str(keyHelpData['iSslPrivateKey'].decode('utf-8'))
+            data['certificate'] = str(keyHelpData['iSslCertificate'].decode('utf-8'))
+            data['ca_certificate'] = str(keyHelpData['iSslCaBundle'].decode('utf-8'))
 
         jsonData = json.dumps(data)
 

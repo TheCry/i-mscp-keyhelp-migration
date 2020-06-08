@@ -1,4 +1,4 @@
-import requests, time, json, re, configparser, io, os, sys, idna, paramiko, mysql.connector
+import requests, time, json, re, configparser, io, os, sys, idna, paramiko, mysql.connector, base64
 from distutils.util import strtobool
 from paramiko.ssh_exception import BadHostKeyException, AuthenticationException, SSHException
 from mysql.connector import errorcode
@@ -46,6 +46,7 @@ class imscpGetData:
         self.imscpDomainDatabaseNames = {}
         self.imscpDomainDatabaseUsernames = {}
         self.imscpFtpUserNames = {}
+        self.imscpSslCerts = {}
 
     def getImscpMySqlCredentials(self, client):
         if imscpSshPublicKey:
@@ -172,6 +173,8 @@ class imscpGetData:
                 print('Get i-MSCP FTP user data')
                 self.__getImscpFtpUsers(self.imscpData['iUsernameDomainIdna'], self.imscpData['iUsernameDomainAdminId'],
                                         client)
+                self.__getImscpSslCert(self.imscpData['iUsernameDomainId'], self.imscpData['iUsernameDomainIdna'],
+                                       'dmn', client)
 
                 self.complete = True
                 return True
@@ -233,6 +236,8 @@ class imscpGetData:
                                                        self.imscpDomainSubDomains[index]['iSubDomainId'],
                                                        self.imscpDomainSubDomains[index]['iSubDomain'],
                                                        self.imscpDomainSubDomains[index]['iSubDomainIdna'], client)
+                self.__getImscpSslCert(self.imscpDomainSubDomains[index]['iSubDomainId'],
+                                       self.imscpDomainSubDomains[index]['iSubDomainIdna'], 'sub', client)
 
                 _global_config.write_log(
                     '======================= End data for sub domain "' + self.imscpDomainSubDomains[index][
@@ -286,6 +291,8 @@ class imscpGetData:
                 self.imscpDomainAliases[index]['iAliasDomainData'] = imscpAliasDomainData[2] + '|' + \
                                                                      imscpAliasDomainData[3] + '|' + \
                                                                      imscpAliasDomainData[4]
+                self.__getImscpSslCert(self.imscpDomainAliases[index]['iAliasDomainId'],
+                                       self.imscpDomainAliases[index]['iAliasDomainIdna'], 'als', client)
 
                 _global_config.write_log(
                     'Debug i-MSCP informations alias domains:\nAlias domain "' + self.imscpDomainAliases[index][
@@ -363,6 +370,139 @@ class imscpGetData:
         else:
             _global_config.write_log(
                 '======================= End data for FTP users "' + iUsernameDomain + '" =======================\n\n\n')
+
+    def __getImscpSslCert(self, iDomainId, iDomainName, iDomainType, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, \
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData['imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT cert_id, TO_BASE64(private_key), TO_BASE64(certificate), TO_BASE64('
+                                    'ca_bundle), allow_hsts, hsts_max_age, hsts_include_subdomains FROM ' +
+            self.imscpData[
+                'imysqldatabase'] + '.ssl_certs WHERE domain_id = \'' + iDomainId + '\' AND domain_type = \'' + iDomainType + '\' AND ca_bundle != \'\' AND status = \'ok\'"')
+
+        '''print(
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData['imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT cert_id, TO_BASE64(private_key), TO_BASE64(certificate), TO_BASE64('
+                                    'ca_bundle), allow_hsts, hsts_max_age, hsts_include_subdomains FROM ' +
+            self.imscpData[
+                'imysqldatabase'] + '.ssl_certs WHERE domain_id = \'' + iDomainId + '\' AND domain_type = \'' + iDomainType + '\' AND ca_bundle != \'\' AND status = \'ok\'"')'''
+        i = 0
+        dataLine = ''
+
+        if iDomainType == 'dmn':
+            self.imscpSslCerts['domainid-' + iDomainId] = {}
+        if iDomainType == 'sub':
+            self.imscpSslCerts['subid-' + iDomainId] = {}
+        if iDomainType == 'als':
+            self.imscpSslCerts['aliasid-' + iDomainId] = {}
+        if iDomainType == 'alssub':
+            self.imscpSslCerts['aliassubid-' + iDomainId] = {}
+        for line in stdout:
+            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            imscpSslData = dataLine.split("|")
+            imscpSslData[0].strip()
+            imscpSslData[1].strip()
+            imscpSslData[1] = re.sub(r"\\n", "", imscpSslData[1], flags=re.UNICODE)
+            imscpSslData[2].strip()
+            imscpSslData[2] = re.sub(r"\\n", "", imscpSslData[2], flags=re.UNICODE)
+            imscpSslData[3].strip()
+            imscpSslData[3] = re.sub(r"\\n", "", imscpSslData[3], flags=re.UNICODE)
+            imscpSslData[4].strip()
+            imscpSslData[5].strip()
+            imscpSslData[6].strip()
+
+            index = int(imscpSslData[0])
+
+            if iDomainType == 'dmn':
+                self.imscpSslCerts['domainid-' + iDomainId][index] = {}
+                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
+                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslPrivateKey'] = base64.b64decode(
+                    imscpSslData[1] + "==")
+                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCertificate'] = base64.b64decode(
+                    imscpSslData[2] + "==")
+                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCaBundle'] = base64.b64decode(
+                    imscpSslData[3] + "==")
+                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslAllowHsts'] = imscpSslData[4]
+                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
+                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
+
+                #print(str(self.imscpSslCerts['domainid-' + iDomainId][index]['iSslPrivateKey'].decode('utf-8')))
+                #print(str(self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCertificate'].decode('utf-8')))
+                #print(str(self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCaBundle'].decode('utf-8')))
+            if iDomainType == 'sub':
+                self.imscpSslCerts['subid-' + iDomainId][index] = {}
+                self.imscpSslCerts['subid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
+                self.imscpSslCerts['subid-' + iDomainId][index]['iSslPrivateKey'] = str(base64.b64decode(
+                    imscpSslData[1] + "=="))
+                self.imscpSslCerts['subid-' + iDomainId][index]['iSslCertificate'] = str(base64.b64decode(
+                    imscpSslData[2] + "=="))
+                self.imscpSslCerts['subid-' + iDomainId][index]['iSslCaBundle'] = str(base64.b64decode(
+                    imscpSslData[3] + "=="))
+                self.imscpSslCerts['subid-' + iDomainId][index]['iSslAllowHsts'] = imscpSslData[4]
+                self.imscpSslCerts['subid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
+                self.imscpSslCerts['subid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
+
+                #print(str(self.imscpSslCerts['subid-' + iDomainId][index]['iSslPrivateKey']))
+                #print(str(self.imscpSslCerts['subid-' + iDomainId][index]['iSslCertificate']))
+                #print(str(self.imscpSslCerts['subid-' + iDomainId][index]['iSslCaBundle']))
+            if iDomainType == 'als':
+                self.imscpSslCerts['aliasid-' + iDomainId][index] = {}
+                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
+                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslPrivateKey'] = base64.b64decode(
+                    imscpSslData[1] + "==")
+                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCertificate'] = base64.b64decode(
+                    imscpSslData[2] + "==")
+                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCaBundle'] = base64.b64decode(
+                    imscpSslData[3] + "==")
+                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslAllowHsts'] = imscpSslData[4]
+                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
+                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
+
+                #print(str(self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslPrivateKey'].decode('utf-8')))
+                #print(str(self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCertificate'].decode('utf-8')))
+                #print(str(self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCaBundle'].decode('utf-8')))
+            if iDomainType == 'alssub':
+                self.imscpSslCerts['aliassubid-' + iDomainId][index] = {}
+                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
+                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslPrivateKey'] = base64.b64decode(
+                    imscpSslData[1] + "==")
+                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCertificate'] = base64.b64decode(
+                    imscpSslData[2] + "==")
+                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCaBundle'] = base64.b64decode(
+                    imscpSslData[3] + "==")
+                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslAllowHsts'] = imscpSslData[4]
+                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
+                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
+
+                #print(str(self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslPrivateKey'].decode('utf-8')))
+                #print(str(self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCertificate'].decode('utf-8')))
+                #print(str(self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCaBundle'].decode('utf-8')))
+
+            _global_config.write_log(
+                'Debug i-MSCP informations SSL certs:\nSSL cert found for the i-MSCP domain "' + iDomainName + '"\n')
+            if showDebug:
+                print(
+                    'Debug i-MSCP informations SSL certs:\nSSL cert found for the i-MSCP domain "' + iDomainName + '"\n')
+
+            i += 1
+
+        if i == 0:
+            _global_config.write_log(
+                'Debug i-MSCP informations SSL Certs:\nNo SSL cert found for the i-MSCP domain "' + iDomainName + '"\n')
+            if showDebug:
+                print(
+                    'Debug i-MSCP informations SSL certs:\nNo SSL cert found for the i-MSCP domain "' + iDomainName + '"\n')
+        else:
+            _global_config.write_log(
+                '======================= End data for SSL certs "' + iDomainName + '" =======================\n\n\n')
 
     def __getImscpDomainDatabases(self, iUsernameDomainId, iUsernameDomain, iUsernameDomainIdna, client):
         if imscpSshPublicKey:
@@ -509,6 +649,9 @@ class imscpGetData:
                     imscpAliasSubDomainData[1] + '.' + iAliasDomain).decode('utf-8')
                 self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index]['iAliasSubDomainData'] = \
                     imscpAliasSubDomainData[2] + '|' + imscpAliasSubDomainData[3] + '|' + imscpAliasSubDomainData[4]
+                self.__getImscpSslCert(
+                    self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index]['iAliasSubDomainId'],
+                    self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index]['iAliasSubDomain'], 'alssub', client)
 
                 _global_config.write_log('Debug i-MSCP informations alias sub domains:\nAlias sub domain "' +
                                          self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index][
