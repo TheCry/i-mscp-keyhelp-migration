@@ -1168,7 +1168,6 @@ if __name__ == "__main__":
                 #### KeyHelp Daten welche befüllt wurden
                 # keyhelpInputData.keyhelpData['kdatabaseRoot']
                 # keyhelpInputData.keyhelpData['kdatabaseRootPassword']
-                print('Start import i-MSCP database dumps.')
                 for newDatabaseName, oldDatabaseName in keyhelpAddedDatabases.items():
                     if os.path.isfile(str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
                             newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz'):
@@ -1194,8 +1193,8 @@ if __name__ == "__main__":
                                 sys.stdout.write('\r' + str(output))
                                 sys.stdout.flush()
 
-                        print('\nFinished - Dump ' + str(newDatabaseName) + '__' + str(
-                            oldDatabaseName) + '_sql.gz succesfully imported to DB: ' + str(newDatabaseName))
+                        print('Finished - Dump ' + str(newDatabaseName) + '__' + str(
+                            oldDatabaseName) + '_sql.gz succesfully imported to DB: ' + str(newDatabaseName) + '\n')
 
                 print('\nStart syncing emails.... Please wait')
                 for rsyncEmailAddress in keyhelpAddData.keyhelpAddedEmailAddresses:
