@@ -25,3 +25,6 @@ cd ~
 ssh-keygen -b 4096 -m PEM -t rsa
 ssh-copy-id -i .ssh/id_rsa.pub -p 22 FQDN-Remote-Server
 ```
+## Doings if something went wrong with API communication
+* First delete the new added KeyHelp user
+* Check as admin wheter a SSL cert was added while the last run and delete it
