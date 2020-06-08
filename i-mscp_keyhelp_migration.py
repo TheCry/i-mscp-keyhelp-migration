@@ -1175,10 +1175,27 @@ if __name__ == "__main__":
                         print('Start import i-MSCP database dump "' + str(newDatabaseName) + '__' + str(
                             oldDatabaseName) + '_sql.gz" to database "' + str(newDatabaseName) + '"')
 
-                        os.system("zcat " + str(imscpInputData.imscpData['iUsernameDomainIdna']) + "_mysqldumps/" + str(
-                            newDatabaseName) + "__" + str(oldDatabaseName) + "_sql.gz | mysql -u" + str(
+                        cmd = "pv -f --progress --name \"DB Import in progress\" -tea " + str(
+                            imscpInputData.imscpData['iUsernameDomainIdna']) + "_mysqldumps/" + str(
+                            newDatabaseName) + "__" + str(oldDatabaseName) + "_sql.gz | zcat | mysql -u" + str(
                             keyhelpInputData.keyhelpData['kdatabaseRoot']) + " -p" + str(
-                            keyhelpInputData.keyhelpData['kdatabaseRootPassword']) + " " + str(newDatabaseName))
+                            keyhelpInputData.keyhelpData['kdatabaseRootPassword']) + " " + str(newDatabaseName)
+                        proc = subprocess.Popen(cmd,
+                                                shell=True,
+                                                stdin=subprocess.PIPE,
+                                                stdout=subprocess.PIPE,
+                                                universal_newlines=True
+                                                )
+                        while True:
+                            output = proc.stdout.readline()
+                            if not output:
+                                break
+                            if 'progress' in str(output):
+                                sys.stdout.write('\r' + str(output))
+                                sys.stdout.flush()
+
+                        print('\nFinished - Dump ' + str(newDatabaseName) + '__' + str(
+                            oldDatabaseName) + '_sql.gz succesfully imported to DB: ' + str(newDatabaseName))
 
                 print('\nStart syncing emails.... Please wait')
                 for rsyncEmailAddress in keyhelpAddData.keyhelpAddedEmailAddresses:
