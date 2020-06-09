@@ -275,6 +275,7 @@ class KeyHelpAddDataToServer:
         self.keyhelpApiReturnData = dict()
         self.keyhelpAddedDbUsernames = []
         self.keyhelpAddedEmailAddresses = []
+        self.keyhelpAddedDomains = []
 
     def updateKeyHelpDataToApi(self, apiEndPoint, keyHelpData):
         apiJsonData = self.__makeClientsJsonData(keyHelpData, apiEndPoint, updateData=True)
@@ -350,6 +351,7 @@ class KeyHelpAddDataToServer:
         elif apiEndPoint == 'domains' and responseApi.status_code == 201:
             self.keyhelpApiReturnData['keyhelpDomainId'] = apiPostData['id']
             if 'iUsernameDomainIdna' in keyHelpData:
+                self.keyhelpAddedDomains.append(keyHelpData['iUsernameDomainIdna'])
                 _global_config.write_log(
                     'KeyHelp domain "' + str(keyHelpData['iUsernameDomainIdna']) + '" added successfully')
                 _global_config.write_log('KeyHelp domain: "' + str(keyHelpData['iUsernameDomainIdna']) + '"')
@@ -357,6 +359,7 @@ class KeyHelpAddDataToServer:
                     'KeyHelp domain id: "' + str(self.keyhelpApiReturnData['keyhelpDomainId']) + '"')
                 self.status = True
             elif 'iAliasDomainIdna' in keyHelpData:
+                self.keyhelpAddedDomains.append(keyHelpData['iAliasDomainIdna'])
                 _global_config.write_log(
                     'KeyHelp domain "' + str(keyHelpData['iAliasDomainIdna'] + '" added successfully'))
                 _global_config.write_log('KeyHelp domain: "' + str(keyHelpData['iAliasDomainIdna']) + '"')
@@ -364,6 +367,7 @@ class KeyHelpAddDataToServer:
                     'KeyHelp domain id: "' + str(self.keyhelpApiReturnData['keyhelpDomainId']) + '"')
                 self.status = True
             elif 'iSubDomainIdna' in keyHelpData:
+                self.keyhelpAddedDomains.append(keyHelpData['iSubDomainIdna'])
                 _global_config.write_log(
                     'KeyHelp sub domain "' + str(keyHelpData['iSubDomainIdna'] + '" added successfully'))
                 _global_config.write_log('KeyHelp sub domain: "' + str(keyHelpData['iSubDomainIdna']) + '"')
@@ -371,6 +375,7 @@ class KeyHelpAddDataToServer:
                     'KeyHelp domain id: "' + str(self.keyhelpApiReturnData['keyhelpDomainId']) + '"')
                 self.status = True
             elif 'iAliasSubDomainIdna' in keyHelpData:
+                self.keyhelpAddedDomains.append(keyHelpData['iAliasSubDomainIdna'])
                 _global_config.write_log(
                     'KeyHelp sub domain "' + str(keyHelpData['iAliasSubDomainIdna'] + '" added successfully'))
                 _global_config.write_log('KeyHelp sub domain: "' + str(keyHelpData['iAliasSubDomainIdna']) + '"')

@@ -145,6 +145,7 @@ class imscpGetData:
                 imscpUsernameData[2].strip()
                 imscpUsernameData[3].strip()
                 imscpUsernameData[4].strip()
+                self.imscpData['iUsernameDomainRsync'] = True
                 self.imscpData['iUsernameDomainId'] = imscpUsernameData[0]
                 self.imscpData['iUsernameDomain'] = iUsername
                 self.imscpData['iUsernameDomainIdna'] = imscpUsernameData[1]
@@ -221,6 +222,11 @@ class imscpGetData:
             index = int(imscpSubDomainData[0])
 
             self.imscpDomainSubDomains[index] = {}
+            if imscpSubDomainData[1] in imscpSubDomainData[2] and imscpSubDomainData[4] == 'no':
+                self.imscpDomainSubDomains[index]['iSubDomainRsync'] = True
+            else:
+                self.imscpDomainSubDomains[index]['iSubDomainRsync'] = False
+
             self.imscpDomainSubDomains[index]['iSubDomainId'] = imscpSubDomainData[0]
             self.imscpDomainSubDomains[index]['iSubDomain'] = imscpSubDomainData[1] + '.' + iUsernameDomainIdna
             self.imscpDomainSubDomains[index]['iSubDomainIdna'] = idna.encode(
@@ -289,6 +295,11 @@ class imscpGetData:
             index = int(imscpAliasDomainData[0])
 
             self.imscpDomainAliases[index] = {}
+            if imscpAliasDomainData[1] in imscpAliasDomainData[2] and imscpAliasDomainData[4] == 'no':
+                self.imscpDomainAliases[index]['iAliasDomainRsync'] = True
+            else:
+                self.imscpDomainAliases[index]['iAliasDomainRsync'] = False
+
             self.imscpDomainAliases[index]['iAliasDomainId'] = imscpAliasDomainData[0]
             self.imscpDomainAliases[index]['iAliasDomain'] = imscpAliasDomainData[1]
             self.imscpDomainAliases[index]['iAliasDomainIdna'] = idna.encode(imscpAliasDomainData[1]).decode(
@@ -712,6 +723,11 @@ class imscpGetData:
             index = int(imscpAliasSubDomainData[0])
 
             self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index] = {}
+            if imscpAliasSubDomainData[1] in imscpAliasSubDomainData[2] and imscpAliasSubDomainData[4] == 'no':
+                self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index]['iAliasSubDomainRsync'] = True
+            else:
+                self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index]['iAliasSubDomainRsync'] = False
+
             self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index]['iAliasSubDomainId'] = \
                 imscpAliasSubDomainData[0]
             self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index]['iAliasSubDomain'] = \

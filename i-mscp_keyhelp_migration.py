@@ -379,15 +379,15 @@ if __name__ == "__main__":
                         print('ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.\n')
 
                 # Adding sub domains for domain
-                for imscpSubDomainsArrayKey, imscpSubDomainsArrayValue in imscpInputData.imscpDomainSubDomains.items():
-                    # print(imscpSubDomainsArrayKey, '->', imscpSubDomainsArrayValue)
+                for imscpSubDomainsKey, imscpSubDomainsValue in imscpInputData.imscpDomainSubDomains.items():
+                    # print(imscpSubDomainsKey, '->', imscpSubDomainsValue)
                     keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
                                          'iParentDomainId': keyHelpParentDomainId,
                                          'iFirstDomainIdna': imscpInputData.imscpData['iUsernameDomainIdna']}
 
-                    subDomainId = imscpSubDomainsArrayValue.get('iSubDomainId')
-                    keyhelpAddApiData['iSubDomainIdna'] = imscpSubDomainsArrayValue.get('iSubDomainIdna')
-                    keyhelpAddApiData['iSubDomainData'] = imscpSubDomainsArrayValue.get('iSubDomainData')
+                    subDomainId = imscpSubDomainsValue.get('iSubDomainId')
+                    keyhelpAddApiData['iSubDomainIdna'] = imscpSubDomainsValue.get('iSubDomainIdna')
+                    keyhelpAddApiData['iSubDomainData'] = imscpSubDomainsValue.get('iSubDomainData')
 
                     print('Adding i-MSCP sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '" to domain "' +
                           imscpInputData.imscpData['iUsernameDomainIdna'] + '".')
@@ -406,7 +406,8 @@ if __name__ == "__main__":
                             # Adding SSL cert if exist
                             print(
                                 'Adding SSL cert for sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '".')
-                            for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts['subid-' + subDomainId].items():
+                            for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts[
+                                'subid-' + subDomainId].items():
                                 # print(imscpSslKey, '->', imscpSslValue)
                                 keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
                                                      'keyhelpDomainId': keyhelpAddData.keyhelpApiReturnData[
@@ -458,15 +459,18 @@ if __name__ == "__main__":
                             keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
                                                  'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                             if bool(imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId]):
-                                for domKey, domValue in imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId].items():
+                                for domKey, domValue in imscpInputData.imscpDomainSubEmailAddressNormalCatchAll[
+                                    'subid-' + subDomainId].items():
                                     keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
                             keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
                             keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
                                 'kdatabaseRootPassword']
-                            keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailQuota')
+                            keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsSubDomainsArrayValue.get(
+                                'iEmailMailQuota')
                             keyhelpAddApiData['iEmailAddress'] = imscpEmailsSubDomainsArrayValue.get('iEmailAddress')
-                            keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailPassword')
+                            keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsSubDomainsArrayValue.get(
+                                'iEmailMailPassword')
 
                             keyhelpAddApiData['iEmailMailInitialPassword'] = \
                                 keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
@@ -487,16 +491,20 @@ if __name__ == "__main__":
                             keyhelpAddApiData = {'emailStoreForward': True, 'iEmailCatchall': '',
                                                  'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                             if bool(imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId]):
-                                for domKey, domValue in imscpInputData.imscpDomainSubEmailAddressNormalCatchAll['subid-' + subDomainId].items():
+                                for domKey, domValue in imscpInputData.imscpDomainSubEmailAddressNormalCatchAll[
+                                    'subid-' + subDomainId].items():
                                     keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
                             keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
                             keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
                                 'kdatabaseRootPassword']
-                            keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailQuota')
-                            keyhelpAddApiData['iEmailMailForward'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailForward')
+                            keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsSubDomainsArrayValue.get(
+                                'iEmailMailQuota')
+                            keyhelpAddApiData['iEmailMailForward'] = imscpEmailsSubDomainsArrayValue.get(
+                                'iEmailMailForward')
                             keyhelpAddApiData['iEmailAddress'] = imscpEmailsSubDomainsArrayValue.get('iEmailAddress')
-                            keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailPassword')
+                            keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsSubDomainsArrayValue.get(
+                                'iEmailMailPassword')
 
                             keyhelpAddApiData['iEmailMailInitialPassword'] = \
                                 keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
@@ -523,7 +531,8 @@ if __name__ == "__main__":
 
                             # 5MB for only Forward
                             keyhelpAddApiData['iEmailMailQuota'] = '5242880'
-                            keyhelpAddApiData['iEmailMailForward'] = imscpEmailsSubDomainsArrayValue.get('iEmailMailForward')
+                            keyhelpAddApiData['iEmailMailForward'] = imscpEmailsSubDomainsArrayValue.get(
+                                'iEmailMailForward')
                             keyhelpAddApiData['iEmailAddress'] = imscpEmailsSubDomainsArrayValue.get('iEmailAddress')
                             # False because there is no need to update the password with an old one
                             keyhelpAddApiData['iEmailMailPassword'] = False
@@ -634,14 +643,14 @@ if __name__ == "__main__":
                 print('ERROR "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" failed to add.\n')
 
             # Adding i-MSCP alias domains
-            for imscpDomainAliasesArrayKey, imscpDomainAliasesArrayValue in imscpInputData.imscpDomainAliases.items():
-                # print(imscpDomainAliasesArrayKey, '->', imscpDomainAliasesArrayValue)
+            for imscpDomainAliasesKey, imscpDomainAliasesValue in imscpInputData.imscpDomainAliases.items():
+                # print(imscpDomainAliasesKey, '->', imscpDomainAliasesValue)
                 keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
                                      'iFirstDomainIdna': imscpInputData.imscpData['iUsernameDomainIdna']}
-                aliasDomainParentId = imscpDomainAliasesArrayValue.get('iAliasDomainId')
-                aliasDomainParentName = imscpDomainAliasesArrayValue.get('iAliasDomainIdna')
-                keyhelpAddApiData['iAliasDomainIdna'] = imscpDomainAliasesArrayValue.get('iAliasDomainIdna')
-                keyhelpAddApiData['iAliasDomainData'] = imscpDomainAliasesArrayValue.get('iAliasDomainData')
+                aliasDomainParentId = imscpDomainAliasesValue.get('iAliasDomainId')
+                aliasDomainParentName = imscpDomainAliasesValue.get('iAliasDomainIdna')
+                keyhelpAddApiData['iAliasDomainIdna'] = imscpDomainAliasesValue.get('iAliasDomainIdna')
+                keyhelpAddApiData['iAliasDomainData'] = imscpDomainAliasesValue.get('iAliasDomainData')
 
                 print('Adding i-MSCP alias domain "' + keyhelpAddApiData['iAliasDomainIdna'] + '" to KeyHelpUser "' +
                       keyhelpInputData.keyhelpData['kusername'] + '".')
@@ -662,7 +671,8 @@ if __name__ == "__main__":
                         # Adding SSL cert if exist
                         print(
                             'Adding SSL cert for alias domain "' + aliasDomainParentName + '".')
-                        for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts['aliasid-' + aliasDomainParentId].items():
+                        for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts[
+                            'aliasid-' + aliasDomainParentId].items():
                             # print(imscpSslKey, '->', imscpSslValue)
                             keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
                                                  'keyhelpDomainId': keyhelpAddData.keyhelpApiReturnData[
@@ -707,16 +717,18 @@ if __name__ == "__main__":
                                 'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.\n')
 
                     # Adding sub domains for alias domain
-                    for imscpAliasSubDomainsArrayKey, imscpAliasSubDomainsArrayValue in \
+                    for imscpAliasSubDomainsKey, imscpAliasSubDomainsValue in \
                             imscpInputData.imscpAliasSubDomains['aliasid-' + aliasDomainParentId].items():
-                        # print(imscpAliasSubDomainsArrayKey, '->', imscpAliasSubDomainsArrayValue)
+                        # print(imscpAliasSubDomainsKey, '->', imscpAliasSubDomainsValue)
                         keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
                                              'iParentDomainId': keyHelpParentDomainId,
                                              'iFirstDomainIdna': imscpInputData.imscpData['iUsernameDomainIdna']}
 
-                        aliasSubDomainId = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainId')
-                        keyhelpAddApiData['iAliasSubDomainIdna'] = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainIdna')
-                        keyhelpAddApiData['iAliasSubDomainData'] = imscpAliasSubDomainsArrayValue.get('iAliasSubDomainData')
+                        aliasSubDomainId = imscpAliasSubDomainsValue.get('iAliasSubDomainId')
+                        keyhelpAddApiData['iAliasSubDomainIdna'] = imscpAliasSubDomainsValue.get(
+                            'iAliasSubDomainIdna')
+                        keyhelpAddApiData['iAliasSubDomainData'] = imscpAliasSubDomainsValue.get(
+                            'iAliasSubDomainData')
 
                         iAliasSubDomainIdna = keyhelpAddApiData['iAliasSubDomainIdna']
 
@@ -767,7 +779,7 @@ if __name__ == "__main__":
                                     print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
 
                                     keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
-                                                             'keyhelpSslId']
+                                        'keyhelpSslId']
 
                                     keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                                     if keyhelpAddData.status:
@@ -907,7 +919,8 @@ if __name__ == "__main__":
                         keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
                                              'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
                         if bool(imscpInputData.imscpAliasEmailAddressNormalCatchAll):
-                            for domKey, domValue in imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId].items():
+                            for domKey, domValue in imscpInputData.imscpAliasEmailAddressNormalCatchAll[
+                                'aliasid-' + aliasDomainParentId].items():
                                 keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
                         keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
@@ -971,7 +984,8 @@ if __name__ == "__main__":
                         keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
                                              'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
                         if bool(imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId]):
-                            for domKey, domValue in imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId].items():
+                            for domKey, domValue in imscpInputData.imscpAliasEmailAddressNormalCatchAll[
+                                'aliasid-' + aliasDomainParentId].items():
                                 keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
 
                         # 5MB for only Forward
@@ -1005,11 +1019,12 @@ if __name__ == "__main__":
                     # print(imscpDatabasesKey, '->', imscpDatabasesValue)
                     databaseParentId = imscpDatabasesValue.get('iDatabaseId')
                     if re.match("^\d+", str(imscpDatabasesValue.get('iDatabaseName'))):
-                        keyhelpAddApiData['iDatabaseName'] = re.sub("^\d+", 'db'+str(addedKeyHelpUserId),
+                        keyhelpAddApiData['iDatabaseName'] = re.sub("^\d+", 'db' + str(addedKeyHelpUserId),
                                                                     str(imscpDatabasesValue.get('iDatabaseName')),
                                                                     flags=re.UNICODE)
                     else:
-                        keyhelpAddApiData['iDatabaseName'] = 'db'+str(addedKeyHelpUserId) + '_' + imscpDatabasesValue.get(
+                        keyhelpAddApiData['iDatabaseName'] = 'db' + str(
+                            addedKeyHelpUserId) + '_' + imscpDatabasesValue.get(
                             'iDatabaseName')
 
                     keyhelpAddApiData['iOldDatabaseName'] = imscpDatabasesValue.get('iDatabaseName')
@@ -1025,24 +1040,28 @@ if __name__ == "__main__":
                             if keyhelpAddApiData['iDatabaseUsername'] == '':
                                 if databaseParentId == dbUserValue.get('iDatabaseId'):
                                     if re.match("^\d+", str(dbUserValue.get('iDatabaseUsername'))):
-                                        keyhelpAddApiData['iDatabaseUsername'] = re.sub("^\d+", 'dbu'+str(addedKeyHelpUserId),
+                                        keyhelpAddApiData['iDatabaseUsername'] = re.sub("^\d+",
+                                                                                        'dbu' + str(addedKeyHelpUserId),
                                                                                         str(dbUserValue.get(
                                                                                             'iDatabaseUsername')),
                                                                                         flags=re.UNICODE)
                                     else:
                                         keyhelpAddApiData[
-                                            'iDatabaseUsername'] = 'dbu'+str(addedKeyHelpUserId) + '_' + str(dbUserValue.get(
-                                            'iDatabaseUsername'))
+                                            'iDatabaseUsername'] = 'dbu' + str(addedKeyHelpUserId) + '_' + str(
+                                            dbUserValue.get(
+                                                'iDatabaseUsername'))
 
                                     keyhelpAddApiData['iDatabaseUserHost'] = str(dbUserValue.get('iDatabaseUserHost'))
                                     keyhelpAddApiData[
-                                        'iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(10)
+                                        'iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(
+                                        10)
 
                                 # If an i-MSCP has only one db user we need to extend teh username
                                 while True:
                                     i = 1
                                     if keyhelpAddApiData['iDatabaseUsername'] in keyhelpAddData.keyhelpAddedDbUsernames:
-                                        keyhelpAddApiData['iDatabaseUsername'] = str(keyhelpAddApiData['iDatabaseUsername'])+'_'+str(i)
+                                        keyhelpAddApiData['iDatabaseUsername'] = str(
+                                            keyhelpAddApiData['iDatabaseUsername']) + '_' + str(i)
                                         i += 1
                                     else:
                                         break
@@ -1129,7 +1148,8 @@ if __name__ == "__main__":
                 try:
                     if os.path.exists(
                             imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_database.log'):
-                        os.remove(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_database.log')
+                        os.remove(
+                            imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_database.log')
 
                     client = paramiko.SSHClient()
                     client.load_system_host_keys()
@@ -1163,12 +1183,17 @@ if __name__ == "__main__":
                                 newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz.')
 
                             # Workarround for sftp - An error for the local file appears, if not exist
-                            if not os.path.isfile(str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz'):
-                                open(str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', 'a').close()
+                            if not os.path.isfile(
+                                    str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
+                                        newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz'):
+                                open(str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
+                                    newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', 'a').close()
                                 time.sleep(1)
 
-                            get_remote_file = sftp_client.get(str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz',
-                                                              str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', callback=pbar.viewBar)
+                            get_remote_file = sftp_client.get(
+                                str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz',
+                                str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
+                                    newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', callback=pbar.viewBar)
                         # remove the remote sql dump
                         print(
                             '\nRemoving database dump "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz" on remote server.\n')
@@ -1226,17 +1251,18 @@ if __name__ == "__main__":
                     emailAddressData[1].strip()
                     if imscpSshPublicKey:
                         cmd = 'rsync -aHAXSz --info=progress --numeric-ids -e "ssh -i ' + imscpSshPublicKey + ' -p ' + \
-                                imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
-                                imscpSshUsername + '@' + imscpServerFqdn + ':/var/mail/virtual/' + \
-                                emailAddressData[1] + '/' + emailAddressData[0] + '/ /var/mail/vhosts/' + \
-                                emailAddressData[1] + '/' + emailAddressData[0] + '/'
+                              imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                              imscpSshUsername + '@' + imscpServerFqdn + ':/var/mail/virtual/' + \
+                              emailAddressData[1] + '/' + emailAddressData[0] + '/ /var/mail/vhosts/' + \
+                              emailAddressData[1] + '/' + emailAddressData[0] + '/'
                     else:
                         cmd = 'rsync -aHAXSz --info=progress --numeric-ids -e "sshpass -p ' + imscpRootPassword + ' ssh -p ' + \
                               imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                               imscpSshUsername + '@' + imscpServerFqdn + ':/var/mail/virtual/' + \
                               emailAddressData[1] + '/' + emailAddressData[0] + '/ /var/mail/vhosts/' + \
                               emailAddressData[1] + '/' + emailAddressData[0] + '/'
-                    proc = subprocess.Popen(cmd, shell=True,    stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+                    proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                     while True:
                         output = proc.stdout.readline().decode('utf-8')
                         if not output:
@@ -1245,7 +1271,8 @@ if __name__ == "__main__":
                             m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                             total_files = int(m[0][1])
                             progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                            sys.stdout.write('\rSyncing of emails for ' + str(rsyncEmailAddress) + ' done: ' + str(round(progress, 2)) + '%')
+                            sys.stdout.write('\rSyncing of emails for ' + str(rsyncEmailAddress) + ' done: ' + str(
+                                round(progress, 2)) + '%')
                             sys.stdout.flush()
                             if int(m[0][0]) == 0:
                                 break
@@ -1254,6 +1281,219 @@ if __name__ == "__main__":
                         0] + '/')
                     print('System owner for email address "' + str(rsyncEmailAddress) + '". successfully updated.\n')
                     time.sleep(1)
+
+                print('\nStart syncing webspace.... Please wait')
+                firstDomainIdna = str(imscpInputData.imscpData['iUsernameDomainIdna'])
+                # Rsync i-MSCP first domain
+                if imscpInputData.imscpData['iUsernameDomainRsync'] and imscpInputData.imscpData[
+                    'iUsernameDomainIdna'] in keyhelpAddData.keyhelpAddedDomains:
+                    print('\nSyncing webspace from domain "' + str(
+                        imscpInputData.imscpData['iUsernameDomainIdna']) + '" :')
+                    keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
+                    additionalDomainData = imscpInputData.imscpData['iDomainData'].split("|")
+                    additionalDomainData[1].strip()
+                    remoteRsyncFolder = '/var/www/virtual/' + firstDomainIdna + str(additionalDomainData[1]) + '/'
+                    localRsyncFolder = '/home/users/' + keyHelpUsername + '/www/' + str(
+                        imscpInputData.imscpData['iUsernameDomainIdna']) + '/'
+
+                    if imscpSshPublicKey:
+                        cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
+                              imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                              imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
+                    else:
+                        cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
+                              imscpRootPassword + ' ssh -p ' + \
+                              imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                              imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
+
+                    proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                    while True:
+                        output = proc.stdout.readline().decode('utf-8')
+                        if not output:
+                            break
+                        if '-chk' in str(output):
+                            m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
+                            total_files = int(m[0][1])
+                            progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
+                            sys.stdout.write('\rSyncing of webspace ' + str(
+                                imscpInputData.imscpData['iUsernameDomainIdna']) + ' done: ' + str(
+                                round(progress, 2)) + '%')
+                            sys.stdout.flush()
+                            if int(m[0][0]) == 0:
+                                break
+                    print('\nFinished syncing webspace "' + str(imscpInputData.imscpData['iUsernameDomainIdna']) + '".')
+                    os.system(
+                        'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/')
+                    print('System owner for webspace "' + str(
+                        imscpInputData.imscpData['iUsernameDomainIdna']) + '". successfully updated.\n')
+                    time.sleep(1)
+                else:
+                    print('\nIgnore syncing from domain "' + str(
+                        imscpInputData.imscpData['iUsernameDomainRsync']) + '" !')
+
+                # Rsync i-MSCP sub domains
+                for imscpSubDomainsKey, imscpSubDomainsValue in imscpInputData.imscpDomainSubDomains.items():
+                    # print(imscpSubDomainsKey, '->', imscpSubDomainsValue)
+                    if imscpSubDomainsValue.get('iSubDomainRsync') and imscpSubDomainsValue.get(
+                            'iSubDomainIdna') in keyhelpAddData.keyhelpAddedDomains:
+                        print('\nSyncing webspace from sub domain "' + str(
+                            imscpSubDomainsValue.get('iSubDomainIdna')) + '" :')
+                        keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
+                        additionalDomainData = imscpSubDomainsValue.get('iSubDomainData').split("|")
+                        additionalDomainData[0].strip()
+                        subDomainfolder = additionalDomainData[0].split(".")[0]
+                        additionalDomainData[1].strip()
+                        remoteRsyncFolder = '/var/www/virtual/' + firstDomainIdna + str(subDomainfolder) + str(
+                            additionalDomainData[1]) + '/'
+                        localRsyncFolder = '/home/users/' + keyHelpUsername + '/www/' + str(
+                            imscpSubDomainsValue.get('iSubDomainIdna')) + '/'
+
+                        if imscpSshPublicKey:
+                            cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
+                                  imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                                  imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
+                        else:
+                            cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
+                                  imscpRootPassword + ' ssh -p ' + \
+                                  imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
+
+                        proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                        while True:
+                            output = proc.stdout.readline().decode('utf-8')
+                            if not output:
+                                break
+                            if '-chk' in str(output):
+                                m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
+                                total_files = int(m[0][1])
+                                progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
+                                sys.stdout.write('\rSyncing of webspace ' + str(
+                                    imscpSubDomainsValue.get('iSubDomainIdna')) + ' done: ' + str(
+                                    round(progress, 2)) + '%')
+                                sys.stdout.flush()
+                                if int(m[0][0]) == 0:
+                                    break
+                        print('\nFinished syncing webspace "' + str(
+                            imscpSubDomainsValue.get('iSubDomainIdna')) + '".')
+                        os.system(
+                            'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/')
+                        print('System owner for webspace "' + str(
+                            imscpSubDomainsValue.get('iSubDomainIdna')) + '". successfully updated.\n')
+                        time.sleep(1)
+                    else:
+                        print('\nIgnore syncing from sub domain "' + str(
+                            imscpSubDomainsValue.get('iSubDomainIdna')) + '" !')
+
+                # Rsync i-MSCP alias domains
+                aliasParentDomainIds = []
+                for imscpAliasDomainsKey, imscpAliasDomainsValue in imscpInputData.imscpDomainAliases.items():
+                    # print(imscpAliasDomainsKey, '->', imscpAliasDomainsValue)
+                    aliasParentDomainIds.append(imscpAliasDomainsValue.get('iAliasDomainId'))
+                    if imscpAliasDomainsValue.get('iAliasDomainRsync') and imscpAliasDomainsValue.get(
+                            'iAliasDomainIdna') in keyhelpAddData.keyhelpAddedDomains:
+                        print('\nSyncing webspace from alias domain "' + str(
+                            imscpAliasDomainsValue.get('iAliasDomainIdna')) + '" :')
+                        keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
+                        additionalDomainData = imscpAliasDomainsValue.get('iAliasDomainData').split("|")
+                        additionalDomainData[0].strip()
+                        additionalDomainData[1].strip()
+                        remoteRsyncFolder = '/var/www/virtual/' + firstDomainIdna + str(additionalDomainData[0]) + str(
+                            additionalDomainData[1]) + '/'
+                        localRsyncFolder = '/home/users/' + keyHelpUsername + '/www/' + str(
+                            imscpAliasDomainsValue.get('iAliasDomainIdna')) + '/'
+
+                        if imscpSshPublicKey:
+                            cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
+                                  imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                                  imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
+                        else:
+                            cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
+                                  imscpRootPassword + ' ssh -p ' + \
+                                  imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
+
+                        proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                        while True:
+                            output = proc.stdout.readline().decode('utf-8')
+                            if not output:
+                                break
+                            if '-chk' in str(output):
+                                m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
+                                total_files = int(m[0][1])
+                                progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
+                                sys.stdout.write('\rSyncing of webspace ' + str(
+                                    imscpAliasDomainsValue.get('iAliasDomainIdna')) + ' done: ' + str(
+                                    round(progress, 2)) + '%')
+                                sys.stdout.flush()
+                                if int(m[0][0]) == 0:
+                                    break
+                        print('\nFinished syncing webspace "' + str(
+                            imscpAliasDomainsValue.get('iAliasDomainIdna')) + '".')
+                        os.system(
+                            'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/')
+                        print('System owner for webspace "' + str(
+                            imscpAliasDomainsValue.get('iAliasDomainIdna')) + '". successfully updated.\n')
+                        time.sleep(1)
+                    else:
+                        print('\nIgnore syncing from alias domain "' + str(
+                            imscpAliasDomainsValue.get('iAliasDomainIdna')) + '" !')
+
+                # Rsync i-MSCP alias sub domains
+                for aliasDomainParentId in aliasParentDomainIds:
+                    for imscpAliasSubDomainsKey, imscpAliasSubDomainsValue in imscpInputData.imscpAliasSubDomains[
+                        'aliasid-' + aliasDomainParentId].items():
+                        # print(imscpAliasSubDomainsKey, '->', imscpAliasSubDomainsValue)
+                        if imscpAliasSubDomainsValue.get('iAliasSubDomainRsync') and imscpAliasSubDomainsValue.get(
+                                'iAliasSubDomainIdna') in keyhelpAddData.keyhelpAddedDomains:
+                            print('\nSyncing webspace from alias sub domain "' + str(
+                                imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '" :')
+                            keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
+                            additionalDomainData = imscpAliasSubDomainsValue.get('iAliasSubDomainData').split("|")
+                            additionalDomainData[0].strip()
+                            additionalDomainData[1].strip()
+                            remoteRsyncFolder = '/var/www/virtual/' + firstDomainIdna + str(
+                                additionalDomainData[0]) + str(
+                                additionalDomainData[1]) + '/'
+                            localRsyncFolder = '/home/users/' + keyHelpUsername + '/www/' + str(
+                                imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '/'
+
+                            if imscpSshPublicKey:
+                                cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
+                                      imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                                      imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
+                            else:
+                                cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
+                                      imscpRootPassword + ' ssh -p ' + \
+                                      imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                      imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
+
+                            proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                            while True:
+                                output = proc.stdout.readline().decode('utf-8')
+                                if not output:
+                                    break
+                                if '-chk' in str(output):
+                                    m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
+                                    total_files = int(m[0][1])
+                                    progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
+                                    sys.stdout.write('\rSyncing of webspace ' + str(
+                                        imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + ' done: ' + str(
+                                        round(progress, 2)) + '%')
+                                    sys.stdout.flush()
+                                    if int(m[0][0]) == 0:
+                                        break
+                            print('\nFinished syncing webspace "' + str(
+                                imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '".')
+                            os.system(
+                                'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/')
+                            print('System owner for webspace "' + str(
+                                imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '". successfully updated.\n')
+                            time.sleep(1)
+                        else:
+                            print('\nIgnore syncing from alias sub domain "' + str(
+                                imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '" !')
+                # End migration
+                print('\n\nCongratulations. The migration is done. Check now the logs and make the last manually changes.')
             else:
                 print('No databases available for the i-MSCP domain ' + imscpInputData.imscpData['iUsernameDomain'])
         else:
