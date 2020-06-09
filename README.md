@@ -1,10 +1,10 @@
 # imscp-keyhelp-migration
-Mit diesem Script kann man einzelne Kunden zu KeyHelp migrieren.
-Das Script ist noch in der Entwicklung und nicht Produktiv!
+With this script you are able to migrate every customer from the i-MSCP server to your new KeyHelp server
 
 ## Requirements
-* min. phython 3.5
 * run the script on the KeyHelp server
+* min. phython 3.5
+* i-MSCP server must have the version 1.5.3
 
 ## Required settings in KeyHelp
 * SETTINGS => Configuration => Database => Allow remote access = enable
@@ -25,6 +25,13 @@ cd ~
 ssh-keygen -b 4096 -m PEM -t rsa
 ssh-copy-id -i .ssh/id_rsa.pub -p 22 FQDN-Remote-Server
 ```
+
+## How to use the migration script
+* Upload every file to one folder
+* Edit the file "migration-config.cfg" and add you credentials
+* Make the file "i-mscp_keyhelp_migration.py" executable (chmod +x i-mscp_keyhelp_migration.py)
+* Start the migration by running the script "i-mscp_keyhelp_migration.py" (./i-mscp_keyhelp_migration.py)
+
 ## Doings if something went wrong with API communication
 * First delete the new added KeyHelp user
 * Check as admin wheter a SSL cert was added while the last run and delete it
