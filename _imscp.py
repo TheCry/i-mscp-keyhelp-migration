@@ -114,7 +114,7 @@ class imscpGetData:
 
     def getImscpUserWebData(self, iUsername, client):
         if (len(iUsername) > 0):
-            iUsernameIdna = idna.encode(iUsername).decode('utf-8')
+            iUsernameIdna = idna.encode(iUsername.lower()).decode('utf-8')
             if imscpSshPublicKey:
                 client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
                                key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
