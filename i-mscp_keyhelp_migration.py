@@ -226,6 +226,7 @@ if __name__ == "__main__":
             'i-MSCP domain database usernames:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
         _global_config.write_log('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
         _global_config.write_log('i-MSCP SSL certs:\n' + str(imscpInputData.imscpSslCerts) + '\n')
+        _global_config.write_log('i-MSCP HTACCESS users:\n' + str(imscpInputData.imscpDomainHtAcccessUsers) + '\n')
 
         if os.path.exists(
                 loggingFolder + '/' + imscpInputData.imscpData['iUsernameDomainIdna'] + '_get_data_from_imscp.log'):
@@ -275,6 +276,7 @@ if __name__ == "__main__":
             print('i-MSCP domain database users:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
             print('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
             print('i-MSCP SSL certs:\n' + str(imscpInputData.imscpSslCerts) + '\n')
+            print('i-MSCP HTACCESS users:\n' + str(imscpInputData.imscpDomainHtAcccessUsers) + '\n')
 
     except AuthenticationException:
         print('Authentication failed, please verify your credentials!')
@@ -963,9 +965,9 @@ if __name__ == "__main__":
                             print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
 
                     # Adding i-MSCP alias domain forward email addresses
-                    for imscpEmailsAliasDomainsArrayKey, imscpEmailsAliasDomainsArrayValue in \
+                    for imscpEmailsAliasDomainsKey, imscpEmailsAliasDomainsValue in \
                             imscpInputData.imscpAliasEmailAddressForward['aliasid-' + aliasDomainParentId].items():
-                        # print(imscpEmailsAliasDomainsArrayKey, '->', imscpEmailsAliasDomainsArrayValue)
+                        # print(imscpEmailsAliasDomainsKey, '->', imscpEmailsAliasDomainsValue)
                         keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
                                              'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
                         if bool(imscpInputData.imscpAliasEmailAddressNormalCatchAll['aliasid-' + aliasDomainParentId]):
@@ -974,9 +976,9 @@ if __name__ == "__main__":
 
                         # 5MB for only Forward
                         keyhelpAddApiData['iEmailMailQuota'] = '5242880'
-                        keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasDomainsArrayValue.get(
+                        keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasDomainsValue.get(
                             'iEmailMailForward')
-                        keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasDomainsArrayValue.get('iEmailAddress')
+                        keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasDomainsValue.get('iEmailAddress')
                         # False because there is no need to update the password with an old one
                         keyhelpAddApiData['iEmailMailPassword'] = False
 
@@ -999,22 +1001,22 @@ if __name__ == "__main__":
             if bool(imscpInputData.imscpDomainDatabaseNames):
                 print('Start adding databases and database usernames.\n')
                 keyhelpAddedDatabases = {}
-                for imscpDatabasesArrayKey, imscpDatabasesArrayValue in imscpInputData.imscpDomainDatabaseNames.items():
-                    # print(imscpDatabasesArrayKey, '->', imscpDatabasesArrayValue)
-                    databaseParentId = imscpDatabasesArrayValue.get('iDatabaseId')
-                    if re.match("^\d+", str(imscpDatabasesArrayValue.get('iDatabaseName'))):
+                for imscpDatabasesKey, imscpDatabasesValue in imscpInputData.imscpDomainDatabaseNames.items():
+                    # print(imscpDatabasesKey, '->', imscpDatabasesValue)
+                    databaseParentId = imscpDatabasesValue.get('iDatabaseId')
+                    if re.match("^\d+", str(imscpDatabasesValue.get('iDatabaseName'))):
                         keyhelpAddApiData['iDatabaseName'] = re.sub("^\d+", 'db'+str(addedKeyHelpUserId),
-                                                                    str(imscpDatabasesArrayValue.get('iDatabaseName')),
+                                                                    str(imscpDatabasesValue.get('iDatabaseName')),
                                                                     flags=re.UNICODE)
                     else:
-                        keyhelpAddApiData['iDatabaseName'] = 'db'+str(addedKeyHelpUserId) + '_' + imscpDatabasesArrayValue.get(
+                        keyhelpAddApiData['iDatabaseName'] = 'db'+str(addedKeyHelpUserId) + '_' + imscpDatabasesValue.get(
                             'iDatabaseName')
 
-                    keyhelpAddApiData['iOldDatabaseName'] = imscpDatabasesArrayValue.get('iDatabaseName')
+                    keyhelpAddApiData['iOldDatabaseName'] = imscpDatabasesValue.get('iDatabaseName')
                     keyhelpAddApiData['iOldDatabaseUsername'] = ''
                     keyhelpAddApiData['iDatabaseUsername'] = ''
 
-                    keyhelpAddedDatabases[keyhelpAddApiData['iDatabaseName']] = imscpDatabasesArrayValue.get(
+                    keyhelpAddedDatabases[keyhelpAddApiData['iDatabaseName']] = imscpDatabasesValue.get(
                         'iDatabaseName')
 
                     if bool(imscpInputData.imscpDomainDatabaseUsernames):
@@ -1060,7 +1062,7 @@ if __name__ == "__main__":
             if bool(imscpInputData.imscpFtpUserNames):
                 print('Start adding FTP users.\n')
                 for ftpUserKey, ftpUserValue in imscpInputData.imscpFtpUserNames.items():
-                    # print(ftpUserKey, '->', dbUserValue)
+                    # print(ftpUserKey, '->', ftpUserValue)
                     keyhelpAddApiData = {'iFtpUsername': str(ftpUserValue.get('iFtpUsername')),
                                          'iFtpUserPassword': str(ftpUserValue.get('iFtpUserPassword')),
                                          'iFtpUserHomeDir': imscpInputData.imscpData['iUsernameDomainIdna'],
@@ -1079,6 +1081,28 @@ if __name__ == "__main__":
                         print('ERROR "' + keyhelpAddApiData['iFtpUsername'] + '" failed to add.\n')
             else:
                 print('No FTP users to add.\n')
+
+            # Adding htaccess users
+            if bool(imscpInputData.imscpDomainHtAcccessUsers):
+                print('Start adding HTACCESS users.\n')
+                for HtAccessUserKey, HtAccessUserValue in imscpInputData.imscpDomainHtAcccessUsers.items():
+                    # print(HtAccessUserKey, '->', HtAccessUserValue)
+                    keyhelpAddApiData = {'iHtAccessUserame': str(HtAccessUserValue.get('iHtAccessUserame')),
+                                         'iHtAccessPassword': str(HtAccessUserValue.get('iHtAccessPassword')),
+                                         'iHtAccessPath': '/home/users/' + str(
+                                             keyhelpInputData.keyhelpData['kusername'].lower()) + '/www/' + str(
+                                             imscpInputData.imscpData['iUsernameDomainIdna']),
+                                         'iHtAccessAuthName': 'Migrated from i-MSCP - ' + str(
+                                             HtAccessUserValue.get('iHtAccessUserame')),
+                                         'addedKeyHelpUserId': addedKeyHelpUserId,
+                                         'kdatabaseRoot': keyhelpInputData.keyhelpData['kdatabaseRoot'],
+                                         'kdatabaseRootPassword': keyhelpInputData.keyhelpData[
+                                             'kdatabaseRootPassword']}
+
+                    keyhelpAddData.addHtAccessUsersFromImscp(keyhelpAddApiData)
+                    print('HTACCESS user "' + keyhelpAddApiData['iHtAccessUserame'] + '" added successfully.\n')
+            else:
+                print('No HTACCESS users to add.\n')
         else:
             _global_config.write_log('ERROR "' + keyhelpInputData.keyhelpData['kusername'] + '" failed to add.')
             print('ERROR "' + keyhelpInputData.keyhelpData['kusername'] + '" failed to add.\n')

@@ -318,7 +318,28 @@ class KeyHelpAddDataToServer:
         except requests.exceptions.RequestException as errorApi:
             raise SystemExit("An Unknown Error occurred:" + str(errorApi))
 
-        apiPostData = responseApi.json()
+        try:
+            apiPostData = responseApi.json()
+        except ValueError:
+            print('Something went wrong while making the API request. Try again in 5 seconds!')
+            time.sleep(int(5))
+            try:
+                responseApi = requests.post(apiUrl + apiEndPoint + '/', data=apiJsonData, headers=headers,
+                                            timeout=apiTimeout, verify=apiServerFqdnVerify)
+            except requests.exceptions.HTTPError as errorApi:
+                raise SystemExit("An Http Error occurred:" + str(errorApi))
+            except requests.exceptions.ConnectionError as errorApi:
+                raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+            except requests.exceptions.Timeout as errorApi:
+                raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+            except requests.exceptions.RequestException as errorApi:
+                raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
+            try:
+                apiPostData = responseApi.json()
+            except ValueError as errorApi:
+                print('Second time. Something went wrong while making the API request!')
+                raise SystemExit("Error occurred:" + str(errorApi))
 
         if apiEndPoint == 'clients' and responseApi.status_code == 201:
             self.keyhelpApiReturnData['keyhelpUserId'] = apiPostData['id']
@@ -605,6 +626,35 @@ class KeyHelpAddDataToServer:
         jsonData = json.dumps(data)
 
         return jsonData
+
+    def addHtAccessUsersFromImscp(self, keyHelpData):
+        try:
+            db_connection = mysql.connector.connect(
+                host="localhost",
+                user="" + keyHelpData['kdatabaseRoot'] + "",
+                passwd="" + keyHelpData['kdatabaseRootPassword'] + "",
+                database="keyhelp"
+            )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with the user name or password")
+                exit(1)
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+                exit(1)
+            else:
+                print(err)
+                exit(1)
+        else:
+            cursor = db_connection.cursor()
+            cursor.execute("INSERT INTO dir_protection (id_user, path, authname, username, password) VALUES ('" + str(
+                keyHelpData['addedKeyHelpUserId']) + "', '" + str(keyHelpData['iHtAccessPath']) + "', '" + str(
+                keyHelpData['iHtAccessAuthName']) + "', '" + str(keyHelpData['iHtAccessUserame']) + "', '" + str(
+                keyHelpData['iHtAccessPassword']) + "');")
+
+            db_connection.commit()
+            cursor.close()
+            db_connection.close()
 
     def __updateEmailPasswordWithImscpPassword(self, keyHelpData, addedEmailId):
         try:

@@ -47,6 +47,7 @@ class imscpGetData:
         self.imscpDomainDatabaseUsernames = {}
         self.imscpFtpUserNames = {}
         self.imscpSslCerts = {}
+        self.imscpDomainHtAcccessUsers = {}
 
     def getImscpMySqlCredentials(self, client):
         if imscpSshPublicKey:
@@ -176,6 +177,9 @@ class imscpGetData:
                                         client)
                 self.__getImscpSslCert(self.imscpData['iUsernameDomainId'], self.imscpData['iUsernameDomainIdna'],
                                        'dmn', client)
+                print('Get i-MSCP HtAccess user data')
+                self.__getImscpHtAccessUsers(self.imscpData['iUsernameDomainId'], self.imscpData['iUsernameDomain'],
+                                               self.imscpData['iUsernameDomainIdna'], client)
 
                 self.complete = True
                 return True
@@ -521,6 +525,55 @@ class imscpGetData:
         else:
             _global_config.write_log(
                 '======================= End data for SSL certs "' + iDomainName + '" =======================\n\n\n')
+
+    def __getImscpHtAccessUsers(self, iUsernameDomainId, iUsernameDomain, iUsernameDomainIdna, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, \
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+                'imysqluser'] + ' -p' + self.imscpData['imysqlpassword'] + ' -e "SELECT id, uname, upass FROM ' +
+            self.imscpData['imysqldatabase'] + '.htaccess_users WHERE dmn_id = \'' + iUsernameDomainId + '\'"')
+        i = 0
+        dataLine = ''
+        self.imscpDomainHtAcccessUsers = {}
+        for line in stdout:
+            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            imscpDomainHtAccessData = dataLine.split("|")
+            imscpDomainHtAccessData[0].strip()
+            imscpDomainHtAccessData[1].strip()
+            imscpDomainHtAccessData[2].strip()
+
+            index = int(imscpDomainHtAccessData[0])
+
+            self.imscpDomainHtAcccessUsers[index] = {}
+            self.imscpDomainHtAcccessUsers[index]['iHtAccessId'] = imscpDomainHtAccessData[0]
+            self.imscpDomainHtAcccessUsers[index]['iHtAccessUserame'] = imscpDomainHtAccessData[1]
+            self.imscpDomainHtAcccessUsers[index]['iHtAccessPassword'] = imscpDomainHtAccessData[2]
+
+            _global_config.write_log(
+                'Debug i-MSCP informations HTACCESS:\nHTACCESS user "' + self.imscpDomainHtAcccessUsers[index][
+                    'iHtAccessUserame'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+            if showDebug:
+                print('Debug i-MSCP informations HTACCESS:\nHTACCESS user "' + self.imscpDomainHtAcccessUsers[index][
+                    'iHtAccessUserame'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+
+            i += 1
+
+        if i == 0:
+            _global_config.write_log(
+                'Debug i-MSCP informations HTACCESS:\nNo HTACCESS users found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+            if showDebug:
+                print(
+                    'Debug i-MSCP informations HTACCESS:\nNo HTACCESS users found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+        else:
+            _global_config.write_log(
+                '======================= End data for HTACCESS users "' + iUsernameDomain + '" =======================\n\n\n')
 
     def __getImscpDomainDatabases(self, iUsernameDomainId, iUsernameDomain, iUsernameDomainIdna, client):
         if imscpSshPublicKey:
