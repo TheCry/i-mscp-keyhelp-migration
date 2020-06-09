@@ -28,3 +28,8 @@ ssh-copy-id -i .ssh/id_rsa.pub -p 22 FQDN-Remote-Server
 ## Doings if something went wrong with API communication
 * First delete the new added KeyHelp user
 * Check as admin wheter a SSL cert was added while the last run and delete it
+
+## Doings after migration
+* Set the correct home dir of the ftp users
+* Set the correct path for the htaccess users
+* Check the database name, database user and database password of the websites
