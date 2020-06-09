@@ -382,18 +382,23 @@ class imscpGetData:
         stdin, stdout, stderr = client.exec_command(
             'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
             self.imscpData['imysqluser'] + ' -p' + self.imscpData[
-                'imysqlpassword'] + ' -e "SELECT cert_id, TO_BASE64(private_key), TO_BASE64(certificate), TO_BASE64('
-                                    'ca_bundle), allow_hsts, hsts_max_age, hsts_include_subdomains FROM ' +
+                'imysqlpassword'] + ' -e "SELECT cert_id, TO_BASE64(private_key), TO_BASE64(certificate), IF(ca_bundle '
+                                    'IS NULL or ca_bundle = \'\', \'empty\', TO_BASE64(ca_bundle)), allow_hsts, hsts_max_age, '
+                                    'hsts_include_subdomains FROM ' +
             self.imscpData[
-                'imysqldatabase'] + '.ssl_certs WHERE domain_id = \'' + iDomainId + '\' AND domain_type = \'' + iDomainType + '\' AND ca_bundle != \'\' AND status = \'ok\'"')
+                'imysqldatabase'] + '.ssl_certs WHERE domain_id = \'' + iDomainId + '\' AND domain_type = \'' + iDomainType + '\' AND status = \'ok\'"')
 
-        '''print(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
-            self.imscpData['imysqluser'] + ' -p' + self.imscpData[
-                'imysqlpassword'] + ' -e "SELECT cert_id, TO_BASE64(private_key), TO_BASE64(certificate), TO_BASE64('
-                                    'ca_bundle), allow_hsts, hsts_max_age, hsts_include_subdomains FROM ' +
-            self.imscpData[
-                'imysqldatabase'] + '.ssl_certs WHERE domain_id = \'' + iDomainId + '\' AND domain_type = \'' + iDomainType + '\' AND ca_bundle != \'\' AND status = \'ok\'"')'''
+        if showDebug:
+            print(
+                'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+                self.imscpData['imysqluser'] + ' -p' + self.imscpData[
+                    'imysqlpassword'] + ' -e "SELECT cert_id, TO_BASE64(private_key), TO_BASE64(certificate), '
+                                        'IF(ca_bundle '
+                                        'IS NULL or ca_bundle = \'\', '', TO_BASE64(ca_bundle)), allow_hsts, '
+                                        'hsts_max_age, '
+                                        'hsts_include_subdomains FROM ' +
+                self.imscpData[
+                    'imysqldatabase'] + '.ssl_certs WHERE domain_id = \'' + iDomainId + '\' AND domain_type = \'' + iDomainType + '\' AND status = \'ok\'"')
         i = 0
         dataLine = ''
 
@@ -424,12 +429,15 @@ class imscpGetData:
             if iDomainType == 'dmn':
                 self.imscpSslCerts['domainid-' + iDomainId][index] = {}
                 self.imscpSslCerts['domainid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
-                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslPrivateKey'] = base64.b64decode(
-                    imscpSslData[1] + "==")
-                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCertificate'] = base64.b64decode(
-                    imscpSslData[2] + "==")
-                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCaBundle'] = base64.b64decode(
-                    imscpSslData[3] + "==")
+                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslPrivateKey'] = str(base64.b64decode(
+                    imscpSslData[1] + "==").decode('utf-8'))
+                self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCertificate'] = str(base64.b64decode(
+                    imscpSslData[2] + "==").decode('utf-8'))
+                if imscpSslData[3] != 'empty':
+                    self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCaBundle'] = str(base64.b64decode(
+                        imscpSslData[3] + "==").decode('utf-8'))
+                else:
+                    self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCaBundle'] = ''
                 self.imscpSslCerts['domainid-' + iDomainId][index]['iSslAllowHsts'] = imscpSslData[4]
                 self.imscpSslCerts['domainid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
                 self.imscpSslCerts['domainid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
@@ -441,11 +449,14 @@ class imscpGetData:
                 self.imscpSslCerts['subid-' + iDomainId][index] = {}
                 self.imscpSslCerts['subid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
                 self.imscpSslCerts['subid-' + iDomainId][index]['iSslPrivateKey'] = str(base64.b64decode(
-                    imscpSslData[1] + "=="))
+                    imscpSslData[1] + "==").decode('utf-8'))
                 self.imscpSslCerts['subid-' + iDomainId][index]['iSslCertificate'] = str(base64.b64decode(
-                    imscpSslData[2] + "=="))
-                self.imscpSslCerts['subid-' + iDomainId][index]['iSslCaBundle'] = str(base64.b64decode(
-                    imscpSslData[3] + "=="))
+                    imscpSslData[2] + "==").decode('utf-8'))
+                if imscpSslData[3] != 'empty':
+                    self.imscpSslCerts['subid-' + iDomainId][index]['iSslCaBundle'] = str(base64.b64decode(
+                        imscpSslData[3] + "==").decode('utf-8'))
+                else:
+                    self.imscpSslCerts['subid-' + iDomainId][index]['iSslCaBundle'] = ''
                 self.imscpSslCerts['subid-' + iDomainId][index]['iSslAllowHsts'] = imscpSslData[4]
                 self.imscpSslCerts['subid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
                 self.imscpSslCerts['subid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
@@ -456,12 +467,15 @@ class imscpGetData:
             if iDomainType == 'als':
                 self.imscpSslCerts['aliasid-' + iDomainId][index] = {}
                 self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
-                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslPrivateKey'] = base64.b64decode(
-                    imscpSslData[1] + "==")
-                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCertificate'] = base64.b64decode(
-                    imscpSslData[2] + "==")
-                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCaBundle'] = base64.b64decode(
-                    imscpSslData[3] + "==")
+                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslPrivateKey'] = str(base64.b64decode(
+                    imscpSslData[1] + "==").decode('utf-8'))
+                self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCertificate'] = str(base64.b64decode(
+                    imscpSslData[2] + "==").decode('utf-8'))
+                if imscpSslData[3] != 'empty':
+                    self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCaBundle'] = str(base64.b64decode(
+                        imscpSslData[3] + "==").decode('utf-8'))
+                else:
+                    self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCaBundle'] = ''
                 self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslAllowHsts'] = imscpSslData[4]
                 self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
                 self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
@@ -472,12 +486,15 @@ class imscpGetData:
             if iDomainType == 'alssub':
                 self.imscpSslCerts['aliassubid-' + iDomainId][index] = {}
                 self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
-                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslPrivateKey'] = base64.b64decode(
-                    imscpSslData[1] + "==")
-                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCertificate'] = base64.b64decode(
-                    imscpSslData[2] + "==")
-                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCaBundle'] = base64.b64decode(
-                    imscpSslData[3] + "==")
+                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslPrivateKey'] = str(base64.b64decode(
+                    imscpSslData[1] + "==").decode('utf-8'))
+                self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCertificate'] = str(base64.b64decode(
+                    imscpSslData[2] + "==").decode('utf-8'))
+                if imscpSslData[3] != 'empty':
+                    self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCaBundle'] = str(base64.b64decode(
+                        imscpSslData[3] + "==").decode('utf-8'))
+                else:
+                    self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCaBundle'] = ''
                 self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslAllowHsts'] = imscpSslData[4]
                 self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
                 self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]

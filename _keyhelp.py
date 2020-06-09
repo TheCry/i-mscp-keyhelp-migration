@@ -598,9 +598,9 @@ class KeyHelpAddDataToServer:
         if apiEndPoint == 'certificates':
             data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
             data['name'] = 'Import from i-MSCP: ' + keyHelpData['iSslDomainIdna']
-            data['private_key'] = str(keyHelpData['iSslPrivateKey'].decode('utf-8'))
-            data['certificate'] = str(keyHelpData['iSslCertificate'].decode('utf-8'))
-            data['ca_certificate'] = str(keyHelpData['iSslCaBundle'].decode('utf-8'))
+            data['private_key'] = keyHelpData['iSslPrivateKey']
+            data['certificate'] = keyHelpData['iSslCertificate']
+            data['ca_certificate'] = keyHelpData['iSslCaBundle']
 
         jsonData = json.dumps(data)
 
