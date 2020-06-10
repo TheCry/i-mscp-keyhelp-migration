@@ -1,4 +1,6 @@
-import os, configparser, ast
+import ast
+import configparser
+import os
 from distutils.util import strtobool
 
 config = configparser.ConfigParser()
@@ -30,13 +32,13 @@ else:
 	keyhelpDisableDnsForDomain = False
 
 #### KeyHelp ####
-apiServerFqdn = str(config['keehelp-'+configSection]['apiServerFqdn'])
-apiKey = str(config['keehelp-'+configSection]['apiKey'])
-apiTimeout = int(config['keehelp-'+configSection]['apiTimeout'])
-keyhelpMinPasswordLenght = int(config['keehelp-'+configSection]['keyhelpMinPasswordLenght'])
-apiServerFqdnVerify = bool(strtobool(str(config['keehelp-'+configSection]['apiServerFqdnVerify'])))
+apiServerFqdn = str(config['keehelp']['apiServerFqdn'])
+apiKey = str(config['keehelp']['apiKey'])
+apiTimeout = int(config['keehelp']['apiTimeout'])
+keyhelpMinPasswordLenght = int(config['keehelp']['keyhelpMinPasswordLenght'])
+apiServerFqdnVerify = bool(strtobool(str(config['keehelp']['apiServerFqdnVerify'])))
 showDebug = bool(strtobool(str(config['general']['showDebug'])))
-keyhelpConfigfile = str(config['keehelp-'+configSection]['keyhelpConfigfile'])
+keyhelpConfigfile = str(config['keehelp']['keyhelpConfigfile'])
 
 #### i-MSCP ####
 imscpServerFqdn = str(config['imscp-'+configSection]['imscpServerFqdn'])

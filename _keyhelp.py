@@ -1,17 +1,23 @@
-import requests, time, json, re, configparser, io, os, sys, idna, paramiko, mysql.connector, random, string
 from distutils.util import strtobool
-from paramiko.ssh_exception import BadHostKeyException, AuthenticationException, SSHException
+
+import json
+import mysql.connector
+import random
+import re
+import requests
+import string
+import time
 from mysql.connector import errorcode
 
 import _global_config
 
 _global_config.init()
 
-#### General ####
+# General
 showDebug = _global_config.showDebug
 keyhelpSleeptime = _global_config.keyhelpSleeptime
 
-#### KeyHelp ####
+# KeyHelp
 apiServerFqdn = _global_config.apiServerFqdn
 apiKey = _global_config.apiKey
 apiTimeout = _global_config.apiTimeout

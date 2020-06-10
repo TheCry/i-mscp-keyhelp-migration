@@ -1,16 +1,17 @@
-import requests, time, json, re, configparser, io, os, sys, idna, paramiko, mysql.connector, base64
-from distutils.util import strtobool
-from paramiko.ssh_exception import BadHostKeyException, AuthenticationException, SSHException
-from mysql.connector import errorcode
+import base64
+import configparser
+import idna
+import io
+import re
 
 import _global_config
 
 _global_config.init()
 
-#### General ####
+# General
 showDebug = _global_config.showDebug
 
-#### i-MSCP ####
+# i-MSCP
 imscpServerFqdn = _global_config.imscpServerFqdn
 imscpSshUsername = _global_config.imscpSshUsername
 imscpSshPort = _global_config.imscpSshPort

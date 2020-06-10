@@ -1,18 +1,21 @@
 #!/usr/bin/python3
 
-# apt-get install python3-requests python3-paramiko python3-distutils-extra
-
-import requests, time, json, re, configparser, io, os, sys, idna, paramiko, mysql.connector, subprocess
-from distutils.util import strtobool
+import os
+import paramiko
+import re
+import requests
+import subprocess
+import sys
+import time
 from paramiko.ssh_exception import BadHostKeyException, AuthenticationException, SSHException
-from mysql.connector import errorcode
 
 import _global_config
 
 _global_config.init()
 _global_config.createNeededScriptFolders()
 
-#### General ####
+# General
+showDebug = _global_config.showDebug
 loggingFolder = _global_config.loggingFolder
 logFile = _global_config.logFile
 keyhelpDefaultHostingplan = _global_config.keyhelpDefaultHostingplan
@@ -28,10 +31,7 @@ elif keyhelpDisableDnsForDomain == 'false' or keyhelpDisableDnsForDomain == 'tru
 else:
     keyhelpDisableDnsForDomain = True
 
-#### General ####
-showDebug = _global_config.showDebug
-
-#### KeyHelp ####
+# KeyHelp
 apiServerFqdn = _global_config.apiServerFqdn
 apiKey = _global_config.apiKey
 apiTimeout = _global_config.apiTimeout
@@ -39,7 +39,7 @@ keyhelpMinPasswordLenght = _global_config.keyhelpMinPasswordLenght
 apiServerFqdnVerify = _global_config.apiServerFqdnVerify
 keyhelpConfigfile = _global_config.keyhelpConfigfile
 
-#### i-MSCP ####
+# i-MSCP
 imscpServerFqdn = _global_config.imscpServerFqdn
 imscpSshUsername = _global_config.imscpSshUsername
 imscpSshPort = _global_config.imscpSshPort
@@ -1249,6 +1249,15 @@ if __name__ == "__main__":
                 for rsyncEmailAddress in keyhelpAddData.keyhelpAddedEmailAddresses:
                     emailAddressData = rsyncEmailAddress.split("@")
                     emailAddressData[1].strip()
+                    print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                    loop_starts = time.time()
+                    while True:
+                        now = time.time()
+                        sys.stdout.write('\rWaiting since {0} seconds for Keyhelp.'.format(int(now - loop_starts)))
+                        sys.stdout.flush()
+                        time.sleep(1)
+                        if os.path.exists('/var/mail/virtual/' + emailAddressData[1] + '/' + emailAddressData[0] + '/'):
+                            break
                     if imscpSshPublicKey:
                         cmd = 'rsync -aHAXSz --info=progress --numeric-ids -e "ssh -i ' + imscpSshPublicKey + ' -p ' + \
                               imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
@@ -1287,9 +1296,21 @@ if __name__ == "__main__":
                 # Rsync i-MSCP first domain
                 if imscpInputData.imscpData['iUsernameDomainRsync'] and imscpInputData.imscpData[
                     'iUsernameDomainIdna'] in keyhelpAddData.keyhelpAddedDomains:
+                    keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
+                    print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                    loop_starts = time.time()
+                    while True:
+                        now = time.time()
+                        sys.stdout.write('\rWaiting since {0} seconds for Keyhelp.'.format(int(now - loop_starts)))
+                        sys.stdout.flush()
+                        time.sleep(1)
+                        if os.path.exists('/home/users/' + keyHelpUsername + '/www/' + str(
+                                imscpInputData.imscpData['iUsernameDomainIdna']) + '/'):
+                            break
+
+
                     print('\nSyncing webspace from domain "' + str(
                         imscpInputData.imscpData['iUsernameDomainIdna']) + '" :')
-                    keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
                     additionalDomainData = imscpInputData.imscpData['iDomainData'].split("|")
                     additionalDomainData[1].strip()
                     remoteRsyncFolder = '/var/www/virtual/' + firstDomainIdna + str(additionalDomainData[1]) + '/'
@@ -1336,9 +1357,19 @@ if __name__ == "__main__":
                     # print(imscpSubDomainsKey, '->', imscpSubDomainsValue)
                     if imscpSubDomainsValue.get('iSubDomainRsync') and imscpSubDomainsValue.get(
                             'iSubDomainIdna') in keyhelpAddData.keyhelpAddedDomains:
+                        keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
+                        print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                        loop_starts = time.time()
+                        while True:
+                            now = time.time()
+                            sys.stdout.write('\rWaiting since {0} seconds for Keyhelp.'.format(int(now - loop_starts)))
+                            sys.stdout.flush()
+                            time.sleep(1)
+                            if os.path.exists('/home/users/' + keyHelpUsername + '/www/' + str(
+                                    imscpSubDomainsValue.get('iSubDomainIdna')) + '/'):
+                                break
                         print('\nSyncing webspace from sub domain "' + str(
                             imscpSubDomainsValue.get('iSubDomainIdna')) + '" :')
-                        keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
                         additionalDomainData = imscpSubDomainsValue.get('iSubDomainData').split("|")
                         additionalDomainData[0].strip()
                         subDomainfolder = additionalDomainData[0].split(".")[0]
@@ -1391,9 +1422,19 @@ if __name__ == "__main__":
                     aliasParentDomainIds.append(imscpAliasDomainsValue.get('iAliasDomainId'))
                     if imscpAliasDomainsValue.get('iAliasDomainRsync') and imscpAliasDomainsValue.get(
                             'iAliasDomainIdna') in keyhelpAddData.keyhelpAddedDomains:
+                        keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
+                        print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                        loop_starts = time.time()
+                        while True:
+                            now = time.time()
+                            sys.stdout.write('\rWaiting since {0} seconds for Keyhelp.'.format(int(now - loop_starts)))
+                            sys.stdout.flush()
+                            time.sleep(1)
+                            if os.path.exists('/home/users/' + keyHelpUsername + '/www/' + str(
+                                    imscpAliasDomainsValue.get('iAliasDomainIdna')) + '/'):
+                                break
                         print('\nSyncing webspace from alias domain "' + str(
                             imscpAliasDomainsValue.get('iAliasDomainIdna')) + '" :')
-                        keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
                         additionalDomainData = imscpAliasDomainsValue.get('iAliasDomainData').split("|")
                         additionalDomainData[0].strip()
                         additionalDomainData[1].strip()
@@ -1445,9 +1486,20 @@ if __name__ == "__main__":
                         # print(imscpAliasSubDomainsKey, '->', imscpAliasSubDomainsValue)
                         if imscpAliasSubDomainsValue.get('iAliasSubDomainRsync') and imscpAliasSubDomainsValue.get(
                                 'iAliasSubDomainIdna') in keyhelpAddData.keyhelpAddedDomains:
+                            keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
+                            print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                            loop_starts = time.time()
+                            while True:
+                                now = time.time()
+                                sys.stdout.write(
+                                    '\rWaiting since {0} seconds for Keyhelp.'.format(int(now - loop_starts)))
+                                sys.stdout.flush()
+                                time.sleep(1)
+                                if os.path.exists('/home/users/' + keyHelpUsername + '/www/' + str(
+                                        imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '/'):
+                                    break
                             print('\nSyncing webspace from alias sub domain "' + str(
                                 imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '" :')
-                            keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
                             additionalDomainData = imscpAliasSubDomainsValue.get('iAliasSubDomainData').split("|")
                             additionalDomainData[0].strip()
                             additionalDomainData[1].strip()
@@ -1493,7 +1545,8 @@ if __name__ == "__main__":
                             print('\nIgnore syncing from alias sub domain "' + str(
                                 imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '" !')
                 # End migration
-                print('\n\nCongratulations. The migration is done. Check now the logs and make the last manually changes.')
+                print(
+                    '\n\nCongratulations. The migration is done. Check now the logs and make the last manually changes.')
             else:
                 print('No databases available for the i-MSCP domain ' + imscpInputData.imscpData['iUsernameDomain'])
         else:
