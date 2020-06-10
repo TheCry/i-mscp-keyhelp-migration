@@ -27,7 +27,8 @@ ssh-copy-id -i .ssh/id_rsa.pub -p 22 FQDN-Remote-Server
 ```
 
 ## How to use the migration script
-* Upload every file to one folder
+* apt-get install git
+* git clone https://github.com/TheCry/i-mscp-keyhelp-migration
 * Edit the file "migration-config.cfg" and add you credentials
 * Make the file "i-mscp_keyhelp_migration.py" executable (chmod +x i-mscp_keyhelp_migration.py)
 * Start the migration by running the script "i-mscp_keyhelp_migration.py" (./i-mscp_keyhelp_migration.py)
