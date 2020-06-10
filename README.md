@@ -8,7 +8,7 @@ With this script you are able to migrate every customer from the i-MSCP server t
 
 ## Required settings in KeyHelp
 * SETTINGS => Configuration => Database => Allow remote access = enable
-* SETTINGS => Configuration => Miscellaneous => Notifications => Send 'Email account has been setup successfully' notification = disable
+* SETTINGS => Configuration => Miscellaneous => Notifications => Send 'Email account has been setup successfully' notification = disable (enable sends for every added email address an email)
 * SETTINGS => Configuration => Account Templates => Database remote access = enable
 * SETTINGS => Configuration => FTP server => Custom FTP usernames = enable
 
