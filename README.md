@@ -14,7 +14,7 @@ With this script you are able to migrate every customer from the i-MSCP server t
 
 ## Installation packages
 ```
-apt-get install pv sshpass python3-requests python3-paramiko python3-distutils-extra
+apt-get install pv sshpass python3-requests python3-paramiko python3-distutils-extra python3-tqdm
 python3 -m pip install mysql-connector
 ```
 
