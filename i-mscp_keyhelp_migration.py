@@ -1110,6 +1110,7 @@ if __name__ == "__main__":
             print('\nAll i-MSCP data were added to KeyHelp. Check the logfile "' + imscpInputData.imscpData[
                 'iUsernameDomainIdna'] + '_keyhelp_migration_data.log".')
             if _global_config.ask_Yes_No('Should we start to copy all data to the KeyHelp Server [y/n]? '):
+                # os.system('cls' if os.name == 'nt' else 'clear')
                 print('Please wait 30 seconds.. KeyHelp adds all your informations!')
                 time.sleep(30)
                 print('Dumping i-MSCP databases and copy on this server')
@@ -1158,23 +1159,28 @@ if __name__ == "__main__":
                                     'imysqlpassword'] + ' ' + oldDatabaseName + ' | gzip > ' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz')
 
                             # Workarround for sftp - An error for the local file appears, if not exist
-                            if not os.path.isfile(
+                            '''if not os.path.isfile(
                                     str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
                                         newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz'):
                                 open(str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
                                     newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', 'a').close()
-                                time.sleep(1)
+                                time.sleep(1)'''
 
-                            print('Transfering "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz" to ' +
+                            print('Transferring "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz" to ' +
                                   imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/' + str(
                                 newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz.')
 
-                            with TqdmWrap(ascii=True, unit='b', unit_scale=True) as pbar:
-                                get_remote_file = sftp_client.get(
-                                    str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz',
-                                    str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
-                                        newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz',
-                                    callback=pbar.viewBar)
+                            remoteFile = sftp_client.stat(
+                                str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz')
+                            # Info: The progressbar will disappear if the terminal starts to scroll =>
+                            # https://github.com/tqdm/tqdm/issues/285#issuecomment-271105145
+                            # leave=True to leave the progressbar after finish
+                            with TqdmWrap(ascii=False, unit='b', unit_scale=True, leave=False, miniters=1,
+                                          desc='Transferring SQL Dump......', total=remoteFile.st_size) as pbar:
+                                sftp_client.get(str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz', str(
+                                    imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
+                                    newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', callback=pbar.viewBar)
+                            print('Transferring SQL Dump finished')
 
                             # remove the remote sql dump
                             print(
