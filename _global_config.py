@@ -6,7 +6,7 @@ from distutils.util import strtobool
 config = configparser.ConfigParser()
 config.read('migration-config.cfg')
 
-#### General ####
+# General
 configSection = str(config['general']['configSection'])
 loggingFolder = '.'
 logfolderfolders = str(config['general']['neededScriptFolders'])
@@ -17,30 +17,29 @@ for key, value in logfolderfolders.items():
 		loggingFolder = value
 
 logFile = str(loggingFolder+'/'+config['general']['logFile'])
-keyhelpSleeptime = str(config['general']['keyhelpSleeptime'])
 
-keyhelpDefaultHostingplan = str(config['general']['keyhelpDefaultHostingplan'])
-keyhelpCreateRandomPassword = str(config['general']['keyhelpCreateRandomPassword'])
-keyhelpSendloginCredentials = str(config['general']['keyhelpSendloginCredentials'])
-keyhelpCreateSystemDomain = str(config['general']['keyhelpCreateSystemDomain'])
-keyhelpDisableDnsForDomain = str(config['general']['keyhelpDisableDnsForDomain'])
+# KeyHelp
+apiServerFqdn = str(config['keyhelp']['apiServerFqdn'])
+apiKey = str(config['keyhelp']['apiKey'])
+apiTimeout = int(config['keyhelp']['apiTimeout'])
+keyhelpMinPasswordLenght = int(config['keyhelp']['keyhelpMinPasswordLenght'])
+apiServerFqdnVerify = bool(strtobool(str(config['keyhelp']['apiServerFqdnVerify'])))
+showDebug = bool(strtobool(str(config['general']['showDebug'])))
+keyhelpConfigfile = str(config['keyhelp']['keyhelpConfigfile'])
+keyhelpSleeptime = str(config['keyhelp']['keyhelpSleeptime'])
+keyhelpDefaultHostingplan = str(config['keyhelp']['keyhelpDefaultHostingplan'])
+keyhelpCreateRandomPassword = str(config['keyhelp']['keyhelpCreateRandomPassword'])
+keyhelpSendloginCredentials = str(config['keyhelp']['keyhelpSendloginCredentials'])
+keyhelpCreateSystemDomain = str(config['keyhelp']['keyhelpCreateSystemDomain'])
+keyhelpDisableDnsForDomain = str(config['keyhelp']['keyhelpDisableDnsForDomain'])
 if keyhelpDisableDnsForDomain == 'ask':
 	keyhelpDisableDnsForDomain = str(keyhelpDisableDnsForDomain)
 elif keyhelpDisableDnsForDomain == 'false' or keyhelpDisableDnsForDomain == 'true':
-	keyhelpDisableDnsForDomain = bool(strtobool(str(config['general']['keyhelpDisableDnsForDomain'])))
+	keyhelpDisableDnsForDomain = bool(strtobool(str(config['keyhelp']['keyhelpDisableDnsForDomain'])))
 else:
 	keyhelpDisableDnsForDomain = False
 
-#### KeyHelp ####
-apiServerFqdn = str(config['keehelp']['apiServerFqdn'])
-apiKey = str(config['keehelp']['apiKey'])
-apiTimeout = int(config['keehelp']['apiTimeout'])
-keyhelpMinPasswordLenght = int(config['keehelp']['keyhelpMinPasswordLenght'])
-apiServerFqdnVerify = bool(strtobool(str(config['keehelp']['apiServerFqdnVerify'])))
-showDebug = bool(strtobool(str(config['general']['showDebug'])))
-keyhelpConfigfile = str(config['keehelp']['keyhelpConfigfile'])
-
-#### i-MSCP ####
+# i-MSCP
 imscpServerFqdn = str(config['imscp-'+configSection]['imscpServerFqdn'])
 imscpSshUsername = str(config['imscp-'+configSection]['imscpSshUsername'])
 imscpSshPort = str(config['imscp-'+configSection]['imscpSshPort'])
