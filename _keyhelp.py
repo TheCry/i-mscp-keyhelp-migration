@@ -50,7 +50,6 @@ headers = {
 class KeyhelpGetData:
     def __init__(self):
         self.complete = False
-        self.KeyHelpAdminExists = False
         self.keyhelpData = dict()
 
     def getServerInformations(self, apiGetData):
@@ -99,6 +98,7 @@ class KeyhelpGetData:
 
                 apiGetData = responseApi.json()
                 if responseApi.status_code == 404:
+                    self.KeyHelpAdminExists = False
                     self.__checkExistKeyhelpUsernameAsAdmin(kUsername)
                     if not self.KeyHelpAdminExists:
                         _global_config.write_log(
