@@ -379,6 +379,8 @@ if __name__ == "__main__":
 
                     keyhelpAddApiData['keyhelpSetDisableDnsForDomain'] = keyhelpSetDisableDnsForDomain
 
+                    iSubDomainIdna = imscpSubDomainsValue.get('iSubDomainIdna')
+
                     keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                     if keyhelpAddData.status:
                         print('Sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '" added successfully.\n')
@@ -392,7 +394,7 @@ if __name__ == "__main__":
                                 keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
                                                      'keyhelpDomainId': keyhelpAddData.keyhelpApiReturnData[
                                                          'keyhelpDomainId'],
-                                                     'iSslDomainIdna': imscpInputData.imscpData['iSubDomainIdna'],
+                                                     'iSslDomainIdna': iSubDomainIdna,
                                                      'iSslPrivateKey': imscpSslValue.get('iSslPrivateKey'),
                                                      'iSslCertificate': imscpSslValue.get('iSslCertificate'),
                                                      'iSslCaBundle': imscpSslValue.get('iSslCaBundle'),
