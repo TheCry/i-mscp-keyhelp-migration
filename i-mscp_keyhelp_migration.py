@@ -433,7 +433,7 @@ if __name__ == "__main__":
                                 print(
                                     'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.\n')
 
-                        print('Adding email addresses for sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '".')
+                        print('Adding email addresses for sub domain "' + iSubDomainIdna + '".')
                         # Adding i-MSCP sub domain normal email addresses
                         for imscpEmailsSubDomainsArrayKey, imscpEmailsSubDomainsArrayValue in \
                                 imscpInputData.imscpDomainSubEmailAddressNormal['subid-' + subDomainId].items():
@@ -534,6 +534,7 @@ if __name__ == "__main__":
                         _global_config.write_log('ERROR "' + keyhelpAddApiData['iSubDomainIdna'] + '" failed to add.')
                         print('ERROR "' + keyhelpAddApiData['iSubDomainIdna'] + '" failed to add.\n')
 
+                print('Adding email addresses for domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '".')
                 # Adding i-MSCP domain normal email addresses
                 for imscpEmailsDomainsArrayKey, imscpEmailsDomainsArrayValue in \
                         imscpInputData.imscpDomainEmailAddressNormal.items():
@@ -782,6 +783,7 @@ if __name__ == "__main__":
                                         'ERROR SSL cert for "' + keyhelpAddApiData[
                                             'iSslDomainIdna'] + '" failed to add.\n')
 
+                            print('Adding email addresses for alias sub domain "' + iAliasSubDomainIdna + '".')
                             # Adding i-MSCP alias sub domain normal email addresses
                             for imscpEmailsAliasSubDomainsArrayKey, imscpEmailsAliasSubDomainsArrayValue in \
                                     imscpInputData.imscpAliasSubEmailAddressNormal['subid-' + aliasSubDomainId].items():
@@ -894,6 +896,7 @@ if __name__ == "__main__":
                                 'ERROR "' + keyhelpAddApiData['iAliasSubDomainIdna'] + '" failed to add.')
                             print('ERROR "' + keyhelpAddApiData['iAliasSubDomainIdna'] + '" failed to add.\n')
 
+                    print('Adding email addresses for alias domain "' + aliasDomainParentName + '".')
                     # Adding i-MSCP alias domain normal email addresses
                     for imscpEmailsAliasDomainsArrayKey, imscpEmailsAliasDomainsArrayValue in \
                             imscpInputData.imscpAliasEmailAddressNormal['aliasid-' + aliasDomainParentId].items():
