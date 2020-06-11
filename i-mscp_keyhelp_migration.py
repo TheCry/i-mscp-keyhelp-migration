@@ -712,7 +712,7 @@ if __name__ == "__main__":
                         keyhelpAddApiData['iAliasSubDomainData'] = imscpAliasSubDomainsValue.get(
                             'iAliasSubDomainData')
 
-                        iAliasSubDomainIdna = keyhelpAddApiData['iAliasSubDomainIdna']
+                        iAliasSubDomainIdna = imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')
 
                         print('Adding i-MSCP alias sub domain "' + keyhelpAddApiData[
                             'iAliasSubDomainIdna'] + '" to alias domain "' + aliasDomainParentName + '".')
