@@ -221,7 +221,7 @@ class KeyhelpGetData:
         return True
 
     def KeyhelpEmailaddress(self, kEmailaddress):
-        emailRegex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        emailRegex = '[^@]+@[^@]+\.[^@]+'
         if (re.search(emailRegex, kEmailaddress)):
             _global_config.write_log(
                 'Debug KeyHelp informations:\nKeyHelp panel user emailaddress: "' + kEmailaddress + '"\n')
@@ -286,7 +286,8 @@ class KeyHelpAddDataToServer:
     def updateKeyHelpDataToApi(self, apiEndPoint, keyHelpData):
         apiJsonData = self.__makeClientsJsonData(keyHelpData, apiEndPoint, updateData=True)
         try:
-            responseApi = requests.put(apiUrl + apiEndPoint + '/' + str(keyHelpData['keyhelpDomainId']), data=apiJsonData,
+            responseApi = requests.put(apiUrl + apiEndPoint + '/' + str(keyHelpData['keyhelpDomainId']),
+                                       data=apiJsonData,
                                        headers=headers, timeout=apiTimeout, verify=apiServerFqdnVerify)
         except requests.exceptions.HTTPError as errorApi:
             raise SystemExit("An Http Error occurred:" + str(errorApi))
@@ -309,7 +310,6 @@ class KeyHelpAddDataToServer:
             print("KeyHelp API Message: %i - %s, Message %s" % (
                 responseApi.status_code, responseApi.reason, apiPostData['message']))
             self.status = False
-
 
     def addKeyHelpDataToApi(self, apiEndPoint, keyHelpData):
         apiJsonData = self.__makeClientsJsonData(keyHelpData, apiEndPoint)
