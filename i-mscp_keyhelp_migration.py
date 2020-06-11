@@ -1110,9 +1110,8 @@ if __name__ == "__main__":
             print('\nAll i-MSCP data were added to KeyHelp. Check the logfile "' + imscpInputData.imscpData[
                 'iUsernameDomainIdna'] + '_keyhelp_migration_data.log".')
             if _global_config.ask_Yes_No('Should we start to copy all data to the KeyHelp Server [y/n]? '):
-                # os.system('cls' if os.name == 'nt' else 'clear')
-                print('Please wait 30 seconds.. KeyHelp adds all your informations!')
-                time.sleep(30)
+                print('Please wait 20 seconds.. KeyHelp adds all your i-MSCP information!')
+                time.sleep(20)
                 print('Dumping i-MSCP databases and copy on this server')
                 if not os.path.exists(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps'):
                     os.makedirs(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps')
@@ -1145,50 +1144,48 @@ if __name__ == "__main__":
                         print('Check remote MySQL dump folder wheter exists. If not, i will create it!\n')
                         client.exec_command('test ! -d ' + imscpDbDumpFolder + ' && mkdir -p ' + imscpDbDumpFolder)
 
+                        # open sftp connection
+                        sftp_client = client.open_sftp()
+
                         for newDatabaseName, oldDatabaseName in keyhelpAddedDatabases.items():
                             # print(newDatabaseName, '->', oldDatabaseName)
-                            # open sftp connection
-                            sftp_client = client.open_sftp()
+                            exit_status = ''
                             print(
-                                'Dumping database "' + oldDatabaseName + '" to "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz".')
-                            client.exec_command(
+                                'Please wait... Dumping database "' + oldDatabaseName + '" to "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz".')
+                            stdin, stdout, stderr = client.exec_command(
                                 'mysqldump -h' + imscpInputData.imscpData['imysqlhost'] + ' -P' +
                                 imscpInputData.imscpData[
                                     'imysqlport'] + ' -u' + imscpInputData.imscpData['imysqluser'] + ' -p' +
                                 imscpInputData.imscpData[
                                     'imysqlpassword'] + ' ' + oldDatabaseName + ' | gzip > ' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz')
 
-                            # Workarround for sftp - An error for the local file appears, if not exist
-                            '''if not os.path.isfile(
-                                    str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
-                                        newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz'):
-                                open(str(imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
-                                    newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', 'a').close()
-                                time.sleep(1)'''
+                            while True:
+                                exit_status = stdout.channel.recv_exit_status()
+                                if exit_status >= 0:
+                                    break
+                            if exit_status == 0:
+                                print('Transferring "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz" to ' +
+                                      imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/' + str(
+                                    newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz.')
 
-                            print('Transferring "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz" to ' +
-                                  imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/' + str(
-                                newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz.')
+                                remoteFile = sftp_client.stat(
+                                    str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz')
+                                with TqdmWrap(ascii=False, unit='b', unit_scale=True, leave=True, miniters=1,
+                                              desc='Transferring SQL Dump......', total=remoteFile.st_size, ncols=150) as pbar:
+                                    sftp_client.get(str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz', str(
+                                        imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
+                                        newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', callback=pbar.viewBar)
+                                print('Transferring SQL Dump finished')
 
-                            remoteFile = sftp_client.stat(
-                                str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz')
-                            # Info: The progressbar will disappear if the terminal starts to scroll =>
-                            # https://github.com/tqdm/tqdm/issues/285#issuecomment-271105145
-                            # leave=True to leave the progressbar after finish
-                            with TqdmWrap(ascii=False, unit='b', unit_scale=True, leave=False, miniters=1,
-                                          desc='Transferring SQL Dump......', total=remoteFile.st_size) as pbar:
-                                sftp_client.get(str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz', str(
-                                    imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
-                                    newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', callback=pbar.viewBar)
-                            print('Transferring SQL Dump finished')
-
-                            # remove the remote sql dump
-                            print(
-                                '\nRemoving database dump "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz" on remote server.\n')
-                            client.exec_command('rm ' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz')
-                            _global_config.write_migration_log(
-                                imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_databases.log',
-                                'MySQL dump for i-MSCP database "' + oldDatabaseName + '" => ' + newDatabaseName + '__' + oldDatabaseName + '_sql.gz')
+                                # remove the remote sql dump
+                                print(
+                                    '\nRemoving database dump "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz" on remote server.\n')
+                                client.exec_command('rm ' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz')
+                                _global_config.write_migration_log(
+                                    imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_databases.log',
+                                    'MySQL dump for i-MSCP database "' + oldDatabaseName + '" => ' + newDatabaseName + '__' + oldDatabaseName + '_sql.gz')
+                            else:
+                                print('Something went wrong while dumping the database "' + oldDatabaseName + '"')
 
                     except AuthenticationException:
                         print('Authentication failed, please verify your credentials!')
@@ -1200,6 +1197,7 @@ if __name__ == "__main__":
                         print("Unable to verify server's host key: %s" % badHostKeyException)
                         exit(1)
                     finally:
+                        sftp_client.close()
                         client.close()
 
                     #### KeyHelp Daten welche befüllt wurden
