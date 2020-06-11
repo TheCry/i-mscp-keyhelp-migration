@@ -318,7 +318,7 @@ class imscpGetData:
                 print('Debug i-MSCP informations alias domains:\nAlias domain "' + self.imscpDomainAliases[index][
                     'iAliasDomain'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
-            self.__getImscpAliasSubDomains(self.imscpDomainAliases[index]['iAliasDomainId'],
+            self.__getImscpAliasSubDomains(iUsernameDomainId, self.imscpDomainAliases[index]['iAliasDomainId'],
                                            self.imscpDomainAliases[index]['iAliasDomain'],
                                            self.imscpDomainAliases[index]['iAliasDomainIdna'], client)
             self.__getImscpAliasEmailaddresses(iUsernameDomainId, self.imscpDomainAliases[index]['iAliasDomainId'],
@@ -691,7 +691,7 @@ class imscpGetData:
             _global_config.write_log(
                 '======================= End data for database users - "' + iDatabaseName + '" - Domain "' + iUsernameDomain + '" =======================\n\n\n')
 
-    def __getImscpAliasSubDomains(self, iAliasDomainid, iAliasDomain, iAliasDomainIdna, client):
+    def __getImscpAliasSubDomains(self, iUsernameDomainId, iAliasDomainid, iAliasDomain, iAliasDomainIdna, client):
         if imscpSshPublicKey:
             client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
                            key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
@@ -749,7 +749,7 @@ class imscpGetData:
                       self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index][
                           'iAliasSubDomain'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
-            self.__getImscpAliasSubEmailaddresses(iAliasDomainid,
+            self.__getImscpAliasSubEmailaddresses(iUsernameDomainId,
                                                   self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index][
                                                       'iAliasSubDomainId'],
                                                   self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index][
@@ -1140,7 +1140,7 @@ class imscpGetData:
                 print(
                     'Debug i-MSCP informations emails alias domain:\nNo emails found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
-    def __getImscpAliasSubEmailaddresses(self, iAliasDomainid, iAliasSubDomainId, iAliasSubDomain, iAliasSubDomainIdna,
+    def __getImscpAliasSubEmailaddresses(self, iDomainid, iAliasSubDomainId, iAliasSubDomain, iAliasSubDomainIdna,
                                          client):
         if imscpSshPublicKey:
             client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
@@ -1152,16 +1152,16 @@ class imscpGetData:
         stdin, stdout, stderr = client.exec_command(
             'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData[
-                'imysqlpassword'] + ' -e "SELECT mail_id, mail_acc, mail_acc, mail_pass, mail_forward, mail_type, '
+                'imysqlpassword'] + ' -e "SELECT mail_id, mail_acc, mail_pass, mail_forward, mail_type, '
                                     'sub_id, quota, mail_addr FROM ' +
             self.imscpData[
-                'imysqldatabase'] + '.mail_users WHERE domain_id = \'' + iAliasDomainid + '\' AND sub_id = \'' + iAliasSubDomainId + '\' AND mail_type LIKE \'alssub%\' AND status = \'ok\'"')
+                'imysqldatabase'] + '.mail_users WHERE domain_id = \'' + iDomainid + '\' AND sub_id = \'' + iAliasSubDomainId + '\' AND mail_type LIKE \'alssub%\' AND status = \'ok\'"')
         i = 0
         dataLine = ''
-        self.imscpAliasSubEmailAddressNormalCatchAll['subid-' + iAliasSubDomainId] = {}
-        self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId] = {}
-        self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId] = {}
-        self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId] = {}
+        self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId] = {}
+        self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId] = {}
+        self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId] = {}
+        self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId] = {}
         for line in stdout:
             #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
@@ -1181,86 +1181,86 @@ class imscpGetData:
             imscpEmailDomainData[2] = re.sub("rounds=5000\$", "", imscpEmailDomainData[1], flags=re.UNICODE)
 
             if imscpEmailDomainData[4] == 'alssub_catchall':
-                self.imscpAliasSubEmailAddressNormalCatchAll['subid-' + iAliasSubDomainId][index] = {}
-                self.imscpAliasSubEmailAddressNormalCatchAll['subid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
+                self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index] = {}
+                self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
                     imscpEmailDomainData[0]
-                self.imscpAliasSubEmailAddressNormalCatchAll['subid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
+                self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
                     imscpEmailDomainData[1]
                 _global_config.write_log(
                     'Debug i-MSCP informations catchall emails alias sub domain:\nEmailadress "' +
-                    self.imscpAliasSubEmailAddressNormalCatchAll['subid-' + iAliasSubDomainId][index][
+                    self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index][
                         'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
                 if showDebug:
                     print('Debug i-MSCP informations catchall emails alias sub domain:\nEmailadress "' +
-                          self.imscpAliasSubEmailAddressNormalCatchAll['subid-' + iAliasSubDomainId][index][
+                          self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index][
                               'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
             if imscpEmailDomainData[4] == 'alssub_mail':
-                self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId][index] = {}
-                self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
+                self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index] = {}
+                self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
                     imscpEmailDomainData[0]
-                self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId][index]['iEmailMailPassword'] = \
+                self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index]['iEmailMailPassword'] = \
                     imscpEmailDomainData[2]
-                self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId][index]['iEmailMailForward'] = \
+                self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index]['iEmailMailForward'] = \
                     imscpEmailDomainData[3]
-                self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId][index]['iEmailMailType'] = \
+                self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index]['iEmailMailType'] = \
                     imscpEmailDomainData[4]
-                self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId][index]['iEmailMailQuota'] = \
+                self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index]['iEmailMailQuota'] = \
                     imscpEmailDomainData[6]
-                self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
+                self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
                     imscpEmailDomainData[7]
                 _global_config.write_log('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                                         self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId][index][
+                                         self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
                 if showDebug:
                     print('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                          self.imscpAliasSubEmailAddressNormal['subid-' + iAliasSubDomainId][index][
+                          self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index][
                               'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
             if imscpEmailDomainData[4] == 'alssub_mail,alssub_forward':
-                self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId][index] = {}
-                self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
+                self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index] = {}
+                self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
                     imscpEmailDomainData[0]
-                self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId][index][
+                self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index][
                     'iEmailMailPassword'] = imscpEmailDomainData[2]
-                self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId][index][
+                self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index][
                     'iEmailMailForward'] = imscpEmailDomainData[3]
-                self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId][index]['iEmailMailType'] = \
+                self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index]['iEmailMailType'] = \
                     imscpEmailDomainData[4]
-                self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId][index][
+                self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index][
                     'iEmailMailQuota'] = \
                     imscpEmailDomainData[6]
-                self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
+                self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
                     imscpEmailDomainData[7]
                 _global_config.write_log('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                                         self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId][
+                                         self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][
                                              index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
                 if showDebug:
                     print('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                          self.imscpAliasSubEmailAddressNormalForward['subid-' + iAliasSubDomainId][index][
+                          self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index][
                               'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
             if imscpEmailDomainData[4] == 'alssub_forward':
-                self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId][index] = {}
-                self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
+                self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index] = {}
+                self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
                     imscpEmailDomainData[0]
-                self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId][index]['iEmailMailPassword'] = \
+                self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index]['iEmailMailPassword'] = \
                     imscpEmailDomainData[2]
-                self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId][index]['iEmailMailForward'] = \
+                self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index]['iEmailMailForward'] = \
                     imscpEmailDomainData[3]
-                self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId][index]['iEmailMailType'] = \
+                self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index]['iEmailMailType'] = \
                     imscpEmailDomainData[4]
-                self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId][index]['iEmailMailQuota'] = \
+                self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index]['iEmailMailQuota'] = \
                     imscpEmailDomainData[6]
-                self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
+                self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
                     imscpEmailDomainData[7]
                 _global_config.write_log('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                                         self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId][index][
+                                         self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
                 if showDebug:
                     print('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                          self.imscpAliasSubEmailAddressForward['subid-' + iAliasSubDomainId][index][
+                          self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index][
                               'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
             i += 1
