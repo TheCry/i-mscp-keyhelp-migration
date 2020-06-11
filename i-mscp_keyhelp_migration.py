@@ -311,11 +311,11 @@ if __name__ == "__main__":
             if keyhelpAddData.status:
                 keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
                 domainParentId = imscpInputData.imscpData['iUsernameDomainId']
-                print('Domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" added successfully.\n')
+                print('Domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" added successfully.')
 
                 if bool(imscpInputData.imscpSslCerts['domainid-' + imscpInputData.imscpData['iUsernameDomainId']]):
                     # Adding SSL cert if exist
-                    print('Adding SSL cert for domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '".')
+                    print('\nAdding SSL cert for domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '".')
                     for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts[
                         'domainid-' + imscpInputData.imscpData['iUsernameDomainId']].items():
                         # print(imscpSslKey, '->', imscpSslValue)
@@ -339,8 +339,8 @@ if __name__ == "__main__":
 
                     keyhelpAddData.addKeyHelpDataToApi(apiEndpointCertificates, keyhelpAddApiData)
                     if keyhelpAddData.status:
-                        print('SSL cert for domain "' + keyhelpAddApiData['iSslDomainIdna'] + '" added successfully.\n')
-                        print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+                        print('SSL cert for domain "' + keyhelpAddApiData['iSslDomainIdna'] + '" added successfully.')
+                        print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
 
                         keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
                             'keyhelpSslId']
@@ -348,7 +348,7 @@ if __name__ == "__main__":
                         keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                         if keyhelpAddData.status:
                             print('Domain "' + keyhelpAddApiData[
-                                'iSslDomainIdna'] + '" updated succesfully with SSL cert.\n')
+                                'iSslDomainIdna'] + '" updated succesfully with SSL cert.')
                         else:
                             _global_config.write_log(
                                 'ERROR updating "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
@@ -357,6 +357,93 @@ if __name__ == "__main__":
                         _global_config.write_log(
                             'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.')
                         print('ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.\n')
+
+                print('\nAdding email addresses for domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '".')
+                # Adding i-MSCP domain normal email addresses
+                for imscpEmailsDomainsArrayKey, imscpEmailsDomainsArrayValue in \
+                        imscpInputData.imscpDomainEmailAddressNormal.items():
+                    # print(imscpEmailsDomainsArrayKey, '->', imscpEmailsDomainsArrayValue)
+                    keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
+                                         'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
+                    if bool(imscpInputData.imscpDomainEmailAddressNormalCatchAll):
+                        for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
+                            keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
+
+                    keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                    keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData['kdatabaseRootPassword']
+                    keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsDomainsArrayValue.get('iEmailMailQuota')
+                    keyhelpAddApiData['iEmailAddress'] = imscpEmailsDomainsArrayValue.get('iEmailAddress')
+                    keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsDomainsArrayValue.get('iEmailMailPassword')
+
+                    keyhelpAddApiData['iEmailMailInitialPassword'] = \
+                        keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
+
+                    keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
+                    if keyhelpAddData.status:
+                        print(
+                            'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.')
+                    else:
+                        _global_config.write_log(
+                            'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
+                        print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
+
+                # Adding i-MSCP domain normal forward email addresses
+                for imscpEmailsDomainsArrayKey, imscpEmailsDomainsArrayValue in \
+                        imscpInputData.imscpDomainEmailAddressNormalForward.items():
+                    # print(imscpEmailsDomainsArrayKey, '->', imscpEmailsDomainsArrayValue)
+                    keyhelpAddApiData = {'emailStoreForward': True, 'iEmailCatchall': '',
+                                         'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
+                    if bool(imscpInputData.imscpDomainEmailAddressNormalCatchAll):
+                        for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
+                            keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
+
+                    keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                    keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData['kdatabaseRootPassword']
+                    keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsDomainsArrayValue.get('iEmailMailQuota')
+                    keyhelpAddApiData['iEmailMailForward'] = imscpEmailsDomainsArrayValue.get('iEmailMailForward')
+                    keyhelpAddApiData['iEmailAddress'] = imscpEmailsDomainsArrayValue.get('iEmailAddress')
+                    keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsDomainsArrayValue.get('iEmailMailPassword')
+
+                    keyhelpAddApiData['iEmailMailInitialPassword'] = \
+                        keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
+
+                    keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
+                    if keyhelpAddData.status:
+                        print(
+                            'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.')
+                    else:
+                        _global_config.write_log(
+                            'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
+                        print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
+
+                # Adding i-MSCP domain forward email addresses
+                for imscpEmailsDomainsArrayKey, imscpEmailsDomainsArrayValue in \
+                        imscpInputData.imscpDomainEmailAddressForward.items():
+                    # print(imscpEmailsDomainsArrayKey, '->', imscpEmailsDomainsArrayValue)
+                    keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
+                                         'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
+                    if bool(imscpInputData.imscpDomainEmailAddressNormalCatchAll):
+                        for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
+                            keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
+
+                    # 5MB for only Forward
+                    keyhelpAddApiData['iEmailMailQuota'] = '5242880'
+                    keyhelpAddApiData['iEmailMailForward'] = imscpEmailsDomainsArrayValue.get('iEmailMailForward')
+                    keyhelpAddApiData['iEmailAddress'] = imscpEmailsDomainsArrayValue.get('iEmailAddress')
+                    # False because there is no need to update the password with an old one
+                    keyhelpAddApiData['iEmailMailPassword'] = False
+
+                    keyhelpAddApiData['iEmailMailInitialPassword'] = \
+                        keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
+
+                    keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
+                    if keyhelpAddData.status:
+                        print(
+                            'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.')
+                    else:
+                        _global_config.write_log(
+                            'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
+                        print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
 
                 # Adding sub domains for domain
                 for imscpSubDomainsKey, imscpSubDomainsValue in imscpInputData.imscpDomainSubDomains.items():
@@ -369,7 +456,7 @@ if __name__ == "__main__":
                     keyhelpAddApiData['iSubDomainIdna'] = imscpSubDomainsValue.get('iSubDomainIdna')
                     keyhelpAddApiData['iSubDomainData'] = imscpSubDomainsValue.get('iSubDomainData')
 
-                    print('Adding i-MSCP sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '" to domain "' +
+                    print('\nAdding i-MSCP sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '" to domain "' +
                           imscpInputData.imscpData['iUsernameDomainIdna'] + '".')
                     if keyhelpDisableDnsForDomain == 'ask':
                         if _global_config.ask_Yes_No('Do you want to active the dns zone for this domain [y/n]? '):
@@ -383,11 +470,11 @@ if __name__ == "__main__":
 
                     keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                     if keyhelpAddData.status:
-                        print('Sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '" added successfully.\n')
+                        print('Sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '" added successfully.')
                         if bool(imscpInputData.imscpSslCerts['subid-' + subDomainId]):
                             # Adding SSL cert if exist
                             print(
-                                'Adding SSL cert for sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '".')
+                                '\nAdding SSL cert for sub domain "' + keyhelpAddApiData['iSubDomainIdna'] + '".')
                             for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts[
                                 'subid-' + subDomainId].items():
                                 # print(imscpSslKey, '->', imscpSslValue)
@@ -412,8 +499,8 @@ if __name__ == "__main__":
                             keyhelpAddData.addKeyHelpDataToApi(apiEndpointCertificates, keyhelpAddApiData)
                             if keyhelpAddData.status:
                                 print('SSL cert for domain "' + keyhelpAddApiData[
-                                    'iSslDomainIdna'] + '" added successfully.\n')
-                                print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+                                    'iSslDomainIdna'] + '" added successfully.')
+                                print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
 
                                 keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
                                     'keyhelpSslId']
@@ -421,7 +508,7 @@ if __name__ == "__main__":
                                 keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                                 if keyhelpAddData.status:
                                     print('Domain "' + keyhelpAddApiData[
-                                        'iSslDomainIdna'] + '" updated succesfully with SSL cert.\n')
+                                        'iSslDomainIdna'] + '" updated succesfully with SSL cert.')
                                 else:
                                     _global_config.write_log(
                                         'ERROR updating "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
@@ -433,7 +520,7 @@ if __name__ == "__main__":
                                 print(
                                     'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.\n')
 
-                        print('Adding email addresses for sub domain "' + iSubDomainIdna + '".')
+                        print('\nAdding email addresses for sub domain "' + iSubDomainIdna + '".')
                         # Adding i-MSCP sub domain normal email addresses
                         for imscpEmailsSubDomainsArrayKey, imscpEmailsSubDomainsArrayValue in \
                                 imscpInputData.imscpDomainSubEmailAddressNormal['subid-' + subDomainId].items():
@@ -460,7 +547,7 @@ if __name__ == "__main__":
                             keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
                             if keyhelpAddData.status:
                                 print(
-                                    'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
+                                    'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.')
                             else:
                                 _global_config.write_log(
                                     'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
@@ -494,7 +581,7 @@ if __name__ == "__main__":
                             keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
                             if keyhelpAddData.status:
                                 print(
-                                    'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
+                                    'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.')
                             else:
                                 _global_config.write_log(
                                     'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
@@ -525,7 +612,7 @@ if __name__ == "__main__":
                             keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
                             if keyhelpAddData.status:
                                 print(
-                                    'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
+                                    'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.')
                             else:
                                 _global_config.write_log(
                                     'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
@@ -533,93 +620,6 @@ if __name__ == "__main__":
                     else:
                         _global_config.write_log('ERROR "' + keyhelpAddApiData['iSubDomainIdna'] + '" failed to add.')
                         print('ERROR "' + keyhelpAddApiData['iSubDomainIdna'] + '" failed to add.\n')
-
-                print('Adding email addresses for domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '".')
-                # Adding i-MSCP domain normal email addresses
-                for imscpEmailsDomainsArrayKey, imscpEmailsDomainsArrayValue in \
-                        imscpInputData.imscpDomainEmailAddressNormal.items():
-                    # print(imscpEmailsDomainsArrayKey, '->', imscpEmailsDomainsArrayValue)
-                    keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                         'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
-                    if bool(imscpInputData.imscpDomainEmailAddressNormalCatchAll):
-                        for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
-                            keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
-
-                    keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
-                    keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData['kdatabaseRootPassword']
-                    keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsDomainsArrayValue.get('iEmailMailQuota')
-                    keyhelpAddApiData['iEmailAddress'] = imscpEmailsDomainsArrayValue.get('iEmailAddress')
-                    keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsDomainsArrayValue.get('iEmailMailPassword')
-
-                    keyhelpAddApiData['iEmailMailInitialPassword'] = \
-                        keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
-
-                    keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-                    if keyhelpAddData.status:
-                        print(
-                            'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
-                    else:
-                        _global_config.write_log(
-                            'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
-                        print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
-
-                # Adding i-MSCP domain normal forward email addresses
-                for imscpEmailsDomainsArrayKey, imscpEmailsDomainsArrayValue in \
-                        imscpInputData.imscpDomainEmailAddressNormalForward.items():
-                    # print(imscpEmailsDomainsArrayKey, '->', imscpEmailsDomainsArrayValue)
-                    keyhelpAddApiData = {'emailStoreForward': True, 'iEmailCatchall': '',
-                                         'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
-                    if bool(imscpInputData.imscpDomainEmailAddressNormalCatchAll):
-                        for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
-                            keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
-
-                    keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
-                    keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData['kdatabaseRootPassword']
-                    keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsDomainsArrayValue.get('iEmailMailQuota')
-                    keyhelpAddApiData['iEmailMailForward'] = imscpEmailsDomainsArrayValue.get('iEmailMailForward')
-                    keyhelpAddApiData['iEmailAddress'] = imscpEmailsDomainsArrayValue.get('iEmailAddress')
-                    keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsDomainsArrayValue.get('iEmailMailPassword')
-
-                    keyhelpAddApiData['iEmailMailInitialPassword'] = \
-                        keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
-
-                    keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-                    if keyhelpAddData.status:
-                        print(
-                            'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
-                    else:
-                        _global_config.write_log(
-                            'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
-                        print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
-
-                # Adding i-MSCP domain forward email addresses
-                for imscpEmailsDomainsArrayKey, imscpEmailsDomainsArrayValue in \
-                        imscpInputData.imscpDomainEmailAddressForward.items():
-                    # print(imscpEmailsDomainsArrayKey, '->', imscpEmailsDomainsArrayValue)
-                    keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                         'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
-                    if bool(imscpInputData.imscpDomainEmailAddressNormalCatchAll):
-                        for domKey, domValue in imscpInputData.imscpDomainEmailAddressNormalCatchAll.items():
-                            keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
-
-                    # 5MB for only Forward
-                    keyhelpAddApiData['iEmailMailQuota'] = '5242880'
-                    keyhelpAddApiData['iEmailMailForward'] = imscpEmailsDomainsArrayValue.get('iEmailMailForward')
-                    keyhelpAddApiData['iEmailAddress'] = imscpEmailsDomainsArrayValue.get('iEmailAddress')
-                    # False because there is no need to update the password with an old one
-                    keyhelpAddApiData['iEmailMailPassword'] = False
-
-                    keyhelpAddApiData['iEmailMailInitialPassword'] = \
-                        keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
-
-                    keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-                    if keyhelpAddData.status:
-                        print(
-                            'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
-                    else:
-                        _global_config.write_log(
-                            'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
-                        print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
             else:
                 _global_config.write_log(
                     'ERROR "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" failed to add.')
@@ -635,7 +635,7 @@ if __name__ == "__main__":
                 keyhelpAddApiData['iAliasDomainIdna'] = imscpDomainAliasesValue.get('iAliasDomainIdna')
                 keyhelpAddApiData['iAliasDomainData'] = imscpDomainAliasesValue.get('iAliasDomainData')
 
-                print('Adding i-MSCP alias domain "' + keyhelpAddApiData['iAliasDomainIdna'] + '" to KeyHelpUser "' +
+                print('\nAdding i-MSCP alias domain "' + keyhelpAddApiData['iAliasDomainIdna'] + '" to KeyHelpUser "' +
                       keyhelpInputData.keyhelpData['kusername'] + '".')
                 if keyhelpDisableDnsForDomain == 'ask':
                     if _global_config.ask_Yes_No('Do you want to active the dns zone for this domain [y/n]? '):
@@ -648,7 +648,7 @@ if __name__ == "__main__":
                 keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                 if keyhelpAddData.status:
                     keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
-                    print('Domain "' + keyhelpAddApiData['iAliasDomainIdna'] + '" added successfully.\n')
+                    print('Domain "' + keyhelpAddApiData['iAliasDomainIdna'] + '" added successfully.')
 
                     if bool(imscpInputData.imscpSslCerts['aliasid-' + aliasDomainParentId]):
                         # Adding SSL cert if exist
@@ -678,8 +678,8 @@ if __name__ == "__main__":
                         keyhelpAddData.addKeyHelpDataToApi(apiEndpointCertificates, keyhelpAddApiData)
                         if keyhelpAddData.status:
                             print('SSL cert for domain "' + keyhelpAddApiData[
-                                'iSslDomainIdna'] + '" added successfully.\n')
-                            print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
+                                'iSslDomainIdna'] + '" added successfully.')
+                            print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
 
                             keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
                                 'keyhelpSslId']
@@ -687,7 +687,7 @@ if __name__ == "__main__":
                             keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
                             if keyhelpAddData.status:
                                 print('Domain "' + keyhelpAddApiData[
-                                    'iSslDomainIdna'] + '" updated succesfully with SSL cert.\n')
+                                    'iSslDomainIdna'] + '" updated succesfully with SSL cert.')
                             else:
                                 _global_config.write_log(
                                     'ERROR updating "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
@@ -699,204 +699,7 @@ if __name__ == "__main__":
                             print(
                                 'ERROR SSL cert for "' + keyhelpAddApiData['iSslDomainIdna'] + '" failed to add.\n')
 
-                    # Adding sub domains for alias domain
-                    for imscpAliasSubDomainsKey, imscpAliasSubDomainsValue in \
-                            imscpInputData.imscpAliasSubDomains['aliasid-' + aliasDomainParentId].items():
-                        # print(imscpAliasSubDomainsKey, '->', imscpAliasSubDomainsValue)
-                        keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
-                                             'iParentDomainId': keyHelpParentDomainId,
-                                             'iFirstDomainIdna': imscpInputData.imscpData['iUsernameDomainIdna']}
-
-                        aliasSubDomainId = imscpAliasSubDomainsValue.get('iAliasSubDomainId')
-                        keyhelpAddApiData['iAliasSubDomainIdna'] = imscpAliasSubDomainsValue.get(
-                            'iAliasSubDomainIdna')
-                        keyhelpAddApiData['iAliasSubDomainData'] = imscpAliasSubDomainsValue.get(
-                            'iAliasSubDomainData')
-
-                        iAliasSubDomainIdna = imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')
-
-                        print('Adding i-MSCP alias sub domain "' + keyhelpAddApiData[
-                            'iAliasSubDomainIdna'] + '" to alias domain "' + aliasDomainParentName + '".')
-                        if keyhelpDisableDnsForDomain == 'ask':
-                            if _global_config.ask_Yes_No('Do you want to active the dns zone for this domain [y/n]? '):
-                                keyhelpSetDisableDnsForDomain = False
-                            else:
-                                keyhelpSetDisableDnsForDomain = True
-
-                        keyhelpAddApiData['keyhelpSetDisableDnsForDomain'] = keyhelpSetDisableDnsForDomain
-
-                        keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
-                        if keyhelpAddData.status:
-                            print('Alias sub domain "' + keyhelpAddApiData[
-                                'iAliasSubDomainIdna'] + '" added successfully.\n')
-
-                            if bool(imscpInputData.imscpSslCerts['aliassubid-' + aliasSubDomainId]):
-                                # Adding SSL cert if exist
-                                print(
-                                    'Adding SSL cert for sub alias domain "' + iAliasSubDomainIdna + '".')
-                                for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts[
-                                    'aliassubid-' + aliasSubDomainId].items():
-                                    # print(imscpSslKey, '->', imscpSslValue)
-                                    keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
-                                                         'keyhelpDomainId': keyhelpAddData.keyhelpApiReturnData[
-                                                             'keyhelpDomainId'],
-                                                         'iSslDomainIdna': iAliasSubDomainIdna,
-                                                         'iSslPrivateKey': imscpSslValue.get('iSslPrivateKey'),
-                                                         'iSslCertificate': imscpSslValue.get('iSslCertificate'),
-                                                         'iSslCaBundle': imscpSslValue.get('iSslCaBundle'),
-                                                         'iSslHstsMaxAge': imscpSslValue.get('iSslHstsMaxAge')}
-
-                                    if imscpSslValue.get('iSslAllowHsts') == 'on':
-                                        keyhelpAddApiData['iSslAllowHsts'] = 'true'
-                                    else:
-                                        keyhelpAddApiData['iSslAllowHsts'] = 'false'
-                                    if imscpSslValue.get('iSslHstsIncludeSubdomains') == 'on':
-                                        keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'true'
-                                    else:
-                                        keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'false'
-
-                                keyhelpAddData.addKeyHelpDataToApi(apiEndpointCertificates, keyhelpAddApiData)
-                                if keyhelpAddData.status:
-                                    print('SSL cert for domain "' + keyhelpAddApiData[
-                                        'iSslDomainIdna'] + '" added successfully.\n')
-                                    print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.\n')
-
-                                    keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
-                                        'keyhelpSslId']
-
-                                    keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
-                                    if keyhelpAddData.status:
-                                        print('Domain "' + keyhelpAddApiData[
-                                            'iSslDomainIdna'] + '" updated succesfully with SSL cert.\n')
-                                    else:
-                                        _global_config.write_log(
-                                            'ERROR updating "' + keyhelpAddApiData[
-                                                'iSslDomainIdna'] + '" with SSL cert.')
-                                        print(
-                                            'ERROR updating "' + keyhelpAddApiData[
-                                                'iSslDomainIdna'] + '" with SSL cert.\n')
-                                else:
-                                    _global_config.write_log(
-                                        'ERROR SSL cert for "' + keyhelpAddApiData[
-                                            'iSslDomainIdna'] + '" failed to add.')
-                                    print(
-                                        'ERROR SSL cert for "' + keyhelpAddApiData[
-                                            'iSslDomainIdna'] + '" failed to add.\n')
-
-                            print('Adding email addresses for alias sub domain "' + iAliasSubDomainIdna + '".')
-                            # Adding i-MSCP alias sub domain normal email addresses
-                            for imscpEmailsAliasSubDomainsArrayKey, imscpEmailsAliasSubDomainsArrayValue in \
-                                    imscpInputData.imscpAliasSubEmailAddressNormal['subid-' + aliasSubDomainId].items():
-                                # print(imscpEmailsAliasSubDomainsArrayKey, '->', imscpEmailsAliasSubDomainsArrayValue)
-                                keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                                     'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
-                                if bool(imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
-                                            'subid-' + aliasSubDomainId]):
-                                    for domKey, domValue in imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
-                                        'subid-' + aliasSubDomainId].items():
-                                        keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
-
-                                keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
-                                keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
-                                    'kdatabaseRootPassword']
-                                keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsAliasSubDomainsArrayValue.get(
-                                    'iEmailMailQuota')
-                                keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasSubDomainsArrayValue.get(
-                                    'iEmailAddress')
-                                keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsAliasSubDomainsArrayValue.get(
-                                    'iEmailMailPassword')
-
-                                keyhelpAddApiData['iEmailMailInitialPassword'] = \
-                                    keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
-
-                                keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-                                if keyhelpAddData.status:
-                                    print(
-                                        'Email address "' + keyhelpAddApiData[
-                                            'iEmailAddress'] + '" added successfully.\n')
-                                else:
-                                    _global_config.write_log(
-                                        'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
-                                    print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
-
-                            # Adding i-MSCP alias sub domain normal forward email addresses
-                            for imscpEmailsAliasSubDomainsArrayKey, imscpEmailsAliasSubDomainsArrayValue in \
-                                    imscpInputData.imscpAliasSubEmailAddressNormalForward[
-                                        'subid-' + aliasSubDomainId].items():
-                                # print(imscpEmailsAliasSubDomainsArrayKey, '->', imscpEmailsAliasSubDomainsArrayValue)
-                                keyhelpAddApiData = {'emailStoreForward': True, 'iEmailCatchall': '',
-                                                     'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
-                                if bool(imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
-                                            'subid-' + aliasSubDomainId]):
-                                    for domKey, domValue in imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
-                                        'subid-' + aliasSubDomainId].items():
-                                        keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
-
-                                keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
-                                keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
-                                    'kdatabaseRootPassword']
-                                keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsAliasSubDomainsArrayValue.get(
-                                    'iEmailMailQuota')
-                                keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasSubDomainsArrayValue.get(
-                                    'iEmailMailForward')
-                                keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasSubDomainsArrayValue.get(
-                                    'iEmailAddress')
-                                keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsAliasSubDomainsArrayValue.get(
-                                    'iEmailMailPassword')
-
-                                keyhelpAddApiData['iEmailMailInitialPassword'] = \
-                                    keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
-
-                                keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-                                if keyhelpAddData.status:
-                                    print(
-                                        'Email address "' + keyhelpAddApiData[
-                                            'iEmailAddress'] + '" added successfully.\n')
-                                else:
-                                    _global_config.write_log(
-                                        'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
-                                    print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
-
-                            # Adding i-MSCP alias sub domain forward email addresses
-                            for imscpEmailsAliasSubDomainsArrayKey, imscpEmailsAliasSubDomainsArrayValue in \
-                                    imscpInputData.imscpAliasSubEmailAddressForward[
-                                        'subid-' + aliasSubDomainId].items():
-                                # print(imscpEmailsAliasSubDomainsArrayKey, '->', imscpEmailsAliasSubDomainsArrayValue)
-                                keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
-                                                     'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
-                                if bool(imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
-                                            'subid-' + aliasSubDomainId]):
-                                    for domKey, domValue in imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
-                                        'subid-' + aliasSubDomainId].items():
-                                        keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
-
-                                # 5MB for only Forward
-                                keyhelpAddApiData['iEmailMailQuota'] = '5242880'
-                                keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasSubDomainsArrayValue.get(
-                                    'iEmailMailForward')
-                                keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasSubDomainsArrayValue.get(
-                                    'iEmailAddress')
-                                # False because there is no need to update the password with an old one
-                                keyhelpAddApiData['iEmailMailPassword'] = False
-
-                                keyhelpAddApiData['iEmailMailInitialPassword'] = \
-                                    keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
-
-                                keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
-                                if keyhelpAddData.status:
-                                    print(
-                                        'Email address "' + keyhelpAddApiData[
-                                            'iEmailAddress'] + '" added successfully.\n')
-                                else:
-                                    _global_config.write_log(
-                                        'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
-                                    print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
-                        else:
-                            _global_config.write_log(
-                                'ERROR "' + keyhelpAddApiData['iAliasSubDomainIdna'] + '" failed to add.')
-                            print('ERROR "' + keyhelpAddApiData['iAliasSubDomainIdna'] + '" failed to add.\n')
-
-                    print('Adding email addresses for alias domain "' + aliasDomainParentName + '".')
+                    print('\nAdding email addresses for alias domain "' + aliasDomainParentName + '".')
                     # Adding i-MSCP alias domain normal email addresses
                     for imscpEmailsAliasDomainsArrayKey, imscpEmailsAliasDomainsArrayValue in \
                             imscpInputData.imscpAliasEmailAddressNormal['aliasid-' + aliasDomainParentId].items():
@@ -922,7 +725,7 @@ if __name__ == "__main__":
                         keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
                         if keyhelpAddData.status:
                             print(
-                                'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
+                                'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.')
                         else:
                             _global_config.write_log(
                                 'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
@@ -956,7 +759,7 @@ if __name__ == "__main__":
                         keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
                         if keyhelpAddData.status:
                             print(
-                                'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
+                                'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.')
                         else:
                             _global_config.write_log(
                                 'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
@@ -987,18 +790,215 @@ if __name__ == "__main__":
                         keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
                         if keyhelpAddData.status:
                             print(
-                                'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.\n')
+                                'Email address "' + keyhelpAddApiData['iEmailAddress'] + '" added successfully.')
                         else:
                             _global_config.write_log(
                                 'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
                             print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
+
+                    # Adding sub domains for alias domain
+                    for imscpAliasSubDomainsKey, imscpAliasSubDomainsValue in \
+                            imscpInputData.imscpAliasSubDomains['aliasid-' + aliasDomainParentId].items():
+                        # print(imscpAliasSubDomainsKey, '->', imscpAliasSubDomainsValue)
+                        keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
+                                             'iParentDomainId': keyHelpParentDomainId,
+                                             'iFirstDomainIdna': imscpInputData.imscpData['iUsernameDomainIdna']}
+
+                        aliasSubDomainId = imscpAliasSubDomainsValue.get('iAliasSubDomainId')
+                        keyhelpAddApiData['iAliasSubDomainIdna'] = imscpAliasSubDomainsValue.get(
+                            'iAliasSubDomainIdna')
+                        keyhelpAddApiData['iAliasSubDomainData'] = imscpAliasSubDomainsValue.get(
+                            'iAliasSubDomainData')
+
+                        iAliasSubDomainIdna = imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')
+
+                        print('\nAdding i-MSCP alias sub domain "' + keyhelpAddApiData[
+                            'iAliasSubDomainIdna'] + '" to alias domain "' + aliasDomainParentName + '".')
+                        if keyhelpDisableDnsForDomain == 'ask':
+                            if _global_config.ask_Yes_No('Do you want to active the dns zone for this domain [y/n]? '):
+                                keyhelpSetDisableDnsForDomain = False
+                            else:
+                                keyhelpSetDisableDnsForDomain = True
+
+                        keyhelpAddApiData['keyhelpSetDisableDnsForDomain'] = keyhelpSetDisableDnsForDomain
+
+                        keyhelpAddData.addKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
+                        if keyhelpAddData.status:
+                            print('Alias sub domain "' + keyhelpAddApiData[
+                                'iAliasSubDomainIdna'] + '" added successfully.')
+
+                            if bool(imscpInputData.imscpSslCerts['aliassubid-' + aliasSubDomainId]):
+                                # Adding SSL cert if exist
+                                print(
+                                    '\nAdding SSL cert for sub alias domain "' + iAliasSubDomainIdna + '".')
+                                for imscpSslKey, imscpSslValue in imscpInputData.imscpSslCerts[
+                                    'aliassubid-' + aliasSubDomainId].items():
+                                    # print(imscpSslKey, '->', imscpSslValue)
+                                    keyhelpAddApiData = {'addedKeyHelpUserId': addedKeyHelpUserId,
+                                                         'keyhelpDomainId': keyhelpAddData.keyhelpApiReturnData[
+                                                             'keyhelpDomainId'],
+                                                         'iSslDomainIdna': iAliasSubDomainIdna,
+                                                         'iSslPrivateKey': imscpSslValue.get('iSslPrivateKey'),
+                                                         'iSslCertificate': imscpSslValue.get('iSslCertificate'),
+                                                         'iSslCaBundle': imscpSslValue.get('iSslCaBundle'),
+                                                         'iSslHstsMaxAge': imscpSslValue.get('iSslHstsMaxAge')}
+
+                                    if imscpSslValue.get('iSslAllowHsts') == 'on':
+                                        keyhelpAddApiData['iSslAllowHsts'] = 'true'
+                                    else:
+                                        keyhelpAddApiData['iSslAllowHsts'] = 'false'
+                                    if imscpSslValue.get('iSslHstsIncludeSubdomains') == 'on':
+                                        keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'true'
+                                    else:
+                                        keyhelpAddApiData['iSslHstsIncludeSubdomains'] = 'false'
+
+                                keyhelpAddData.addKeyHelpDataToApi(apiEndpointCertificates, keyhelpAddApiData)
+                                if keyhelpAddData.status:
+                                    print('SSL cert for domain "' + keyhelpAddApiData[
+                                        'iSslDomainIdna'] + '" added successfully.')
+                                    print('Update "' + keyhelpAddApiData['iSslDomainIdna'] + '" with SSL cert.')
+
+                                    keyhelpAddApiData['keyhelpSslId'] = keyhelpAddData.keyhelpApiReturnData[
+                                        'keyhelpSslId']
+
+                                    keyhelpAddData.updateKeyHelpDataToApi(apiEndpointDomains, keyhelpAddApiData)
+                                    if keyhelpAddData.status:
+                                        print('Domain "' + keyhelpAddApiData[
+                                            'iSslDomainIdna'] + '" updated succesfully with SSL cert.')
+                                    else:
+                                        _global_config.write_log(
+                                            'ERROR updating "' + keyhelpAddApiData[
+                                                'iSslDomainIdna'] + '" with SSL cert.')
+                                        print(
+                                            'ERROR updating "' + keyhelpAddApiData[
+                                                'iSslDomainIdna'] + '" with SSL cert.\n')
+                                else:
+                                    _global_config.write_log(
+                                        'ERROR SSL cert for "' + keyhelpAddApiData[
+                                            'iSslDomainIdna'] + '" failed to add.')
+                                    print(
+                                        'ERROR SSL cert for "' + keyhelpAddApiData[
+                                            'iSslDomainIdna'] + '" failed to add.\n')
+
+                            print('\nAdding email addresses for alias sub domain "' + iAliasSubDomainIdna + '".')
+                            # Adding i-MSCP alias sub domain normal email addresses
+                            for imscpEmailsAliasSubDomainsKey, imscpEmailsAliasSubDomainsValue in \
+                                    imscpInputData.imscpAliasSubEmailAddressNormal['aliassubid-' + aliasSubDomainId].items():
+                                # print(imscpEmailsAliasSubDomainsKey, '->', imscpEmailsAliasSubDomainsValue)
+                                keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
+                                                     'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
+                                if bool(imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
+                                            'aliassubid-' + aliasSubDomainId]):
+                                    for domKey, domValue in imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
+                                        'aliassubid-' + aliasSubDomainId].items():
+                                        keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
+
+                                keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                                keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
+                                    'kdatabaseRootPassword']
+                                keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsAliasSubDomainsValue.get(
+                                    'iEmailMailQuota')
+                                keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasSubDomainsValue.get(
+                                    'iEmailAddress')
+                                keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsAliasSubDomainsValue.get(
+                                    'iEmailMailPassword')
+
+                                keyhelpAddApiData['iEmailMailInitialPassword'] = \
+                                    keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
+
+                                keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
+                                if keyhelpAddData.status:
+                                    print(
+                                        'Email address "' + keyhelpAddApiData[
+                                            'iEmailAddress'] + '" added successfully.')
+                                else:
+                                    _global_config.write_log(
+                                        'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
+                                    print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
+
+                            # Adding i-MSCP alias sub domain normal forward email addresses
+                            for imscpEmailsAliasSubDomainsKey, imscpEmailsAliasSubDomainsValue in \
+                                    imscpInputData.imscpAliasSubEmailAddressNormalForward[
+                                        'aliassubid-' + aliasSubDomainId].items():
+                                # print(imscpEmailsAliasSubDomainsKey, '->', imscpEmailsAliasSubDomainsArrayValue)
+                                keyhelpAddApiData = {'emailStoreForward': True, 'iEmailCatchall': '',
+                                                     'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
+                                if bool(imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
+                                            'aliassubid-' + aliasSubDomainId]):
+                                    for domKey, domValue in imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
+                                        'aliassubid-' + aliasSubDomainId].items():
+                                        keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
+
+                                keyhelpAddApiData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                                keyhelpAddApiData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
+                                    'kdatabaseRootPassword']
+                                keyhelpAddApiData['iEmailMailQuota'] = imscpEmailsAliasSubDomainsValue.get(
+                                    'iEmailMailQuota')
+                                keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasSubDomainsValue.get(
+                                    'iEmailMailForward')
+                                keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasSubDomainsValue.get(
+                                    'iEmailAddress')
+                                keyhelpAddApiData['iEmailMailPassword'] = imscpEmailsAliasSubDomainsValue.get(
+                                    'iEmailMailPassword')
+
+                                keyhelpAddApiData['iEmailMailInitialPassword'] = \
+                                    keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
+
+                                keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
+                                if keyhelpAddData.status:
+                                    print(
+                                        'Email address "' + keyhelpAddApiData[
+                                            'iEmailAddress'] + '" added successfully.')
+                                else:
+                                    _global_config.write_log(
+                                        'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
+                                    print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
+
+                            # Adding i-MSCP alias sub domain forward email addresses
+                            for imscpEmailsAliasSubDomainsKey, imscpEmailsAliasSubDomainsValue in \
+                                    imscpInputData.imscpAliasSubEmailAddressForward[
+                                        'aliassubid-' + aliasSubDomainId].items():
+                                # print(imscpEmailsAliasSubDomainsKey, '->', imscpEmailsAliasSubDomainsValue)
+                                keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
+                                                     'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': False}
+                                if bool(imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
+                                            'aliassubid-' + aliasSubDomainId]):
+                                    for domKey, domValue in imscpInputData.imscpAliasSubEmailAddressNormalCatchAll[
+                                        'subid-' + aliasSubDomainId].items():
+                                        keyhelpAddApiData['iEmailCatchall'] = domValue.get('iEmailAddress')
+
+                                # 5MB for only Forward
+                                keyhelpAddApiData['iEmailMailQuota'] = '5242880'
+                                keyhelpAddApiData['iEmailMailForward'] = imscpEmailsAliasSubDomainsValue.get(
+                                    'iEmailMailForward')
+                                keyhelpAddApiData['iEmailAddress'] = imscpEmailsAliasSubDomainsValue.get(
+                                    'iEmailAddress')
+                                # False because there is no need to update the password with an old one
+                                keyhelpAddApiData['iEmailMailPassword'] = False
+
+                                keyhelpAddApiData['iEmailMailInitialPassword'] = \
+                                    keyhelpAddData.keyhelpCreateRandomEmailPassword(keyhelpMinPasswordLenght)
+
+                                keyhelpAddData.addKeyHelpDataToApi(apiEndPointEmails, keyhelpAddApiData)
+                                if keyhelpAddData.status:
+                                    print(
+                                        'Email address "' + keyhelpAddApiData[
+                                            'iEmailAddress'] + '" added successfully.')
+                                else:
+                                    _global_config.write_log(
+                                        'ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.')
+                                    print('ERROR "' + keyhelpAddApiData['iEmailAddress'] + '" failed to add.\n')
+                        else:
+                            _global_config.write_log(
+                                'ERROR "' + keyhelpAddApiData['iAliasSubDomainIdna'] + '" failed to add.')
+                            print('ERROR "' + keyhelpAddApiData['iAliasSubDomainIdna'] + '" failed to add.\n')
                 else:
                     _global_config.write_log('ERROR "' + keyhelpAddApiData['iAliasDomainIdna'] + '" failed to add.')
                     print('ERROR "' + keyhelpAddApiData['iAliasDomainIdna'] + '" failed to add.\n')
 
             # Adding databases and database usernames
             if bool(imscpInputData.imscpDomainDatabaseNames):
-                print('Start adding databases and database usernames.\n')
+                print('\nStart adding databases and database usernames.\n')
                 keyhelpAddedDatabases = {}
                 for imscpDatabasesKey, imscpDatabasesValue in imscpInputData.imscpDomainDatabaseNames.items():
                     # print(imscpDatabasesKey, '->', imscpDatabasesValue)
@@ -1060,11 +1060,11 @@ if __name__ == "__main__":
                         _global_config.write_log('ERROR "' + keyhelpAddApiData['iDatabaseName'] + '" failed to add.')
                         print('ERROR "' + keyhelpAddApiData['iDatabaseName'] + '" failed to add.\n')
             else:
-                print('No databases and database usernames to add.\n')
+                print('\nNo databases and database usernames to add.\n')
 
             # Adding ftp users
             if bool(imscpInputData.imscpFtpUserNames):
-                print('Start adding FTP users.\n')
+                print('\nStart adding FTP users.')
                 for ftpUserKey, ftpUserValue in imscpInputData.imscpFtpUserNames.items():
                     # print(ftpUserKey, '->', ftpUserValue)
                     keyhelpAddApiData = {'iFtpUsername': str(ftpUserValue.get('iFtpUsername')),
@@ -1088,7 +1088,7 @@ if __name__ == "__main__":
 
             # Adding htaccess users
             if bool(imscpInputData.imscpDomainHtAcccessUsers):
-                print('Start adding HTACCESS users.\n')
+                print('\nStart adding HTACCESS users.')
                 for HtAccessUserKey, HtAccessUserValue in imscpInputData.imscpDomainHtAcccessUsers.items():
                     # print(HtAccessUserKey, '->', HtAccessUserValue)
                     keyhelpAddApiData = {'iHtAccessUserame': str(HtAccessUserValue.get('iHtAccessUserame')),

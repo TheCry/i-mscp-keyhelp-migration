@@ -328,7 +328,7 @@ class KeyHelpAddDataToServer:
         try:
             apiPostData = responseApi.json()
         except ValueError:
-            print('Something went wrong while making the API request. Try again in 5 seconds!')
+            print('\nSomething went wrong while making the API request. Try again in 5 seconds!\n')
             time.sleep(int(5))
             try:
                 responseApi = requests.post(apiUrl + apiEndPoint + '/', data=apiJsonData, headers=headers,
