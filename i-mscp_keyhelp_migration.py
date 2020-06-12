@@ -312,6 +312,53 @@ if __name__ == "__main__":
                 keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
                 domainParentId = imscpInputData.imscpData['iUsernameDomainId']
                 print('Domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" added successfully.')
+                print('Please wait... Keyhelp needs time to add the first domain.')
+                time.sleep(5)
+                # Adding ftp users
+                if bool(imscpInputData.imscpFtpUserNames):
+                    print('\nStart adding FTP users.')
+                    for ftpUserKey, ftpUserValue in imscpInputData.imscpFtpUserNames.items():
+                        # print(ftpUserKey, '->', ftpUserValue)
+                        keyhelpAddApiData = {'iFtpUsername': str(ftpUserValue.get('iFtpUsername')),
+                                             'iFtpUserPassword': str(ftpUserValue.get('iFtpUserPassword')),
+                                             'iFtpUserHomeDir': imscpInputData.imscpData['iUsernameDomainIdna'],
+                                             'iOldFtpUserHomeDir': str(ftpUserValue.get('iFtpUserHomeDir')),
+                                             'addedKeyHelpUserId': addedKeyHelpUserId,
+                                             'iFtpInitialPassword': keyhelpAddData.keyhelpCreateRandomFtpPassword(
+                                                 keyhelpMinPasswordLenght),
+                                             'kdatabaseRoot': keyhelpInputData.keyhelpData['kdatabaseRoot'],
+                                             'kdatabaseRootPassword': keyhelpInputData.keyhelpData[
+                                                 'kdatabaseRootPassword']}
+                        keyhelpAddData.addKeyHelpDataToApi(apiEndpointFtpusers, keyhelpAddApiData)
+                        if keyhelpAddData.status:
+                            print('FTP user "' + keyhelpAddApiData['iFtpUsername'] + '" added successfully.\n')
+                        else:
+                            _global_config.write_log('ERROR "' + keyhelpAddApiData['iFtpUsername'] + '" failed to add.')
+                            print('ERROR "' + keyhelpAddApiData['iFtpUsername'] + '" failed to add.\n')
+                else:
+                    print('No FTP users to add.\n')
+
+                # Adding htaccess users
+                if bool(imscpInputData.imscpDomainHtAcccessUsers):
+                    print('\nStart adding HTACCESS users.')
+                    for HtAccessUserKey, HtAccessUserValue in imscpInputData.imscpDomainHtAcccessUsers.items():
+                        # print(HtAccessUserKey, '->', HtAccessUserValue)
+                        keyhelpAddApiData = {'iHtAccessUserame': str(HtAccessUserValue.get('iHtAccessUserame')),
+                                             'iHtAccessPassword': str(HtAccessUserValue.get('iHtAccessPassword')),
+                                             'iHtAccessPath': '/home/users/' + str(
+                                                 keyhelpInputData.keyhelpData['kusername'].lower()) + '/www/' + str(
+                                                 imscpInputData.imscpData['iUsernameDomainIdna']),
+                                             'iHtAccessAuthName': 'Migrated from i-MSCP - ' + str(
+                                                 HtAccessUserValue.get('iHtAccessUserame')),
+                                             'addedKeyHelpUserId': addedKeyHelpUserId,
+                                             'kdatabaseRoot': keyhelpInputData.keyhelpData['kdatabaseRoot'],
+                                             'kdatabaseRootPassword': keyhelpInputData.keyhelpData[
+                                                 'kdatabaseRootPassword']}
+
+                        keyhelpAddData.addHtAccessUsersFromImscp(keyhelpAddApiData)
+                        print('HTACCESS user "' + keyhelpAddApiData['iHtAccessUserame'] + '" added successfully.\n')
+                else:
+                    print('No HTACCESS users to add.\n')
 
                 if bool(imscpInputData.imscpSslCerts['domainid-' + imscpInputData.imscpData['iUsernameDomainId']]):
                     # Adding SSL cert if exist
@@ -1061,52 +1108,6 @@ if __name__ == "__main__":
                         print('ERROR "' + keyhelpAddApiData['iDatabaseName'] + '" failed to add.\n')
             else:
                 print('\nNo databases and database usernames to add.\n')
-
-            # Adding ftp users
-            if bool(imscpInputData.imscpFtpUserNames):
-                print('\nStart adding FTP users.')
-                for ftpUserKey, ftpUserValue in imscpInputData.imscpFtpUserNames.items():
-                    # print(ftpUserKey, '->', ftpUserValue)
-                    keyhelpAddApiData = {'iFtpUsername': str(ftpUserValue.get('iFtpUsername')),
-                                         'iFtpUserPassword': str(ftpUserValue.get('iFtpUserPassword')),
-                                         'iFtpUserHomeDir': imscpInputData.imscpData['iUsernameDomainIdna'],
-                                         'iOldFtpUserHomeDir': str(ftpUserValue.get('iFtpUserHomeDir')),
-                                         'addedKeyHelpUserId': addedKeyHelpUserId,
-                                         'iFtpInitialPassword': keyhelpAddData.keyhelpCreateRandomFtpPassword(
-                                             keyhelpMinPasswordLenght),
-                                         'kdatabaseRoot': keyhelpInputData.keyhelpData['kdatabaseRoot'],
-                                         'kdatabaseRootPassword': keyhelpInputData.keyhelpData[
-                                             'kdatabaseRootPassword']}
-                    keyhelpAddData.addKeyHelpDataToApi(apiEndpointFtpusers, keyhelpAddApiData)
-                    if keyhelpAddData.status:
-                        print('FTP user "' + keyhelpAddApiData['iFtpUsername'] + '" added successfully.\n')
-                    else:
-                        _global_config.write_log('ERROR "' + keyhelpAddApiData['iFtpUsername'] + '" failed to add.')
-                        print('ERROR "' + keyhelpAddApiData['iFtpUsername'] + '" failed to add.\n')
-            else:
-                print('No FTP users to add.\n')
-
-            # Adding htaccess users
-            if bool(imscpInputData.imscpDomainHtAcccessUsers):
-                print('\nStart adding HTACCESS users.')
-                for HtAccessUserKey, HtAccessUserValue in imscpInputData.imscpDomainHtAcccessUsers.items():
-                    # print(HtAccessUserKey, '->', HtAccessUserValue)
-                    keyhelpAddApiData = {'iHtAccessUserame': str(HtAccessUserValue.get('iHtAccessUserame')),
-                                         'iHtAccessPassword': str(HtAccessUserValue.get('iHtAccessPassword')),
-                                         'iHtAccessPath': '/home/users/' + str(
-                                             keyhelpInputData.keyhelpData['kusername'].lower()) + '/www/' + str(
-                                             imscpInputData.imscpData['iUsernameDomainIdna']),
-                                         'iHtAccessAuthName': 'Migrated from i-MSCP - ' + str(
-                                             HtAccessUserValue.get('iHtAccessUserame')),
-                                         'addedKeyHelpUserId': addedKeyHelpUserId,
-                                         'kdatabaseRoot': keyhelpInputData.keyhelpData['kdatabaseRoot'],
-                                         'kdatabaseRootPassword': keyhelpInputData.keyhelpData[
-                                             'kdatabaseRootPassword']}
-
-                    keyhelpAddData.addHtAccessUsersFromImscp(keyhelpAddApiData)
-                    print('HTACCESS user "' + keyhelpAddApiData['iHtAccessUserame'] + '" added successfully.\n')
-            else:
-                print('No HTACCESS users to add.\n')
 
             if os.path.exists(logFile):
                 os.rename(logFile, loggingFolder + '/' + imscpInputData.imscpData[
