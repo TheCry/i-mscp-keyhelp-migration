@@ -312,8 +312,16 @@ if __name__ == "__main__":
                 keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
                 domainParentId = imscpInputData.imscpData['iUsernameDomainId']
                 print('Domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" added successfully.')
-                print('Please wait... Keyhelp needs time to add the first domain.')
-                time.sleep(5)
+                loop_starts = time.time()
+                while True:
+                    now = time.time()
+                    sys.stdout.write('\rWaiting since {0} seconds for Keyhelp. KeyHelp user was not added yet!'.format(int(now - loop_starts)))
+                    sys.stdout.flush()
+                    time.sleep(1)
+                    getUid = os.system('id ' + str(keyhelpInputData.keyhelpData['kusername'].lower()) + ' > /dev/null 2>&1')
+                    if getUid == 0:
+                        break
+
                 # Adding ftp users
                 if bool(imscpInputData.imscpFtpUserNames):
                     print('\nStart adding FTP users.')
@@ -1117,8 +1125,6 @@ if __name__ == "__main__":
             print('\nAll i-MSCP data were added to KeyHelp. Check the logfile "' + imscpInputData.imscpData[
                 'iUsernameDomainIdna'] + '_keyhelp_migration_data.log".')
             if _global_config.ask_Yes_No('Should we start to copy all data to the KeyHelp Server [y/n]? '):
-                print('Please wait 20 seconds.. KeyHelp adds all your i-MSCP information!')
-                time.sleep(20)
                 print('Dumping i-MSCP databases and copy on this server')
                 if not os.path.exists(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps'):
                     os.makedirs(imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps')
