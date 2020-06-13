@@ -294,6 +294,17 @@ if __name__ == "__main__":
         keyhelpAddData.addKeyHelpDataToApi(apiEndpointClients, keyhelpInputData.keyhelpData)
         if keyhelpAddData.status:
             addedKeyHelpUserId = keyhelpAddData.keyhelpApiReturnData['keyhelpUserId']
+            # Check wheter the system user was added by KeyHelp
+            loop_starts = time.time()
+            while True:
+                now = time.time()
+                sys.stdout.write('\rWaiting since {0} seconds for Keyhelp. KeyHelp user was not added yet!'.format(
+                    int(now - loop_starts)))
+                sys.stdout.flush()
+                time.sleep(1)
+                getUid = os.system('id ' + str(keyhelpInputData.keyhelpData['kusername'].lower()) + ' > /dev/null 2>&1')
+                if getUid == 0:
+                    break
             print('KeyHelpUser "' + keyhelpInputData.keyhelpData['kusername'] + '" added successfully.')
             print('Adding first domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" to KeyHelpUser "' +
                   keyhelpInputData.keyhelpData['kusername'] + '".')
@@ -312,15 +323,6 @@ if __name__ == "__main__":
                 keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
                 domainParentId = imscpInputData.imscpData['iUsernameDomainId']
                 print('Domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" added successfully.')
-                loop_starts = time.time()
-                while True:
-                    now = time.time()
-                    sys.stdout.write('\rWaiting since {0} seconds for Keyhelp. KeyHelp user was not added yet!'.format(int(now - loop_starts)))
-                    sys.stdout.flush()
-                    time.sleep(1)
-                    getUid = os.system('id ' + str(keyhelpInputData.keyhelpData['kusername'].lower()) + ' > /dev/null 2>&1')
-                    if getUid == 0:
-                        break
 
                 # Adding ftp users
                 if bool(imscpInputData.imscpFtpUserNames):
