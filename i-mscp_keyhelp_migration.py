@@ -103,7 +103,7 @@ if __name__ == "__main__":
             _global_config.write_log('Debug KeyHelp informations:\nKeyHelp API Login successfull\n')
             print('KeyHelp API Login successfull.')
             keyhelpInputData.getServerInformations(apiGetData)
-            print('Checking wheter Default hostingplan "' + keyhelpDefaultHostingplan + '" exist.')
+            print('Checking whether Default hostingplan "' + keyhelpDefaultHostingplan + '" exist.')
             if keyhelpInputData.checkExistDefaultHostingplan(keyhelpDefaultHostingplan):
                 if showDebug:
                     print('\nDebug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
@@ -294,7 +294,7 @@ if __name__ == "__main__":
         keyhelpAddData.addKeyHelpDataToApi(apiEndpointClients, keyhelpInputData.keyhelpData)
         if keyhelpAddData.status:
             addedKeyHelpUserId = keyhelpAddData.keyhelpApiReturnData['keyhelpUserId']
-            # Check wheter the system user was added by KeyHelp
+            # Check whether the system user was added by KeyHelp
             loop_starts = time.time()
             while True:
                 now = time.time()
@@ -1156,7 +1156,7 @@ if __name__ == "__main__":
                                            password=imscpRootPassword, timeout=imscpSshTimeout)
 
                         # Create MySQL dump folder if not exist
-                        print('Check remote MySQL dump folder wheter exists. If not, i will create it!\n')
+                        print('Check remote MySQL dump folder whether exists. If not, i will create it!\n')
                         client.exec_command('test ! -d ' + imscpDbDumpFolder + ' && mkdir -p ' + imscpDbDumpFolder)
 
                         # open sftp connection
@@ -1269,7 +1269,7 @@ if __name__ == "__main__":
                     emailAddressData = rsyncEmailAddress.split("@")
                     emailAddressData[0].strip()
                     emailAddressData[1].strip()
-                    print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                    print('Please wait.... Checking whether Keyhelp is ready with folder creation.')
                     loop_starts = time.time()
                     while True:
                         now = time.time()
@@ -1331,7 +1331,7 @@ if __name__ == "__main__":
                 if imscpInputData.imscpData['iUsernameDomainRsync'] and imscpInputData.imscpData[
                     'iUsernameDomainIdna'] in keyhelpAddData.keyhelpAddedDomains:
                     keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
-                    print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                    print('Please wait.... Checking whether Keyhelp is ready with folder creation.')
                     loop_starts = time.time()
                     while True:
                         now = time.time()
@@ -1446,7 +1446,7 @@ if __name__ == "__main__":
                     if imscpSubDomainsValue.get('iSubDomainRsync') and imscpSubDomainsValue.get(
                             'iSubDomainIdna') in keyhelpAddData.keyhelpAddedDomains:
                         keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
-                        print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                        print('Please wait.... Checking whether Keyhelp is ready with folder creation.')
                         loop_starts = time.time()
                         while True:
                             now = time.time()
@@ -1570,7 +1570,7 @@ if __name__ == "__main__":
                     if imscpAliasDomainsValue.get('iAliasDomainRsync') and imscpAliasDomainsValue.get(
                             'iAliasDomainIdna') in keyhelpAddData.keyhelpAddedDomains:
                         keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
-                        print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                        print('Please wait.... Checking whether Keyhelp is ready with folder creation.')
                         loop_starts = time.time()
                         while True:
                             now = time.time()
@@ -1693,7 +1693,7 @@ if __name__ == "__main__":
                         if imscpAliasSubDomainsValue.get('iAliasSubDomainRsync') and imscpAliasSubDomainsValue.get(
                                 'iAliasSubDomainIdna') in keyhelpAddData.keyhelpAddedDomains:
                             keyHelpUsername = str(keyhelpInputData.keyhelpData['kusername'].lower())
-                            print('Please wait.... Checking wheter Keyhelp is ready with folder creation.')
+                            print('Please wait.... Checking whether Keyhelp is ready with folder creation.')
                             loop_starts = time.time()
                             while True:
                                 now = time.time()
