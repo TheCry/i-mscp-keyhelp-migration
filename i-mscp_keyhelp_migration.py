@@ -109,27 +109,27 @@ if __name__ == "__main__":
                     print('\nDebug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
                 while not keyhelpInputData.keyhelpDataComplete():
                     while not keyhelpInputData.checkExistKeyhelpUsername(
-                            input("Geben Sie einen KeyHelp Usernamen an: ")):
+                            input("Enter a new KeyHelp username: ")):
                         continue
                     if keyhelpCreateRandomPassword:
-                        print('Passwort wird automatisch generiert!')
+                        print('Password is generated automatically!')
                         keyhelpInputData.keyhelpCreateRandomPassword(keyhelpMinPasswordLenght)
                     else:
                         while not keyhelpInputData.KeyhelpPassword(input(
-                                "Geben Sie einen KeyHelp Passwwort ein (min. " + str(
-                                    keyhelpMinPasswordLenght) + " Zeichen): "), keyhelpMinPasswordLenght):
+                                "Enter a KeyHelp password (min. " + str(
+                                    keyhelpMinPasswordLenght) + " Chars): "), keyhelpMinPasswordLenght):
                             continue
-                    while not keyhelpInputData.KeyhelpEmailaddress(input("Geben Sie eine Emailadresse ein: ")):
+                    while not keyhelpInputData.KeyhelpEmailaddress(input("Enter an email address: ")):
                         continue
-                    while not keyhelpInputData.KeyhelpSurname(input("Geben Sie eine Vornamen ein: ")):
+                    while not keyhelpInputData.KeyhelpSurname(input("Enter a first name: ")):
                         continue
-                    while not keyhelpInputData.KeyhelpName(input("Geben Sie eine Nachnamen ein: ")):
+                    while not keyhelpInputData.KeyhelpName(input("Enter a last name: ")):
                         continue
                     while not keyhelpInputData.KeyhelpHostingplan(input(
-                            "Welcher Hostingplan soll genutzt werden (Enter um den Default Hostingplan zu nutzen)? ")):
+                            "Which hosting plan should be used (Enter to use the default hosting plan)? ")):
                         continue
 
-                print('Alle KeyHelp Daten sind nun komplett.\n\n')
+                print('All KeyHelp data are now complete.\n\n')
                 _global_config.write_log('Debug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
                 _global_config.write_log('======================= End data for KeyHelp =======================\n\n\n')
 
@@ -160,10 +160,10 @@ if __name__ == "__main__":
 
         while not imscpInputData.imscpDataComplete():
             imscpInputData.getImscpMySqlCredentials(client)
-            while not imscpInputData.getImscpUserWebData(input("Geben Sie den i-MSCP Benutzernamen ein: "), client):
+            while not imscpInputData.getImscpUserWebData(input("Enter the i-MSCP user name: "), client):
                 continue
 
-        print('Alle i-MSCP Daten sind nun komplett.\n')
+        print('All i-MSCP data are now complete.\n')
 
         _global_config.write_log('\nDebug i-MSCP informations:\n' + str(imscpInputData.imscpData) + '\n')
         _global_config.write_log('i-MSCP sub domains:\n' + str(imscpInputData.imscpDomainSubDomains) + '\n')
