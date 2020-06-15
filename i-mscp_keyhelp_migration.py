@@ -1808,6 +1808,9 @@ if __name__ == "__main__":
                             print('\nIgnore syncing from alias sub domain "' + str(
                                 imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '" !')
                 # End migration
+                print('Finishing migration. File and directory permissions will be corrected!')
+                os.system('find /home/users/' + keyHelpUsername + '/www -type d -exec chmod 0755 {} \;')
+                os.system('find /home/users/' + keyHelpUsername + '/www -type f -exec chmod 0644 {} \;')
                 print(
                     '\n\nCongratulations. The migration is done. Check now the logs and make the last manually changes.')
             else:
