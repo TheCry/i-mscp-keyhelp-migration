@@ -42,7 +42,7 @@ else:
 # i-MSCP
 imscpServerFqdn = str(config['imscp-'+configSection]['imscpServerFqdn'])
 imscpSshUsername = str(config['imscp-'+configSection]['imscpSshUsername'])
-imscpSshPort = str(config['imscp-'+configSection]['imscpSshPort'])
+imscpSshPort = int(config['imscp-'+configSection]['imscpSshPort'])
 imscpSshTimeout = int(config['imscp-'+configSection]['imscpSshTimeout'])
 imscpRootPassword = str(config['imscp-'+configSection]['imscpRootPassword'])
 imscpSshPublicKey = str(config['imscp-'+configSection]['imscpSshPublicKey'])

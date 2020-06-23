@@ -1290,13 +1290,13 @@ if __name__ == "__main__":
 
                     if imscpSshPublicKey:
                         cmd = 'rsync -aHAXSz --info=progress --numeric-ids -e "ssh -i ' + imscpSshPublicKey + ' -p ' + \
-                              imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                              str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                               imscpSshUsername + '@' + imscpServerFqdn + ':/var/mail/virtual/' + \
                               emailAddressData[1] + '/' + emailAddressData[0] + '/ /var/mail/vhosts/' + \
                               emailAddressData[1] + '/' + emailAddressData[0] + '/'
                     else:
                         cmd = 'rsync -aHAXSz --info=progress --numeric-ids -e "sshpass -p ' + imscpRootPassword + ' ssh -p ' + \
-                              imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                              str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                               imscpSshUsername + '@' + imscpServerFqdn + ':/var/mail/virtual/' + \
                               emailAddressData[1] + '/' + emailAddressData[0] + '/ /var/mail/vhosts/' + \
                               emailAddressData[1] + '/' + emailAddressData[0] + '/'
@@ -1356,12 +1356,12 @@ if __name__ == "__main__":
 
                     if imscpSshPublicKey:
                         cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
-                              imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                              imscpSshPublicKey + ' -p ' + str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                               imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
                     else:
                         cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                               imscpRootPassword + ' ssh -p ' + \
-                              imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                              str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                               imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                     proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -1402,13 +1402,13 @@ if __name__ == "__main__":
 
                     if imscpSshPublicKey:
                         cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
-                              imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                              imscpSshPublicKey + ' -p ' + str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                               imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + \
                               localRsyncFolder
                     else:
                         cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                               imscpRootPassword + ' ssh -p ' + \
-                              imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                              str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                               imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + \
                               localRsyncFolder
 
@@ -1475,12 +1475,12 @@ if __name__ == "__main__":
 
                         if imscpSshPublicKey:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
-                                  imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                                  imscpSshPublicKey + ' -p ' + str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
                         else:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                   imscpRootPassword + ' ssh -p ' + \
-                                  imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                         proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -1524,13 +1524,13 @@ if __name__ == "__main__":
 
                         if imscpSshPublicKey:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
-                                  imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                                  imscpSshPublicKey + ' -p ' + str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + \
                                   localRsyncFolder
                         else:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                   imscpRootPassword + ' ssh -p ' + \
-                                  imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + \
                                   localRsyncFolder
 
@@ -1599,12 +1599,12 @@ if __name__ == "__main__":
 
                         if imscpSshPublicKey:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
-                                  imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                                  imscpSshPublicKey + ' -p ' + str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
                         else:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                   imscpRootPassword + ' ssh -p ' + \
-                                  imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                         proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -1647,13 +1647,13 @@ if __name__ == "__main__":
 
                         if imscpSshPublicKey:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
-                                  imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                                  imscpSshPublicKey + ' -p ' + str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + \
                                   localRsyncFolder
                         else:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                   imscpRootPassword + ' ssh -p ' + \
-                                  imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + \
                                   localRsyncFolder
 
@@ -1722,12 +1722,12 @@ if __name__ == "__main__":
 
                             if imscpSshPublicKey:
                                 cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
-                                      imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                                      imscpSshPublicKey + ' -p ' + str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                       imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
                             else:
                                 cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                       imscpRootPassword + ' ssh -p ' + \
-                                      imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                      str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                                       imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                             proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -1771,12 +1771,12 @@ if __name__ == "__main__":
 
                             if imscpSshPublicKey:
                                 cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "ssh -i ' + \
-                                      imscpSshPublicKey + ' -p ' + imscpSshPort + ' -q" --rsync-path="rsync" ' + \
+                                      imscpSshPublicKey + ' -p ' + str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                       imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
                             else:
                                 cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                       imscpRootPassword + ' ssh -p ' + \
-                                      imscpSshPort + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                      str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
                                       imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                             proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
