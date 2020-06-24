@@ -1060,14 +1060,14 @@ if __name__ == "__main__":
                 for imscpDatabasesKey, imscpDatabasesValue in imscpInputData.imscpDomainDatabaseNames.items():
                     # print(imscpDatabasesKey, '->', imscpDatabasesValue)
                     databaseParentId = imscpDatabasesValue.get('iDatabaseId')
-                    if re.match("^\d+", str(imscpDatabasesValue.get('iDatabaseName'))):
+                    databaseName = str(imscpDatabasesValue.get('iDatabaseName'))
+                    databaseName = re.sub("[^A-Za-z0-9_-]+", '_', databaseName, flags=re.UNICODE)
+                    if re.match("^\d+", str(databaseName)):
                         keyhelpAddApiData['iDatabaseName'] = re.sub("^\d+", 'db' + str(addedKeyHelpUserId),
-                                                                    str(imscpDatabasesValue.get('iDatabaseName')),
+                                                                    databaseName,
                                                                     flags=re.UNICODE)
                     else:
-                        keyhelpAddApiData['iDatabaseName'] = 'db' + str(
-                            addedKeyHelpUserId) + '_' + imscpDatabasesValue.get(
-                            'iDatabaseName')
+                        keyhelpAddApiData['iDatabaseName'] = 'db' + str(addedKeyHelpUserId) + '_' + databaseName
 
                     keyhelpAddApiData['iOldDatabaseName'] = imscpDatabasesValue.get('iDatabaseName')
                     keyhelpAddApiData['iOldDatabaseUsername'] = ''
@@ -1081,17 +1081,16 @@ if __name__ == "__main__":
                             # print(dbUserKey, '->', dbUserValue)
                             if keyhelpAddApiData['iDatabaseUsername'] == '':
                                 if databaseParentId == dbUserValue.get('iDatabaseId'):
-                                    if re.match("^\d+", str(dbUserValue.get('iDatabaseUsername'))):
+                                    databaseUsername = str(dbUserValue.get('iDatabaseUsername'))
+                                    databaseUsername = re.sub("[^A-Za-z0-9_-]+", '_', databaseUsername, flags=re.UNICODE)
+                                    if re.match("^\d+", databaseUsername):
                                         keyhelpAddApiData['iDatabaseUsername'] = re.sub("^\d+",
                                                                                         'dbu' + str(addedKeyHelpUserId),
-                                                                                        str(dbUserValue.get(
-                                                                                            'iDatabaseUsername')),
+                                                                                        databaseUsername,
                                                                                         flags=re.UNICODE)
                                     else:
-                                        keyhelpAddApiData[
-                                            'iDatabaseUsername'] = 'dbu' + str(addedKeyHelpUserId) + '_' + str(
-                                            dbUserValue.get(
-                                                'iDatabaseUsername'))
+                                        keyhelpAddApiData['iDatabaseUsername'] = 'dbu' + str(
+                                            addedKeyHelpUserId) + '_' + databaseUsername
 
                                     keyhelpAddApiData['iDatabaseUserHost'] = str(dbUserValue.get('iDatabaseUserHost'))
                                     keyhelpAddApiData[
