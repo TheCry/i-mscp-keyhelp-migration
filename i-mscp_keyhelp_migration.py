@@ -1812,6 +1812,13 @@ if __name__ == "__main__":
                 os.system('find /home/users/' + keyHelpUsername + '/www -type f -exec chmod 0644 {} \;')
                 print(
                     '\n\nCongratulations. The migration is done. Check now the logs and make the last manually changes.')
+                print('Doings after migration:')
+                print('\t*Set the correct home dir of the ftp users')
+                print('\t*Set the correct path for the htaccess users')
+                print(
+                    '\t*Check the database name, database user and database password of the websites (Check logfile: ' + str(
+                        loggingFolder) + '/' + imscpInputData.imscpData[
+                        'iUsernameDomainIdna'] + '_keyhelp_migration_data.log)')
             else:
                 print('Migration stopped!')
         else:
