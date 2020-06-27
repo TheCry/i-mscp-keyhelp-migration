@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
         while not imscpInputData.imscpDataComplete():
             imscpInputData.getImscpMySqlCredentials(client)
-            while not imscpInputData.getImscpUserWebData(input("Enter the i-MSCP user name: "), client):
+            while not imscpInputData.getImscpUserWebData(input("Enter the i-MSCP user name (first domain): "), client):
                 continue
 
         print('All i-MSCP data are now complete.\n')
