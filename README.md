@@ -41,3 +41,41 @@ ssh-copy-id -i .ssh/id_rsa.pub -p 22 FQDN-Remote-Server
 * Set the correct home dir of the ftp users
 * Set the correct path for the htaccess users
 * Check the database name, database user and database password of the websites
+
+## Security Advice
+After activating:
+* SETTINGS => Configuration => Database => Allow remote access = enable
+* SETTINGS => Configuration => Account Templates => Database remote access = enable
+
+you have a security issue on your server. While migration this settings are needed. 
+But if no of you customer needs a remote connection to the MySQL daemon disable this setting after migration. Otherwise use Fail2Ban to protect the MySQL Port.
+For this you have to extend 2 settings:
+##### Extend your MySQL settings
+```
+[mysqld]
+log_warnings    = 2
+log-error       = /var/log/mysql/error.log
+```
+
+##### Activate mysql-auth in Fail2Ban
+```
+[mysqld-auth]
+enabled  = true
+port     = 3306
+filter   = mysqld-auth
+action   = iptables-multiport[name=mysqld-auth, port="3306", protocol=tcp]
+			sendmail-whois[name=mysqld-auth, dest="mysql-alarm@your-domain.tld"]
+logpath  = /var/log/mysql/error.log
+findtime = 1800
+mta = sendmail
+sender = fail2ban-mysql@hostname.your-domain.tld
+destemail = mysql-alarm@your-domain.tld
+maxretry = 2
+bantime  = 259200
+```
+
+##### Restart MySQL and Fail2Ban
+```
+systemctl reload fail2ban.service
+systemctl restart mysqld.service
+```
