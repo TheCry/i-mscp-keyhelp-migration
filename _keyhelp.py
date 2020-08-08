@@ -658,7 +658,7 @@ class KeyHelpAddDataToServer:
                 exit(1)
         else:
             cursor = db_connection.cursor()
-            cursor.execute("INSERT INTO dir_protection (id_user, path, authname, username, password) VALUES ('" + str(
+            cursor.execute("INSERT INTO dir_protection (id_user, path, auth_name, username, password) VALUES ('" + str(
                 keyHelpData['addedKeyHelpUserId']) + "', '" + str(keyHelpData['iHtAccessPath']) + "', '" + str(
                 keyHelpData['iHtAccessAuthName']) + "', '" + str(keyHelpData['iHtAccessUserame']) + "', '" + str(
                 keyHelpData['iHtAccessPassword']) + "');")
