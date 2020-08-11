@@ -28,10 +28,10 @@ keyhelpDisableDnsForDomain = _global_config.keyhelpDisableDnsForDomain
 
 if keyhelpDisableDnsForDomain == 'ask':
     keyhelpDisableDnsForDomain = str(keyhelpDisableDnsForDomain)
-elif keyhelpDisableDnsForDomain == 'false' or keyhelpDisableDnsForDomain == 'true':
-    keyhelpDisableDnsForDomain = _global_config.keyhelpDisableDnsForDomain
+elif not keyhelpDisableDnsForDomain or keyhelpDisableDnsForDomain:
+    keyhelpSetDisableDnsForDomain = _global_config.keyhelpDisableDnsForDomain
 else:
-    keyhelpDisableDnsForDomain = True
+    keyhelpSetDisableDnsForDomain = True
 
 # KeyHelp
 apiServerFqdn = _global_config.apiServerFqdn
@@ -65,6 +65,7 @@ apiEndpointCertificates = 'certificates'
 apiEndPointEmails = 'emails'
 apiEndpointDatabases = 'databases'
 apiEndpointFtpusers = 'ftp-users'
+apiEndpointDns = 'dns'
 headers = {
     'X-API-Key': apiKey
 }
@@ -74,6 +75,7 @@ class TqdmWrap(tqdm):
     def viewBar(self, a, b):
         self.total = int(b)
         self.update(int(a - self.n))  # update pbar with increment
+
 
 if __name__ == "__main__":
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -207,6 +209,8 @@ if __name__ == "__main__":
         _global_config.write_log('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
         _global_config.write_log('i-MSCP SSL certs:\n' + str(imscpInputData.imscpSslCerts) + '\n')
         _global_config.write_log('i-MSCP HTACCESS users:\n' + str(imscpInputData.imscpDomainHtAcccessUsers) + '\n')
+        _global_config.write_log('i-MSCP domain dns:\n' + str(imscpInputData.imscpDnsEntries) + '\n')
+        _global_config.write_log('i-MSCP domain alias dns:\n' + str(imscpInputData.imscpDnsAliasEntries) + '\n')
 
         if os.path.exists(
                 loggingFolder + '/' + imscpInputData.imscpData['iUsernameDomainIdna'] + '_get_data_from_imscp.log'):
@@ -257,6 +261,8 @@ if __name__ == "__main__":
             print('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
             print('i-MSCP SSL certs:\n' + str(imscpInputData.imscpSslCerts) + '\n')
             print('i-MSCP HTACCESS users:\n' + str(imscpInputData.imscpDomainHtAcccessUsers) + '\n')
+            print('i-MSCP domain dns:\n' + str(imscpInputData.imscpDnsEntries) + '\n')
+            print('i-MSCP domain alias dns:\n' + str(imscpInputData.imscpDnsAliasEntries) + '\n')
 
     except AuthenticationException:
         print('Authentication failed, please verify your credentials!')
@@ -288,7 +294,6 @@ if __name__ == "__main__":
         # keyhelpInputData.keyhelpData['khostingplan']
         # keyhelpInputData.keyhelpData['khostingplanid']
         keyhelpAddData = KeyHelpAddDataToServer()
-        keyhelpSetDisableDnsForDomain = True
         print('Adding User "' + keyhelpInputData.keyhelpData['kusername'] + '" to Keyhelp')
 
         keyhelpAddData.addKeyHelpDataToApi(apiEndpointClients, keyhelpInputData.keyhelpData)
@@ -323,6 +328,25 @@ if __name__ == "__main__":
                 keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
                 domainParentId = imscpInputData.imscpData['iUsernameDomainId']
                 print('Domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" added successfully.')
+
+                # Adding domain user dns entries if dns is activated
+                if not keyhelpSetDisableDnsForDomain:
+                    print('\nStart adding domain dns entries.')
+                    if bool(imscpInputData.imscpDnsEntries):
+                        if keyhelpInputData.getDnsData(keyHelpParentDomainId,
+                                                       imscpInputData.imscpData['iUsernameDomainIdna']):
+                            # print(str(keyhelpInputData.keyhelpDomainDnsData))
+                            # exit()
+                            keyhelpAddData.updateKeyHelpDnsToApi(apiEndpointDns, keyhelpInputData.keyhelpDomainDnsData,
+                                                                 imscpInputData.imscpDnsEntries, keyHelpParentDomainId,
+                                                                 imscpInputData.imscpData['iUsernameDomainIdna'],
+                                                                 'domain')
+                            if keyhelpAddData.status:
+                                print('Domain dns for "' + imscpInputData.imscpData[
+                                    'iUsernameDomainIdna'] + '" updated successfully.')
+                    else:
+                        print('No DNS data for the domain "' + imscpInputData.imscpData[
+                            'iUsernameDomainIdna'] + '" available.')
 
                 # Adding ftp users
                 if bool(imscpInputData.imscpFtpUserNames):
@@ -707,6 +731,26 @@ if __name__ == "__main__":
                     keyHelpParentDomainId = keyhelpAddData.keyhelpApiReturnData['keyhelpDomainId']
                     print('Domain "' + keyhelpAddApiData['iAliasDomainIdna'] + '" added successfully.')
 
+                    # Adding domain alias user dns entries if dns is activated
+                    if not keyhelpSetDisableDnsForDomain:
+                        print('\nStart adding domain alias dns entries.')
+                        if bool(imscpInputData.imscpDnsAliasEntries['aliasid-' + aliasDomainParentId]):
+                            if keyhelpInputData.getDnsData(keyHelpParentDomainId,
+                                                           keyhelpAddApiData['iAliasDomainIdna']):
+                                keyhelpAddData.updateKeyHelpDnsToApi(apiEndpointDns,
+                                                                     keyhelpInputData.keyhelpDomainDnsData,
+                                                                     imscpInputData.imscpDnsAliasEntries[
+                                                                         'aliasid-' + aliasDomainParentId],
+                                                                     keyHelpParentDomainId,
+                                                                     keyhelpAddApiData['iAliasDomainIdna'],
+                                                                     'domainAlias')
+                                if keyhelpAddData.status:
+                                    print('Domain alias dns for "' + keyhelpAddApiData[
+                                        'iAliasDomainIdna'] + '" updated successfully.')
+                        else:
+                            print('No DNS data for the domain alias "' + keyhelpAddApiData[
+                                'iAliasDomainIdna'] + '" available.')
+
                     if bool(imscpInputData.imscpSslCerts['aliasid-' + aliasDomainParentId]):
                         # Adding SSL cert if exist
                         print(
@@ -940,7 +984,8 @@ if __name__ == "__main__":
                             print('\nAdding email addresses for alias sub domain "' + iAliasSubDomainIdna + '".')
                             # Adding i-MSCP alias sub domain normal email addresses
                             for imscpEmailsAliasSubDomainsKey, imscpEmailsAliasSubDomainsValue in \
-                                    imscpInputData.imscpAliasSubEmailAddressNormal['aliassubid-' + aliasSubDomainId].items():
+                                    imscpInputData.imscpAliasSubEmailAddressNormal[
+                                        'aliassubid-' + aliasSubDomainId].items():
                                 # print(imscpEmailsAliasSubDomainsKey, '->', imscpEmailsAliasSubDomainsValue)
                                 keyhelpAddApiData = {'emailStoreForward': False, 'iEmailCatchall': '',
                                                      'addedKeyHelpUserId': addedKeyHelpUserId, 'emailNeedRsync': True}
@@ -1082,7 +1127,8 @@ if __name__ == "__main__":
                             if keyhelpAddApiData['iDatabaseUsername'] == '':
                                 if databaseParentId == dbUserValue.get('iDatabaseId'):
                                     databaseUsername = str(dbUserValue.get('iDatabaseUsername'))
-                                    databaseUsername = re.sub("[^A-Za-z0-9_-]+", '_', databaseUsername, flags=re.UNICODE)
+                                    databaseUsername = re.sub("[^A-Za-z0-9_-]+", '_', databaseUsername,
+                                                              flags=re.UNICODE)
                                     if re.match("^\d+", databaseUsername):
                                         keyhelpAddApiData['iDatabaseUsername'] = re.sub("^\d+",
                                                                                         'dbu' + str(addedKeyHelpUserId),
@@ -1185,10 +1231,14 @@ if __name__ == "__main__":
                                 remoteFile = sftp_client.stat(
                                     str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz')
                                 with TqdmWrap(ascii=False, unit='b', unit_scale=True, leave=True, miniters=1,
-                                              desc='Transferring SQL Dump......', total=remoteFile.st_size, ncols=150) as pbar:
-                                    sftp_client.get(str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz', str(
-                                        imscpInputData.imscpData['iUsernameDomainIdna']) + '_mysqldumps/' + str(
-                                        newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz', callback=pbar.viewBar)
+                                              desc='Transferring SQL Dump......', total=remoteFile.st_size,
+                                              ncols=150) as pbar:
+                                    sftp_client.get(str(imscpDbDumpFolder) + '/' + str(oldDatabaseName) + '_sql.gz',
+                                                    str(
+                                                        imscpInputData.imscpData[
+                                                            'iUsernameDomainIdna']) + '_mysqldumps/' + str(
+                                                        newDatabaseName) + '__' + str(oldDatabaseName) + '_sql.gz',
+                                                    callback=pbar.viewBar)
                                 print('Transferring SQL Dump finished')
 
                                 # remove the remote sql dump
@@ -1196,7 +1246,8 @@ if __name__ == "__main__":
                                     '\nRemoving database dump "' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz" on remote server.\n')
                                 client.exec_command('rm ' + imscpDbDumpFolder + '/' + oldDatabaseName + '_sql.gz')
                                 _global_config.write_migration_log(
-                                    imscpInputData.imscpData['iUsernameDomainIdna'] + '_mysqldumps/migration_databases.log',
+                                    imscpInputData.imscpData[
+                                        'iUsernameDomainIdna'] + '_mysqldumps/migration_databases.log',
                                     'MySQL dump for i-MSCP database "' + oldDatabaseName + '" => ' + newDatabaseName + '__' + oldDatabaseName + '_sql.gz')
                             else:
                                 print('Something went wrong while dumping the database "' + oldDatabaseName + '"')

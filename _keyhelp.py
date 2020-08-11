@@ -42,6 +42,7 @@ apiEndpointCertificates = 'certificates'
 apiEndPointEmails = 'emails'
 apiEndpointDatabases = 'databases'
 apiEndpointFtpusers = 'ftp-users'
+apiEndpointDns = 'dns'
 headers = {
     'X-API-Key': apiKey
 }
@@ -58,6 +59,29 @@ class KeyhelpGetData:
 
     # for ipaddressValue in apiGetData['meta']['ip_addresses']:
     #	print(ipaddressValue)
+
+    def getDnsData(self, kDomainId, kDomainName):
+        try:
+            responseApi = requests.get(apiUrl + apiEndpointDns + '/' + str(kDomainId), headers=headers,
+                                       timeout=apiTimeout, verify=apiServerFqdnVerify)
+        except requests.exceptions.HTTPError as errorApi:
+            raise SystemExit("An Http Error occurred:" + str(errorApi))
+        except requests.exceptions.ConnectionError as errorApi:
+            raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+        except requests.exceptions.Timeout as errorApi:
+            raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+        except requests.exceptions.RequestException as errorApi:
+            raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
+        apiGetData = responseApi.json()
+        if responseApi.status_code == 200:
+            self.keyhelpDomainDnsData = dict()
+            print('KeyHelp dns zone for domain "' + kDomainName + '" exists.')
+            self.keyhelpDomainDnsData = apiGetData
+            return True
+        else:
+            print("KeyHelp dns zone for domain '" + kDomainName + "' does not exist: Code: %i" % (responseApi.status_code))
+            return False
 
     def getServerDatabaseCredentials(self, kConfigfileName):
         try:
@@ -302,6 +326,47 @@ class KeyHelpAddDataToServer:
         if apiEndPoint == 'domains' and responseApi.status_code == 200:
             _global_config.write_log(
                 'KeyHelp domain "' + str(keyHelpData['iSslDomainIdna'] + '" updated successfully'))
+            print('Please wait...')
+            time.sleep(int(keyhelpSleeptime))
+        else:
+            _global_config.write_log("KeyHelp API Message: %i - %s, Message %s" % (
+                responseApi.status_code, responseApi.reason, apiPostData['message']))
+            print("KeyHelp API Message: %i - %s, Message %s" % (
+                responseApi.status_code, responseApi.reason, apiPostData['message']))
+            self.status = False
+
+    def updateKeyHelpDnsToApi(self, apiEndPoint, keyHelpDnsData, iMscpDnsData, domainId, domainName, kindOfDomain):
+        for DnsKey, DnsValue in iMscpDnsData.items():
+            if kindOfDomain == 'domain':
+                keyHelpDnsData['records']['other'].append(
+                    {'host': str(DnsValue.get('iDomainDnsEntry')), 'ttl': str(DnsValue.get('iDomainDnsEntryTTL')),
+                     'type': str(DnsValue.get('iDomainType')), 'value': str(DnsValue.get('iDomainText'))})
+            elif kindOfDomain == 'domainAlias':
+                keyHelpDnsData['records']['other'].append({'host': str(DnsValue.get('iDomainAliasDnsEntry')),
+                                                           'ttl': str(DnsValue.get('iDomainAliasDnsEntryTTL')),
+                                                           'type': str(DnsValue.get('iDomainAliasType')),
+                                                           'value': str(DnsValue.get('iDomainAliasText'))})
+        del keyHelpDnsData['is_custom_dns']
+        del keyHelpDnsData['is_dns_disabled']
+        del keyHelpDnsData['dkim_txt_record']
+        apiJsonData = json.dumps(keyHelpDnsData)
+        try:
+            responseApi = requests.put(apiUrl + apiEndPoint + '/' + str(domainId),
+                                       data=apiJsonData,
+                                       headers=headers, timeout=apiTimeout, verify=apiServerFqdnVerify)
+        except requests.exceptions.HTTPError as errorApi:
+            raise SystemExit("An Http Error occurred:" + str(errorApi))
+        except requests.exceptions.ConnectionError as errorApi:
+            raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+        except requests.exceptions.Timeout as errorApi:
+            raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+        except requests.exceptions.RequestException as errorApi:
+            raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
+        apiPostData = responseApi.json()
+        if responseApi.status_code == 200:
+            _global_config.write_log(
+                'KeyHelp domain dns "' + str(domainName + '" updated successfully'))
             print('Please wait...')
             time.sleep(int(keyhelpSleeptime))
         else:

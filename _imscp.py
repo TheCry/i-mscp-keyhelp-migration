@@ -49,6 +49,8 @@ class imscpGetData:
         self.imscpFtpUserNames = {}
         self.imscpSslCerts = {}
         self.imscpDomainHtAcccessUsers = {}
+        self.imscpDnsEntries = {}
+        self.imscpDnsAliasEntries = {}
 
     def getImscpMySqlCredentials(self, client):
         if imscpSshPublicKey:
@@ -161,6 +163,9 @@ class imscpGetData:
                     print('Your Domain IDN converted: "' + iUsernameIdna + '"\n')
 
                 print('\nFound domain: ' + iUsername)
+                print('Get i-MSCP domain dns data')
+                self.__getImscpDomainDns(self.imscpData['iUsernameDomainId'], self.imscpData['iUsernameDomainIdna'],
+                                         client)
                 print('Get i-MSCP sub domain data')
                 self.__getImscpSubDomains(self.imscpData['iUsernameDomainId'], self.imscpData['iUsernameDomain'],
                                           self.imscpData['iUsernameDomainIdna'], client)
@@ -318,6 +323,8 @@ class imscpGetData:
                 print('Debug i-MSCP informations alias domains:\nAlias domain "' + self.imscpDomainAliases[index][
                     'iAliasDomain'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
+            self.__getImscpDomainAliasDns(iUsernameDomainId, self.imscpDomainAliases[index]['iAliasDomainId'],
+                                           self.imscpDomainAliases[index]['iAliasDomainIdna'], client)
             self.__getImscpAliasSubDomains(iUsernameDomainId, self.imscpDomainAliases[index]['iAliasDomainId'],
                                            self.imscpDomainAliases[index]['iAliasDomain'],
                                            self.imscpDomainAliases[index]['iAliasDomainIdna'], client)
@@ -586,6 +593,158 @@ class imscpGetData:
         else:
             _global_config.write_log(
                 '======================= End data for HTACCESS users "' + iUsernameDomain + '" =======================\n\n\n')
+
+    def __getImscpDomainDns(self, iUsernameDomainId, iUsernameDomain, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, \
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData['imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT domain_dns_id, domain_dns, domain_type, domain_text FROM ' +
+            self.imscpData[
+                'imysqldatabase'] + '.domain_dns WHERE domain_id = \'' + iUsernameDomainId + '\' AND owned_by = '
+                                                                                             '\'custom_dns_feature\' '
+                                                                                             'AND alias_id = \'0\' '
+                                                                                             'AND domain_dns_status = '
+                                                                                             '\'ok\'"')
+        i = 0
+        dataLine = ''
+        self.imscpDnsEntries = {}
+        for line in stdout:
+            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            imscpDnsEntriesDataArray = dataLine.split("|")
+            j = 0
+            imscpDnsEntriesData = []
+            for dnsLine in imscpDnsEntriesDataArray:
+                if j < 3:
+                    imscpDnsEntriesData.append(dnsLine.strip())
+                else:
+                    if 3 < len(imscpDnsEntriesData):
+                        imscpDnsEntriesData[3] = imscpDnsEntriesData[3] + ' ' + dnsLine.strip()
+                    else:
+                        imscpDnsEntriesData.append(dnsLine.strip())
+
+                j += 1
+
+            index = int(imscpDnsEntriesData[0])
+
+            dataLineDns = re.sub(r"\\t", "|", imscpDnsEntriesData[1], flags=re.UNICODE)
+            DomainDnsEntriesData = dataLineDns.split("|")
+            DomainDnsEntriesData[0] = DomainDnsEntriesData[0].replace(iUsernameDomain, '')
+
+            self.imscpDnsEntries[index] = {}
+            self.imscpDnsEntries[index]['iDomainDnsId'] = imscpDnsEntriesData[0].rstrip()
+            self.imscpDnsEntries[index]['iDomainDns'] = imscpDnsEntriesData[1].rstrip()
+            self.imscpDnsEntries[index]['iDomainDnsEntry'] = DomainDnsEntriesData[0].rstrip('.')
+            self.imscpDnsEntries[index]['iDomainDnsEntryTTL'] = DomainDnsEntriesData[1].rstrip()
+            self.imscpDnsEntries[index]['iDomainDns'] = imscpDnsEntriesData[1].rstrip()
+            self.imscpDnsEntries[index]['iDomainType'] = imscpDnsEntriesData[2].rstrip()
+            self.imscpDnsEntries[index]['iDomainText'] = imscpDnsEntriesData[3].rstrip()
+
+            _global_config.write_log(
+                'Debug i-MSCP informations domain dns:\nDNS "' + self.imscpDnsEntries[index][
+                    'iDomainDnsEntry'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+            if showDebug:
+                print('Debug i-MSCP informations domain dns:\nDNS "' + self.imscpDnsEntries[index][
+                    'iDomainDnsEntry'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+
+            i += 1
+
+        if i == 0:
+            _global_config.write_log(
+                'Debug i-MSCP informations domain dns:\nNo dns entry found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+            if showDebug:
+                print(
+                    'Debug i-MSCP informations domain dns:\nNo dns entry found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+        else:
+            _global_config.write_log(
+                '======================= End data for domain dns "' + iUsernameDomain + '" =======================\n\n\n')
+
+    def __getImscpDomainAliasDns(self, iUsernameDomainId, iAliasDomainid, iAliasDomain, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, \
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData['imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT domain_dns_id, domain_dns, domain_type, domain_text FROM ' +
+            self.imscpData[
+                'imysqldatabase'] + '.domain_dns WHERE domain_id = \'' + iUsernameDomainId + '\' AND owned_by = '
+                                                                                             '\'custom_dns_feature\' '
+                                                                                             'AND alias_id = \'' + iAliasDomainid + '\' '
+                                                                                             'AND domain_dns_status = '
+                                                                                             '\'ok\'"')
+        i = 0
+        dataLine = ''
+        self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid] = {}
+        for line in stdout:
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            imscpDnsEntriesDataArray = dataLine.split("|")
+            j = 0
+            imscpAliasDnsEntriesData = []
+            for dnsLine in imscpDnsEntriesDataArray:
+                if j < 3:
+                    imscpAliasDnsEntriesData.append(dnsLine.strip())
+                else:
+                    if 3 < len(imscpAliasDnsEntriesData):
+                        imscpAliasDnsEntriesData[3] = imscpAliasDnsEntriesData[3] + ' ' + dnsLine.strip()
+                    else:
+                        imscpAliasDnsEntriesData.append(dnsLine.strip())
+
+                j += 1
+
+            index = int(imscpAliasDnsEntriesData[0])
+
+            dataLineAliasDns = re.sub(r"\\t", "|", imscpAliasDnsEntriesData[1], flags=re.UNICODE)
+            DomainAliasDnsEntriesData = dataLineAliasDns.split("|")
+            DomainAliasDnsEntriesData[0] = DomainAliasDnsEntriesData[0].replace(iAliasDomain, '')
+
+            self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index] = {}
+            self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDnsId'] = \
+            imscpAliasDnsEntriesData[0].rstrip()
+            self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDns'] = imscpAliasDnsEntriesData[
+                1].rstrip()
+            self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDnsEntry'] = \
+            DomainAliasDnsEntriesData[0].rstrip('.')
+            self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDnsEntryTTL'] = \
+            DomainAliasDnsEntriesData[1].rstrip()
+            self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDns'] = imscpAliasDnsEntriesData[
+                1].rstrip()
+            self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasType'] = \
+            imscpAliasDnsEntriesData[2].rstrip()
+            self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasText'] = \
+            imscpAliasDnsEntriesData[3].rstrip()
+
+            _global_config.write_log('Debug i-MSCP informations domain alias dns:\nDNS "' +
+                                     self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index][
+                                         'iDomainAliasDnsEntry'] + '" found for the i-MSCP domain alias "' + iAliasDomain + '"\n')
+            if showDebug:
+                print('Debug i-MSCP informations domain dns:\nDNS "' +
+                      self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][
+                          index] + '" found for the i-MSCP domain alias "' + iAliasDomain + '"\n')
+
+            i += 1
+
+        if i == 0:
+            _global_config.write_log(
+                'Debug i-MSCP informations domain alias dns:\nNo dns entry found for the i-MSCP domain alias "' + iAliasDomain + '"\n')
+            if showDebug:
+                print(
+                    'Debug i-MSCP informations domain alias dns:\nNo dns entry found for the i-MSCP domain alias "' + iAliasDomain + '"\n')
+        else:
+            _global_config.write_log(
+                '======================= End data for domain alias dns "' + iAliasDomain + '" =======================\n\n\n')
 
     def __getImscpDomainDatabases(self, iUsernameDomainId, iUsernameDomain, iUsernameDomainIdna, client):
         if imscpSshPublicKey:
