@@ -105,6 +105,53 @@ class KeyhelpGetData:
             print('Error: File "' + kConfigfileName + '" does not exist.')
             return False
 
+    def getAllKeyHelpUsernames(self):
+        self.keyhelpUsernames = []
+        try:
+            responseApi = requests.get(apiUrl + apiEndpointClients + '/', headers=headers,
+                                       timeout=apiTimeout, verify=apiServerFqdnVerify)
+        except requests.exceptions.HTTPError as errorApi:
+            raise SystemExit("An Http Error occurred:" + str(errorApi))
+        except requests.exceptions.ConnectionError as errorApi:
+            raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+        except requests.exceptions.Timeout as errorApi:
+            raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+        except requests.exceptions.RequestException as errorApi:
+            raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
+        apiGetData = responseApi.json()
+        if responseApi.status_code == 200:
+            for keyHelpUserData in apiGetData:
+                self.keyhelpUsernames.append(keyHelpUserData['username'])
+
+            return True
+        else:
+            print("KeyHelp clients listing error: Code: %i" % (responseApi.status_code))
+            return False
+
+    def getIdKeyhelpUsername(self, kUsername):
+        self.keyhelpUserId = ''
+
+        try:
+            responseApi = requests.get(apiUrl + apiEndpointClients + '/name/' + kUsername, headers=headers,
+                                       timeout=apiTimeout, verify=apiServerFqdnVerify)
+        except requests.exceptions.HTTPError as errorApi:
+            raise SystemExit("An Http Error occurred:" + str(errorApi))
+        except requests.exceptions.ConnectionError as errorApi:
+            raise SystemExit("An Error Connecting to the API occurred:" + str(errorApi))
+        except requests.exceptions.Timeout as errorApi:
+            raise SystemExit("A Timeout Error occurred:" + str(errorApi))
+        except requests.exceptions.RequestException as errorApi:
+            raise SystemExit("An Unknown Error occurred:" + str(errorApi))
+
+        apiGetData = responseApi.json()
+        if responseApi.status_code == 200:
+            self.keyhelpUserId = apiGetData['id']
+            return True
+        else:
+            print("KeyHelp clients list error: Code: %i" % (responseApi.status_code))
+            return False
+
     def checkExistKeyhelpUsername(self, kUsername):
         if (len(kUsername) > 0):
             if re.match("^[a-zA-Z0-9-]*$", str(kUsername)):

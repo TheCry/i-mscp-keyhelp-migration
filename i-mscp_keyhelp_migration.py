@@ -8,6 +8,7 @@ import requests
 import subprocess
 import sys
 import time
+import inquirer
 from paramiko.ssh_exception import BadHostKeyException, AuthenticationException, SSHException
 from tqdm import tqdm
 
@@ -40,6 +41,8 @@ apiTimeout = _global_config.apiTimeout
 keyhelpMinPasswordLenght = _global_config.keyhelpMinPasswordLenght
 apiServerFqdnVerify = _global_config.apiServerFqdnVerify
 keyhelpConfigfile = _global_config.keyhelpConfigfile
+usingExistingKeyHelpUser = False
+keyhelpAddDataStatus = False
 
 # i-MSCP
 imscpServerFqdn = _global_config.imscpServerFqdn
@@ -109,34 +112,61 @@ if __name__ == "__main__":
             if keyhelpInputData.checkExistDefaultHostingplan(keyhelpDefaultHostingplan):
                 if showDebug:
                     print('\nDebug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
-                while not keyhelpInputData.keyhelpDataComplete():
-                    while not keyhelpInputData.checkExistKeyhelpUsername(
-                            input("Enter a new KeyHelp username: ")):
-                        continue
-                    if keyhelpCreateRandomPassword:
-                        print('Password is generated automatically!')
-                        keyhelpInputData.keyhelpCreateRandomPassword(keyhelpMinPasswordLenght)
-                    else:
-                        while not keyhelpInputData.KeyhelpPassword(input(
-                                "Enter a KeyHelp password (min. " + str(
-                                    keyhelpMinPasswordLenght) + " Chars): "), keyhelpMinPasswordLenght):
+
+                migration_actions = ['a new KeyHelp account']
+                keyhelpInputData.getAllKeyHelpUsernames()
+                migration_actions = migration_actions + keyhelpInputData.keyhelpUsernames
+
+                questions = [
+                    inquirer.List('keyhelpAction',
+                                  message="How do you want to migrate the i-MSCP account? Add to => ",
+                                  choices=migration_actions,
+                                  carousel=True
+                                  ),
+                ]
+                answers = inquirer.prompt(questions)
+
+                if answers['keyhelpAction'] == 'a new KeyHelp account':
+                    while not keyhelpInputData.keyhelpDataComplete():
+                        while not keyhelpInputData.checkExistKeyhelpUsername(
+                                input("Enter a new KeyHelp username: ")):
                             continue
-                    while not keyhelpInputData.KeyhelpEmailaddress(input("Enter an email address: ")):
-                        continue
-                    while not keyhelpInputData.KeyhelpSurname(input("Enter a first name: ")):
-                        continue
-                    while not keyhelpInputData.KeyhelpName(input("Enter a last name: ")):
-                        continue
-                    while not keyhelpInputData.KeyhelpHostingplan(input(
-                            "Which hosting plan should be used (Enter to use the default hosting plan)? ")):
-                        continue
+                        if keyhelpCreateRandomPassword:
+                            print('Password is generated automatically!')
+                            keyhelpInputData.keyhelpCreateRandomPassword(keyhelpMinPasswordLenght)
+                        else:
+                            while not keyhelpInputData.KeyhelpPassword(input(
+                                    "Enter a KeyHelp password (min. " + str(
+                                        keyhelpMinPasswordLenght) + " Chars): "), keyhelpMinPasswordLenght):
+                                continue
+                        while not keyhelpInputData.KeyhelpEmailaddress(input("Enter an email address: ")):
+                            continue
+                        while not keyhelpInputData.KeyhelpSurname(input("Enter a first name: ")):
+                            continue
+                        while not keyhelpInputData.KeyhelpName(input("Enter a last name: ")):
+                            continue
+                        while not keyhelpInputData.KeyhelpHostingplan(input(
+                                "Which hosting plan should be used (Enter to use the default hosting plan)? ")):
+                            continue
+                else:
+                    keyhelpInputData.keyhelpData['kusername'] = str(answers['keyhelpAction'])
+                    usingExistingKeyHelpUser = True
 
                 print('All KeyHelp data are now complete.\n\n')
-                _global_config.write_log('Debug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
+                if answers['keyhelpAction'] == 'a new KeyHelp account':
+                    _global_config.write_log('Debug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
+                else:
+                    _global_config.write_log(
+                        'Debug KeyHelp informations:\nUsing KeyHelp informations of exting account: ' + str(
+                            answers['keyhelpAction']) + '\n')
                 _global_config.write_log('======================= End data for KeyHelp =======================\n\n\n')
 
                 if showDebug:
-                    print('\nDebug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
+                    if answers['keyhelpAction'] == 'a new KeyHelp account':
+                        print('\nDebug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
+                    else:
+                        print('\nDebug KeyHelp informations:\nUsing KeyHelp informations of exting account: ' + str(
+                            answers['keyhelpAction']) + '\n')
             else:
                 exit(1)
         else:
@@ -280,39 +310,37 @@ if __name__ == "__main__":
         'iUsernameDomainIdna'] + '_get_data_from_imscp.log".')
 
     if _global_config.ask_Yes_No('Do you want to start now [y/n]? '):
-        #### KeyHelp Daten welche befüllt wurden
-        # keyhelpInputData.keyhelpData['kdatabaseRoot']
-        # keyhelpInputData.keyhelpData['kdatabaseRootPassword']
-        # keyhelpInputData.keyhelpData['kipaddresses']
-        # keyhelpInputData.keyhelpData['kusername']
-        # keyhelpInputData.keyhelpData['kpassword']
-        # keyhelpInputData.keyhelpData['kemailaddress']
-        # keyhelpInputData.keyhelpData['ksurname']
-        # keyhelpInputData.keyhelpData['kname']
-        # keyhelpInputData.keyhelpData['kdefaulthostingplan']
-        # keyhelpInputData.keyhelpData['kdefaulthostingplanid']
-        # keyhelpInputData.keyhelpData['khostingplan']
-        # keyhelpInputData.keyhelpData['khostingplanid']
         keyhelpAddData = KeyHelpAddDataToServer()
-        print('Adding User "' + keyhelpInputData.keyhelpData['kusername'] + '" to Keyhelp')
+        if not usingExistingKeyHelpUser:
+            print('Adding User "' + keyhelpInputData.keyhelpData['kusername'] + '" to Keyhelp')
+            keyhelpAddData.addKeyHelpDataToApi(apiEndpointClients, keyhelpInputData.keyhelpData)
+            keyhelpAddDataStatus = keyhelpAddData.status
+        else:
+            print('Using KeyHelp user "' + keyhelpInputData.keyhelpData['kusername'] + '" for migration')
+        if keyhelpAddDataStatus or usingExistingKeyHelpUser:
+            if not usingExistingKeyHelpUser:
+                addedKeyHelpUserId = keyhelpAddData.keyhelpApiReturnData['keyhelpUserId']
+                # Check whether the system user was added by KeyHelp
+                loop_starts = time.time()
+                while True:
+                    now = time.time()
+                    sys.stdout.write('\rWaiting since {0} seconds for Keyhelp. KeyHelp user was not added yet!'.format(
+                        int(now - loop_starts)))
+                    sys.stdout.flush()
+                    time.sleep(1)
+                    getUid = os.system('id ' + str(keyhelpInputData.keyhelpData['kusername'].lower()) + ' > /dev/null 2>&1')
+                    if getUid == 0:
+                        break
+                print('KeyHelpUser "' + keyhelpInputData.keyhelpData['kusername'] + '" added successfully.')
+            else:
+                if keyhelpInputData.getIdKeyhelpUsername(keyhelpInputData.keyhelpData['kusername']):
+                    addedKeyHelpUserId = keyhelpInputData.keyhelpUserId
+                else:
+                    exit(1)
 
-        keyhelpAddData.addKeyHelpDataToApi(apiEndpointClients, keyhelpInputData.keyhelpData)
-        if keyhelpAddData.status:
-            addedKeyHelpUserId = keyhelpAddData.keyhelpApiReturnData['keyhelpUserId']
-            # Check whether the system user was added by KeyHelp
-            loop_starts = time.time()
-            while True:
-                now = time.time()
-                sys.stdout.write('\rWaiting since {0} seconds for Keyhelp. KeyHelp user was not added yet!'.format(
-                    int(now - loop_starts)))
-                sys.stdout.flush()
-                time.sleep(1)
-                getUid = os.system('id ' + str(keyhelpInputData.keyhelpData['kusername'].lower()) + ' > /dev/null 2>&1')
-                if getUid == 0:
-                    break
-            print('KeyHelpUser "' + keyhelpInputData.keyhelpData['kusername'] + '" added successfully.')
             print('Adding first domain "' + imscpInputData.imscpData['iUsernameDomainIdna'] + '" to KeyHelpUser "' +
                   keyhelpInputData.keyhelpData['kusername'] + '".')
+
             if keyhelpDisableDnsForDomain == 'ask':
                 if _global_config.ask_Yes_No('Do you want to active the dns zone for this domain [y/n]? '):
                     keyhelpSetDisableDnsForDomain = False

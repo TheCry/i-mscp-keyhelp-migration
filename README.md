@@ -1,5 +1,6 @@
 # imscp-keyhelp-migration
-With this script you are able to migrate every customer from the i-MSCP server to your new KeyHelp server
+With this script you are able to migrate every customer from the i-MSCP server to your new KeyHelp server. Also you have the possibility to migrate multiple 
+i-MSCP accounts to one KeyHelp account.
 
 ## Requirements
 * run the script on the KeyHelp server
@@ -15,7 +16,7 @@ With this script you are able to migrate every customer from the i-MSCP server t
 ## Installation packages
 ```
 apt-get install pv sshpass python3-pip python3-requests python3-paramiko python3-distutils-extra python3-tqdm
-python3 -m pip install mysql-connector
+python3 -m pip install mysql-connector inquirer
 ```
 
 ## Create the RSA Key Pair as root and copy to i-MSCP server (optional)
