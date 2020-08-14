@@ -32,9 +32,9 @@ If you get some messages like the following while running the migration script:
 ```
 CryptographyDeprecationWarning: Support for unsafe construction of public numbers from encoded data will be removed in a future version
 ```
-Downgrade the package "cryptography" to version 2.4.2
+Upgrade the package "paramiko" to version 2.5.0
 ```
-pip3 install cryptography==2.4.2
+pip3 install paramiko==2.5.0
 ```
 
 ## How to use the migration script
