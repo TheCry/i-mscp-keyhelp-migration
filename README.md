@@ -27,6 +27,16 @@ ssh-keygen -b 4096 -m PEM -t rsa
 ssh-copy-id -i .ssh/id_rsa.pub -p 22 FQDN-Remote-Server
 ```
 
+## Error message of "python paramiko"
+If you get some messages like the following while running the migration script:
+```
+CryptographyDeprecationWarning: Support for unsafe construction of public numbers from encoded data will be removed in a future version
+```
+Downgrade the package "cryptography" to version 2.4.2
+```
+pip3 install cryptography==2.4.2
+```
+
 ## How to use the migration script
 * apt-get install git
 * git clone https://github.com/TheCry/i-mscp-keyhelp-migration
