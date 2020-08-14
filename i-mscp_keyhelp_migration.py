@@ -99,7 +99,12 @@ if __name__ == "__main__":
     try:
         responseApi = requests.get(apiUrl + apiEndpointServer + '/', headers=headers, timeout=apiTimeout,
                                    verify=apiServerFqdnVerify)
-        apiGetData = responseApi.json()
+        try:
+            apiGetData = responseApi.json()
+        except ValueError:
+            print('ERROR - Check whether the KeyHelp API is activated!\n')
+            exit(1)
+
         if responseApi.status_code == 200:
             # print (responseApi.text)
             if not keyhelpInputData.getServerDatabaseCredentials(keyhelpConfigfile):
