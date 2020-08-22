@@ -44,9 +44,13 @@ pip3 install paramiko==2.5.0
 * Make the file "i-mscp_keyhelp_migration.py" executable (chmod +x i-mscp_keyhelp_migration.py)
 * Start the migration by running the script "i-mscp_keyhelp_migration.py" (./i-mscp_keyhelp_migration.py)
 
+## Doings if using roundcube contact migration
+* Before starting migration, note the "user_id" in the KeyHep table "users" of the database "roundcube"
+* If you need to restart the migration for the same user delete all entries after the noted "user_id" the table above
+
 ## Doings if something went wrong with API communication
 * First delete the new added KeyHelp user
-* Check as admin wheter a SSL cert was added while the last run and delete it
+* Check as admin whether a SSL cert was added while the last run and delete it
 
 ## Doings after migration
 * Set the correct home dir of the ftp users
