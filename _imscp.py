@@ -17,6 +17,7 @@ imscpSshUsername = _global_config.imscpSshUsername
 imscpSshPort = _global_config.imscpSshPort
 imscpSshTimeout = _global_config.imscpSshTimeout
 imscpRootPassword = _global_config.imscpRootPassword
+imscpRoundcubeContactImport = _global_config.imscpRoundcubeContactImport
 imscpSshPublicKey = _global_config.imscpSshPublicKey
 imscpDbDumpFolder = _global_config.imscpDbDumpFolder
 
@@ -163,6 +164,14 @@ class imscpGetData:
                     print('Your Domain IDN converted: "' + iUsernameIdna + '"\n')
 
                 print('\nFound domain: ' + iUsername)
+
+                if imscpRoundcubeContactImport:
+                    self.imscpRoundcubeUsers = {}
+                    self.imscpRoundcubeIdentities = {}
+                    self.imscpRoundcubeContacts = {}
+                    self.imscpRoundcubeContactgroups = {}
+                    self.imscpRoundcubeContact2Contactgroup = {}
+
                 print('Get i-MSCP domain dns data')
                 self.__getImscpDomainDns(self.imscpData['iUsernameDomainId'], self.imscpData['iUsernameDomainIdna'],
                                          client)
@@ -842,10 +851,10 @@ class imscpGetData:
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations database users :\nNo database users found for the database "' +
-                self.imscpDomainDatabaseUsernames[index]['iDatabaseUsername'] + '"\n')
+                iDatabaseName + '"\n')
             if showDebug:
                 print('Debug i-MSCP informations database users:\nNo database users found for the database "' +
-                      self.imscpDomainDatabaseUsernames[index]['iDatabaseUsername'] + '"\n')
+                      iDatabaseName + '"\n')
         else:
             _global_config.write_log(
                 '======================= End data for database users - "' + iDatabaseName + '" - Domain "' + iUsernameDomain + '" =======================\n\n\n')
@@ -995,6 +1004,10 @@ class imscpGetData:
                           self.imscpDomainEmailAddressNormal[index][
                               'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
+                if imscpRoundcubeContactImport:
+                    print('Get i-MSCP roundcube domain email contact data')
+                    self.__getImscpRoundcubeUsers(client, self.imscpDomainEmailAddressNormal[index]['iEmailAddress'])
+
             if imscpEmailDomainData[4] == 'normal_mail,normal_forward':
                 self.imscpDomainEmailAddressNormalForward[index] = {}
                 self.imscpDomainEmailAddressNormalForward[index]['iEmailMailId'] = imscpEmailDomainData[0]
@@ -1010,6 +1023,11 @@ class imscpGetData:
                     print('Debug i-MSCP informations emails domain:\nEmailadress "' +
                           self.imscpDomainEmailAddressNormalForward[index][
                               'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+
+                if imscpRoundcubeContactImport:
+                    print('Get i-MSCP roundcube domain email contact data')
+                    self.__getImscpRoundcubeUsers(client,
+                                                  self.imscpDomainEmailAddressNormalForward[index]['iEmailAddress'])
 
             if imscpEmailDomainData[4] == 'normal_forward':
                 self.imscpDomainEmailAddressForward[index] = {}
@@ -1115,6 +1133,12 @@ class imscpGetData:
                           self.imscpDomainSubEmailAddressNormal['subid-' + iSubDomainId][index][
                               'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
 
+                if imscpRoundcubeContactImport:
+                    print('Get i-MSCP roundcube sub domain email contact data')
+                    self.__getImscpRoundcubeUsers(client,
+                                                  self.imscpDomainSubEmailAddressNormal['subid-' + iSubDomainId][index][
+                                                      'iEmailAddress'])
+
             if imscpEmailDomainData[4] == 'subdom_mail,subdom_forward':
                 self.imscpDomainSubEmailAddressNormalForward['subid-' + iSubDomainId][index] = {}
                 self.imscpDomainSubEmailAddressNormalForward['subid-' + iSubDomainId][index]['iEmailMailId'] = \
@@ -1137,6 +1161,12 @@ class imscpGetData:
                     print('Debug i-MSCP informations emails sub domain:\nEmailadress "' +
                           self.imscpDomainSubEmailAddressNormalForward['subid-' + iSubDomainId][index][
                               'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
+
+                if imscpRoundcubeContactImport:
+                    print('Get i-MSCP roundcube sub domain email contact data')
+                    self.__getImscpRoundcubeUsers(client,
+                                                  self.imscpDomainSubEmailAddressNormalForward['subid-' + iSubDomainId][
+                                                      index]['iEmailAddress'])
 
             if imscpEmailDomainData[4] == 'subdom_forward':
                 self.imscpDomainSubEmailAddressForward['subid-' + iSubDomainId][index] = {}
@@ -1245,6 +1275,12 @@ class imscpGetData:
                           self.imscpAliasEmailAddressNormal['aliasid-' + iAliasDomainid][index][
                               'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
+                if imscpRoundcubeContactImport:
+                    print('Get i-MSCP roundcube alias domain email contact data')
+                    self.__getImscpRoundcubeUsers(client,
+                                                  self.imscpAliasEmailAddressNormal['aliasid-' + iAliasDomainid][index][
+                                                      'iEmailAddress'])
+
             if imscpEmailDomainData[4] == 'alias_mail,alias_forward':
                 self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][index] = {}
                 self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][index]['iEmailMailId'] = \
@@ -1267,6 +1303,12 @@ class imscpGetData:
                     print('Debug i-MSCP informations emails alias domain:\nEmailadress "' +
                           self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][index][
                               'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
+
+                if imscpRoundcubeContactImport:
+                    print('Get i-MSCP roundcube alias domain email contact data')
+                    self.__getImscpRoundcubeUsers(client,
+                                                  self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][
+                                                      index]['iEmailAddress'])
 
             if imscpEmailDomainData[4] == 'alias_forward':
                 self.imscpAliasEmailAddressForward['aliasid-' + iAliasDomainid][index] = {}
@@ -1376,6 +1418,11 @@ class imscpGetData:
                           self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index][
                               'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
+                if imscpRoundcubeContactImport:
+                    print('Get i-MSCP roundcube alias sub domain email contact data')
+                    self.__getImscpRoundcubeUsers(client, self.imscpAliasSubEmailAddressNormal[
+                        'aliassubid-' + iAliasSubDomainId][index]['iEmailAddress'])
+
             if imscpEmailDomainData[4] == 'alssub_mail,alssub_forward':
                 self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index] = {}
                 self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
@@ -1399,6 +1446,11 @@ class imscpGetData:
                     print('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
                           self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index][
                               'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
+
+                if imscpRoundcubeContactImport:
+                    print('Get i-MSCP roundcube alias sub domain email contact data')
+                    self.__getImscpRoundcubeUsers(client, self.imscpAliasSubEmailAddressNormalForward[
+                        'aliassubid-' + iAliasSubDomainId][index]['iEmailAddress'])
 
             if imscpEmailDomainData[4] == 'alssub_forward':
                 self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index] = {}
@@ -1431,6 +1483,330 @@ class imscpGetData:
                 print(
                     'Debug i-MSCP informations emails alias sub domain:\nNo emails found for the i-MSCP alias sub '
                     'domain "' + iAliasSubDomain + '"\n')
+
+    def __getImscpRoundcubeUsers(self, client, rEmailaddress):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
+                'imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT user_id, username, mail_host, REPLACE(created , \' \', \'!!!\'), '
+                                    'REPLACE(last_login , \' \', \'!!!\'), IF(failed_login = \'\', \'empty\', REPLACE(failed_login , \' \', \'!!!\')), '
+                                    'IF(failed_login_counter = \'\', \'empty\', failed_login_counter), language, preferences FROM ' +
+            self.imscpData[
+                'imysqldatabase'] + '_roundcube.users WHERE username = \'' + rEmailaddress + '\'"')
+        i = 0
+        dataLine = ''
+
+        for line in stdout:
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            imscpRoundcubeUserData = dataLine.split("|")
+            imscpRoundcubeUserData[0].strip()
+            imscpRoundcubeUserData[1].strip()
+            imscpRoundcubeUserData[2].strip()
+            imscpRoundcubeUserData[3].strip()
+            imscpRoundcubeUserData[4].strip()
+            imscpRoundcubeUserData[5].strip()
+            imscpRoundcubeUserData[6].strip()
+            imscpRoundcubeUserData[7].strip()
+            imscpRoundcubeUserData[8].strip()
+
+            index = int(imscpRoundcubeUserData[0])
+
+            imscpRoundcubeUserData[3] = re.sub(r"!!!", " ", imscpRoundcubeUserData[3], flags=re.UNICODE)
+            imscpRoundcubeUserData[4] = re.sub(r"!!!", " ", imscpRoundcubeUserData[4], flags=re.UNICODE)
+            imscpRoundcubeUserData[5] = re.sub(r"!!!", " ", imscpRoundcubeUserData[5], flags=re.UNICODE)
+
+            imscpRoundcubeUserData[5] = re.sub(r"empty", "", imscpRoundcubeUserData[5], flags=re.UNICODE)
+            imscpRoundcubeUserData[6] = re.sub(r"empty", "", imscpRoundcubeUserData[6], flags=re.UNICODE)
+
+            self.imscpRoundcubeUsers[index] = {}
+
+            imscpRoundcubeUserData[2] = re.sub(r"localhost", "127.0.0.1", imscpRoundcubeUserData[2], flags=re.UNICODE)
+
+            self.imscpRoundcubeUsers[index]['rUserId'] = imscpRoundcubeUserData[0]
+            self.imscpRoundcubeUsers[index]['rUsername'] = imscpRoundcubeUserData[1]
+            self.imscpRoundcubeUsers[index]['rMailHost'] = imscpRoundcubeUserData[2]
+            self.imscpRoundcubeUsers[index]['rCreated'] = imscpRoundcubeUserData[3]
+            self.imscpRoundcubeUsers[index]['rLastLogin'] = imscpRoundcubeUserData[4]
+            self.imscpRoundcubeUsers[index]['rFailedLogin'] = imscpRoundcubeUserData[5]
+            self.imscpRoundcubeUsers[index]['rFailedLoginCounter'] = imscpRoundcubeUserData[6]
+            self.imscpRoundcubeUsers[index]['rLanguage'] = imscpRoundcubeUserData[7]
+            self.imscpRoundcubeUsers[index]['rPreferences'] = imscpRoundcubeUserData[8]
+
+
+            _global_config.write_log(
+                'Debug i-MSCP informations roundcube users:\nRoundcube user "' + self.imscpRoundcubeUsers[index][
+                    'rUsername'] + '" found.\n')
+            if showDebug:
+                print('Debug i-MSCP informations roundcube users:\nRoundcube user "' + self.imscpRoundcubeUsers[index][
+                    'rUsername'] + '" found.\n')
+
+            self.__getImscpRoundcubeIdentities(self.imscpRoundcubeUsers[index]['rUserId'], client)
+            self.__getImscpRoundcubeContacts(self.imscpRoundcubeUsers[index]['rUserId'], client)
+            self.__getImscpRoundcubeContactgroups(self.imscpRoundcubeUsers[index]['rUserId'], client)
+
+            _global_config.write_log(
+                '======================= End data for roundcube users =======================\n\n\n')
+
+            i += 1
+
+    def __getImscpRoundcubeIdentities(self, rUserId, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -r -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData['imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT identity_id, user_id, REPLACE(changed , \' \', \'--!!!--\'), del, '
+                                    'standard, IF(name = \'\', \'empty\', REPLACE(name , \' \', \'--!!!--\')), IF(organization = \'\', \'empty\', REPLACE(organization , \' \', \'--!!!--\')), email, IF(\'reply-to\' = \'\', \'reply-to\', \'empty\'), '
+                'IF(bcc = \'\', \'empty\', bcc), IF(signature = \'\', \'empty\', REPLACE(REPLACE(REPLACE(signature , \'\n\', \'-!!-\'), \'\r\', \'_!!_\'), \'\ \', \'--!!!--\')), '
+                'html_signature FROM ' +
+            self.imscpData['imysqldatabase'] + '_roundcube.identities WHERE user_id = \'' + rUserId + '\'"')
+        i = 0
+        dataLine = ''
+
+        for line in stdout:
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            imscpRoundcubeIdentityData = dataLine.split("|")
+            imscpRoundcubeIdentityData[0].strip()
+            imscpRoundcubeIdentityData[1].strip()
+            imscpRoundcubeIdentityData[2].strip()
+            imscpRoundcubeIdentityData[3].strip()
+            imscpRoundcubeIdentityData[4].strip()
+            imscpRoundcubeIdentityData[5].strip()
+            imscpRoundcubeIdentityData[6].strip()
+            imscpRoundcubeIdentityData[7].strip()
+            imscpRoundcubeIdentityData[8].strip()
+            imscpRoundcubeIdentityData[9].strip()
+            imscpRoundcubeIdentityData[10].strip()
+            imscpRoundcubeIdentityData[11].strip()
+
+            index = int(imscpRoundcubeIdentityData[0])
+
+            self.imscpRoundcubeIdentities[index] = {}
+            imscpRoundcubeIdentityData[2] = re.sub(r"--!!!--", " ", imscpRoundcubeIdentityData[2], flags=re.UNICODE)
+            imscpRoundcubeIdentityData[5] = re.sub(r"--!!!--", " ", imscpRoundcubeIdentityData[5], flags=re.UNICODE)
+            imscpRoundcubeIdentityData[6] = re.sub(r"--!!!--", " ", imscpRoundcubeIdentityData[6], flags=re.UNICODE)
+            imscpRoundcubeIdentityData[10] = re.sub(r"-!!-", "\n", imscpRoundcubeIdentityData[10], flags=re.UNICODE)
+            imscpRoundcubeIdentityData[10] = re.sub(r"_!!_", "\r", imscpRoundcubeIdentityData[10], flags=re.UNICODE)
+            imscpRoundcubeIdentityData[10] = re.sub(r"!!!", " ", imscpRoundcubeIdentityData[10], flags=re.UNICODE)
+
+            imscpRoundcubeIdentityData[5] = re.sub(r"empty", "", imscpRoundcubeIdentityData[5], flags=re.UNICODE)
+            imscpRoundcubeIdentityData[6] = re.sub(r"empty", "", imscpRoundcubeIdentityData[6], flags=re.UNICODE)
+            imscpRoundcubeIdentityData[8] = re.sub(r"empty", "", imscpRoundcubeIdentityData[8], flags=re.UNICODE)
+            imscpRoundcubeIdentityData[9] = re.sub(r"empty", "", imscpRoundcubeIdentityData[9], flags=re.UNICODE)
+            imscpRoundcubeIdentityData[10] = re.sub(r"empty", "", imscpRoundcubeIdentityData[10], flags=re.UNICODE)
+
+            self.imscpRoundcubeIdentities[index]['rIdentityId'] = imscpRoundcubeIdentityData[0]
+            self.imscpRoundcubeIdentities[index]['rUserId'] = imscpRoundcubeIdentityData[1]
+            self.imscpRoundcubeIdentities[index]['rChanged'] = imscpRoundcubeIdentityData[2]
+            self.imscpRoundcubeIdentities[index]['rDel'] = imscpRoundcubeIdentityData[3]
+            self.imscpRoundcubeIdentities[index]['rStandard'] = imscpRoundcubeIdentityData[4]
+            self.imscpRoundcubeIdentities[index]['rName'] = imscpRoundcubeIdentityData[5]
+            self.imscpRoundcubeIdentities[index]['rOrganization'] = imscpRoundcubeIdentityData[6]
+            self.imscpRoundcubeIdentities[index]['rEmail'] = imscpRoundcubeIdentityData[7]
+            self.imscpRoundcubeIdentities[index]['rReplyTo'] = imscpRoundcubeIdentityData[8]
+            self.imscpRoundcubeIdentities[index]['rBcc'] = imscpRoundcubeIdentityData[9]
+            self.imscpRoundcubeIdentities[index]['rSignature'] = imscpRoundcubeIdentityData[10]
+            self.imscpRoundcubeIdentities[index]['rHtmlSignature'] = imscpRoundcubeIdentityData[11]
+
+            _global_config.write_log('Debug i-MSCP informations roundcube identities:\nRoundcube identity "' +
+                                     self.imscpRoundcubeIdentities[index]['rName'] + ', ' + '" found.\n')
+            if showDebug:
+                print('Debug i-MSCP informations roundcube identities:\nRoundcube identity "' +
+                      self.imscpRoundcubeIdentities[index]['rName'] + '" found.\n')
+
+            _global_config.write_log(
+                '======================= End data for roundcube identities =======================\n\n\n')
+
+            i += 1
+
+    def __getImscpRoundcubeContacts(self, rUserId, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -r -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
+                'imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT contact_id, REPLACE(changed , \' \', \'!!!\'), del, IF(name = \'\', '
+                                    '\'empty\', REPLACE(name , \' \', \'!!!\')), email, IF(firstname = \'\', \'empty\', REPLACE(firstname '
+                                    ', \' \', \'!!!\')), IF(surname = \'\', \'empty\', REPLACE(surname , \' \', \'!!!\')), '
+                                    'REPLACE(REPLACE(REPLACE(vcard , \'\n\', \'---\'), \'\r\', \'___\'), \'\ \', '
+                                    '\'!!!\'), REPLACE(words , \' \', \'!!!\'), user_id FROM ' +
+            self.imscpData[
+                'imysqldatabase'] + '_roundcube.contacts WHERE user_id = \'' + rUserId + '\'"')
+        i = 0
+        dataLine = ''
+
+        for line in stdout:
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            imscpRoundcubeContactData = dataLine.split("|")
+            imscpRoundcubeContactData[0].strip()
+            imscpRoundcubeContactData[1].strip()
+            imscpRoundcubeContactData[2].strip()
+            imscpRoundcubeContactData[3].strip()
+            imscpRoundcubeContactData[4].strip()
+            imscpRoundcubeContactData[5].strip()
+            imscpRoundcubeContactData[6].strip()
+            imscpRoundcubeContactData[7].strip()
+            imscpRoundcubeContactData[8].strip()
+            imscpRoundcubeContactData[9].strip()
+
+            index = int(imscpRoundcubeContactData[0])
+
+            self.imscpRoundcubeContacts[index] = {}
+            imscpRoundcubeContactData[1] = re.sub(r"!!!", " ", imscpRoundcubeContactData[1], flags=re.UNICODE)
+            imscpRoundcubeContactData[3] = re.sub(r"!!!", " ", imscpRoundcubeContactData[3], flags=re.UNICODE)
+            imscpRoundcubeContactData[5] = re.sub(r"!!!", " ", imscpRoundcubeContactData[5], flags=re.UNICODE)
+            imscpRoundcubeContactData[6] = re.sub(r"!!!", " ", imscpRoundcubeContactData[6], flags=re.UNICODE)
+            imscpRoundcubeContactData[8] = re.sub(r"!!!", " ", imscpRoundcubeContactData[8], flags=re.UNICODE)
+            imscpRoundcubeContactData[7] = re.sub(r"---", "\n", imscpRoundcubeContactData[7], flags=re.UNICODE)
+            imscpRoundcubeContactData[7] = re.sub(r"___", "\r", imscpRoundcubeContactData[7], flags=re.UNICODE)
+            imscpRoundcubeContactData[7] = re.sub(r"!!!", " ", imscpRoundcubeContactData[7], flags=re.UNICODE)
+
+            imscpRoundcubeContactData[3] = re.sub(r"empty", "", imscpRoundcubeContactData[3], flags=re.UNICODE)
+            imscpRoundcubeContactData[5] = re.sub(r"empty", "", imscpRoundcubeContactData[5], flags=re.UNICODE)
+            imscpRoundcubeContactData[6] = re.sub(r"empty", "", imscpRoundcubeContactData[6], flags=re.UNICODE)
+
+            self.imscpRoundcubeContacts[index]['rContactId'] = imscpRoundcubeContactData[0]
+            self.imscpRoundcubeContacts[index]['rChanged'] = imscpRoundcubeContactData[1]
+            self.imscpRoundcubeContacts[index]['rDel'] = imscpRoundcubeContactData[2]
+            self.imscpRoundcubeContacts[index]['rName'] = imscpRoundcubeContactData[3]
+            self.imscpRoundcubeContacts[index]['rEmail'] = imscpRoundcubeContactData[4]
+            self.imscpRoundcubeContacts[index]['rFirstname'] = imscpRoundcubeContactData[5]
+            self.imscpRoundcubeContacts[index]['rSurname'] = imscpRoundcubeContactData[6]
+            self.imscpRoundcubeContacts[index]['rVcard'] = imscpRoundcubeContactData[7]
+            self.imscpRoundcubeContacts[index]['rWords'] = imscpRoundcubeContactData[8]
+            self.imscpRoundcubeContacts[index]['rUserId'] = imscpRoundcubeContactData[9]
+
+            _global_config.write_log('Debug i-MSCP informations roundcube contact:\nRoundcube contact "' +
+                                     self.imscpRoundcubeContacts[index]['rEmail'] + '" found.\n')
+            if showDebug:
+                print('Debug i-MSCP informations roundcube contacts:\nRoundcube contact "' +
+                      self.imscpRoundcubeContacts[index]['rEmail'] + '" found.\n')
+
+            _global_config.write_log(
+                '======================= End data for roundcube contacts =======================\n\n\n')
+
+            i += 1
+
+    def __getImscpRoundcubeContactgroups(self, rUserId, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -r -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
+                'imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT contactgroup_id, user_id, REPLACE(changed , \' \', \'!!!\'), del, '
+                                    'REPLACE(name , \' \', \'!!!\') FROM ' +
+            self.imscpData[
+                'imysqldatabase'] + '_roundcube.contactgroups WHERE user_id = \'' + rUserId + '\'"')
+        i = 0
+        dataLine = ''
+
+        for line in stdout:
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            imscpRoundcubeContactGroupData = dataLine.split("|")
+            imscpRoundcubeContactGroupData[0].strip()
+            imscpRoundcubeContactGroupData[1].strip()
+            imscpRoundcubeContactGroupData[2].strip()
+            imscpRoundcubeContactGroupData[3].strip()
+            imscpRoundcubeContactGroupData[4].strip()
+
+            index = int(imscpRoundcubeContactGroupData[0])
+
+            imscpRoundcubeContactGroupData[2] = re.sub(r"!!!", " ", imscpRoundcubeContactGroupData[2], flags=re.UNICODE)
+            imscpRoundcubeContactGroupData[4] = re.sub(r"!!!", " ", imscpRoundcubeContactGroupData[4], flags=re.UNICODE)
+
+            self.imscpRoundcubeContactgroups[index] = {}
+
+            self.imscpRoundcubeContactgroups[index]['rContactGroupId'] = imscpRoundcubeContactGroupData[0]
+            self.imscpRoundcubeContactgroups[index]['rUserId'] = imscpRoundcubeContactGroupData[1]
+            self.imscpRoundcubeContactgroups[index]['rChanged'] = imscpRoundcubeContactGroupData[2]
+            self.imscpRoundcubeContactgroups[index]['rDel'] = imscpRoundcubeContactGroupData[3]
+            self.imscpRoundcubeContactgroups[index]['rName'] = imscpRoundcubeContactGroupData[4]
+
+            _global_config.write_log('Debug i-MSCP informations roundcube contact group:\nRoundcube contact "' +
+                                     self.imscpRoundcubeContactgroups[index]['rName'] + '" found.\n')
+            if showDebug:
+                print('Debug i-MSCP informations roundcube contact group:\nRoundcube contact "' +
+                      self.imscpRoundcubeContactgroups[index]['rSurname'] + '" found.\n')
+
+            self.__getImscpRoundcubeContact2Contactgroup(self.imscpRoundcubeContactgroups[index]['rContactGroupId'], client)
+
+            _global_config.write_log(
+                '======================= End data for roundcube contact groups =======================\n\n\n')
+
+            i += 1
+
+    def __getImscpRoundcubeContact2Contactgroup(self, rContactGroupId, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
+                'imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT contactgroup_id, contact_id, REPLACE(created , \' \', \'!!!\') FROM ' +
+            self.imscpData[
+                'imysqldatabase'] + '_roundcube.contactgroupmembers WHERE contactgroup_id = \'' + rContactGroupId + '\'"')
+        i = 0
+        dataLine = ''
+
+        for line in stdout:
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            imscpRoundcubeContactGroup2ContactData = dataLine.split("|")
+            imscpRoundcubeContactGroup2ContactData[0].strip()
+            imscpRoundcubeContactGroup2ContactData[1].strip()
+            imscpRoundcubeContactGroup2ContactData[2].strip()
+
+            imscpRoundcubeContactGroup2ContactData[2] = re.sub(r"!!!", " ", imscpRoundcubeContactGroup2ContactData[2],
+                                                               flags=re.UNICODE)
+            self.imscpRoundcubeContact2Contactgroup[str(i) + '-g-' + imscpRoundcubeContactGroup2ContactData[0] + '-c-' +
+                                                    imscpRoundcubeContactGroup2ContactData[1]] = {}
+
+            self.imscpRoundcubeContact2Contactgroup[str(i) + '-g-' + imscpRoundcubeContactGroup2ContactData[0] + '-c-' +
+                                                    imscpRoundcubeContactGroup2ContactData[1]]['rContactGroupId'] = \
+            imscpRoundcubeContactGroup2ContactData[0]
+            self.imscpRoundcubeContact2Contactgroup[str(i) + '-g-' + imscpRoundcubeContactGroup2ContactData[0] + '-c-' +
+                                                    imscpRoundcubeContactGroup2ContactData[1]]['rContactId'] = \
+            imscpRoundcubeContactGroup2ContactData[1]
+            self.imscpRoundcubeContact2Contactgroup[str(i) + '-g-' + imscpRoundcubeContactGroup2ContactData[0] + '-c-' + imscpRoundcubeContactGroup2ContactData[1]]['rCreated'] = imscpRoundcubeContactGroup2ContactData[2]
+
+            _global_config.write_log(
+                '======================= End data for roundcube contact groups to contact =======================\n\n\n')
+
+            i += 1
 
     def imscpDataComplete(self):
         if not self.complete:

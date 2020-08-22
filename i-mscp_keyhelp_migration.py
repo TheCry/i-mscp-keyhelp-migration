@@ -50,6 +50,7 @@ imscpSshUsername = _global_config.imscpSshUsername
 imscpSshPort = _global_config.imscpSshPort
 imscpSshTimeout = _global_config.imscpSshTimeout
 imscpRootPassword = _global_config.imscpRootPassword
+imscpRoundcubeContactImport = _global_config.imscpRoundcubeContactImport
 imscpSshPublicKey = _global_config.imscpSshPublicKey
 imscpDbDumpFolder = _global_config.imscpDbDumpFolder
 
@@ -238,6 +239,14 @@ if __name__ == "__main__":
             imscpInputData.imscpAliasSubEmailAddressNormalForward) + '\n')
         _global_config.write_log('i-MSCP emailadresses alias sub domains (forward):\n' + str(
             imscpInputData.imscpAliasSubEmailAddressForward) + '\n')
+        if imscpRoundcubeContactImport:
+            _global_config.write_log('i-MSCP roundcube users:\n' + str(imscpInputData.imscpRoundcubeUsers) + '\n')
+            _global_config.write_log('i-MSCP roundcube identities:\n' + str(imscpInputData.imscpRoundcubeIdentities) + '\n')
+            _global_config.write_log('i-MSCP roundcube contacts:\n' + str(imscpInputData.imscpRoundcubeContacts) + '\n')
+            _global_config.write_log('i-MSCP roundcube contactgroups:\n' + str(imscpInputData.imscpRoundcubeContactgroups) + '\n')
+            _global_config.write_log('i-MSCP roundcube contactgroup to contact:\n' + str(imscpInputData.imscpRoundcubeContact2Contactgroup) + '\n')
+        else:
+            _global_config.write_log('i-MSCP roundcube contacts:\nImport of i-MSCP roundcube is disabled for this server.')
         _global_config.write_log('i-MSCP domain databases:\n' + str(imscpInputData.imscpDomainDatabaseNames) + '\n')
         _global_config.write_log(
             'i-MSCP domain database usernames:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
@@ -291,6 +300,13 @@ if __name__ == "__main__":
                 imscpInputData.imscpAliasSubEmailAddressNormalForward) + '\n')
             print('i-MSCP emailadresses alias sub domains (forward):\n' + str(
                 imscpInputData.imscpAliasSubEmailAddressForward) + '\n')
+            if imscpRoundcubeContactImport:
+                print('i-MSCP roundcube users:\n' + str(imscpInputData.imscpRoundcubeUsers) + '\n')
+                print('i-MSCP roundcube identities:\n' + str(imscpInputData.imscpRoundcubeIdentities) + '\n')
+                print('i-MSCP roundcube contacts:\n' + str(imscpInputData.imscpRoundcubeContacts) + '\n')
+                print('i-MSCP roundcube contactgroups:\n' + str(imscpInputData.imscpRoundcubeContactgroups) + '\n')
+                print('i-MSCP roundcube contactgroup to contact:\n' + str(
+                    imscpInputData.imscpRoundcubeContact2Contactgroup) + '\n')
             print('i-MSCP domain databases):\n' + str(imscpInputData.imscpDomainDatabaseNames) + '\n')
             print('i-MSCP domain database users:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
             print('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
@@ -336,7 +352,7 @@ if __name__ == "__main__":
                     getUid = os.system('id ' + str(keyhelpInputData.keyhelpData['kusername'].lower()) + ' > /dev/null 2>&1')
                     if getUid == 0:
                         break
-                print('KeyHelpUser "' + keyhelpInputData.keyhelpData['kusername'] + '" added successfully.')
+                print('\r\nKeyHelpUser "' + keyhelpInputData.keyhelpData['kusername'] + '" added successfully.')
             else:
                 if keyhelpInputData.getIdKeyhelpUsername(keyhelpInputData.keyhelpData['kusername']):
                     addedKeyHelpUserId = keyhelpInputData.keyhelpUserId
@@ -1176,7 +1192,7 @@ if __name__ == "__main__":
                                         'iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(
                                         10)
 
-                                # If an i-MSCP has only one db user we need to extend teh username
+                                # If an i-MSCP has only one db user we need to extend the username
                                 while True:
                                     i = 1
                                     if keyhelpAddApiData['iDatabaseUsername'] in keyhelpAddData.keyhelpAddedDbUsernames:
@@ -1187,6 +1203,14 @@ if __name__ == "__main__":
                                         break
 
                                 keyhelpAddApiData['iOldDatabaseUsername'] = dbUserValue.get('iDatabaseUsername')
+
+                    if keyhelpAddApiData['iDatabaseUsername'] == '':
+                        databaseUsername = keyhelpAddApiData['iDatabaseName']
+                        keyhelpAddApiData['iDatabaseUsername'] = re.sub("^db", 'dbu', databaseUsername, flags=re.UNICODE)
+                        keyhelpAddApiData['iDatabaseUserHost'] = str(dbUserValue.get('iDatabaseUserHost'))
+                        keyhelpAddApiData[
+                            'iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(
+                            10)
 
                     keyhelpAddData.addKeyHelpDataToApi(apiEndpointDatabases, keyhelpAddApiData)
                     if keyhelpAddData.status:
@@ -1201,6 +1225,47 @@ if __name__ == "__main__":
             if os.path.exists(logFile):
                 os.rename(logFile, loggingFolder + '/' + imscpInputData.imscpData[
                     'iUsernameDomainIdna'] + '_keyhelp_migration_data.log')
+
+            if imscpRoundcubeContactImport:
+                # Adding roundcube contacts
+                if bool(imscpInputData.imscpRoundcubeUsers):
+                    print('\nStart adding roundcube users and contacts.\n')
+                    for rcuUserKey, rcuUserValue in imscpInputData.imscpRoundcubeUsers.items():
+                        keyhelpAddRoundcubeData = {}
+                        keyhelpAddRoundcubeData['kdatabaseRoot'] = keyhelpInputData.keyhelpData['kdatabaseRoot']
+                        keyhelpAddRoundcubeData['kdatabaseRootPassword'] = keyhelpInputData.keyhelpData[
+                            'kdatabaseRootPassword']
+                        keyhelpAddRoundcubeData['rUserId'] = rcuUserValue.get('rUserId')
+                        keyhelpAddRoundcubeData['rUsername'] = rcuUserValue.get('rUsername')
+                        keyhelpAddRoundcubeData['rMailHost'] = rcuUserValue.get('rMailHost')
+                        keyhelpAddRoundcubeData['rCreated'] = rcuUserValue.get('rCreated')
+                        keyhelpAddRoundcubeData['rLastLogin'] = rcuUserValue.get('rLastLogin')
+                        keyhelpAddRoundcubeData['rFailedLogin'] = rcuUserValue.get('rFailedLogin')
+                        keyhelpAddRoundcubeData['rFailedLoginCounter'] = rcuUserValue.get('rFailedLoginCounter')
+                        keyhelpAddRoundcubeData['rLanguage'] = rcuUserValue.get('rLanguage')
+                        keyhelpAddRoundcubeData['rPreferences'] = rcuUserValue.get('rPreferences')
+                        keyhelpAddRoundcubeData['imscpRoundcubeIdentities'] = imscpInputData.imscpRoundcubeIdentities
+                        keyhelpAddRoundcubeData['imscpRoundcubeContacts'] = imscpInputData.imscpRoundcubeContacts
+                        keyhelpAddRoundcubeData[
+                            'imscpRoundcubeContactgroups'] = imscpInputData.imscpRoundcubeContactgroups
+                        keyhelpAddRoundcubeData[
+                            'imscpRoundcubeContact2Contactgroup'] = imscpInputData.imscpRoundcubeContact2Contactgroup
+
+                        keyhelpAddData.addRoundcubeContactUsers(keyhelpAddRoundcubeData)
+
+                    if bool(keyhelpAddData.imscpRoundcubeContact2Contactgroup):
+                        for rcuContact2GroupKey, rcuContact2GroupValue in keyhelpAddData.imscpRoundcubeContact2Contactgroup.items():
+                            roundcubeContact2ContactGroupAddData = {}
+                            roundcubeContact2ContactGroupAddData['kdatabaseRoot'] = keyhelpInputData.keyhelpData[
+                                'kdatabaseRoot']
+                            roundcubeContact2ContactGroupAddData['kdatabaseRootPassword'] = \
+                            keyhelpInputData.keyhelpData['kdatabaseRootPassword']
+                            roundcubeContact2ContactGroupAddData['contactgroup_id'] = rcuContact2GroupValue.get(
+                                'rContactGroupId')
+                            roundcubeContact2ContactGroupAddData['contact_id'] = rcuContact2GroupValue.get('rContactId')
+                            roundcubeContact2ContactGroupAddData['created'] = rcuContact2GroupValue.get('rCreated')
+
+                            keyhelpAddData.addRoundcubeContact2Groups(roundcubeContact2ContactGroupAddData)
 
             print('\nAll i-MSCP data were added to KeyHelp. Check the logfile "' + imscpInputData.imscpData[
                 'iUsernameDomainIdna'] + '_keyhelp_migration_data.log".')

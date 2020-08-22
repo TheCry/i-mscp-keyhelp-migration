@@ -353,6 +353,7 @@ class KeyHelpAddDataToServer:
         self.keyhelpAddedDbUsernames = []
         self.keyhelpAddedEmailAddresses = []
         self.keyhelpAddedDomains = []
+        self.imscpRoundcubeContact2Contactgroup = {}
 
     def updateKeyHelpDataToApi(self, apiEndPoint, keyHelpData):
         apiJsonData = self.__makeClientsJsonData(keyHelpData, apiEndPoint, updateData=True)
@@ -833,6 +834,266 @@ class KeyHelpAddDataToServer:
             db_connection.commit()
             cursor.close()
             db_connection.close()
+
+    def addRoundcubeContactUsers(self, roundcubeAddData):
+        try:
+            db_connection = mysql.connector.connect(
+                host="localhost",
+                user="" + roundcubeAddData['kdatabaseRoot'] + "",
+                passwd="" + roundcubeAddData['kdatabaseRootPassword'] + "",
+                database="roundcube"
+            )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with the user name or password")
+                exit(1)
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+                exit(1)
+            else:
+                print(err)
+                exit(1)
+        else:
+            cursor = db_connection.cursor()
+            try:
+                ignore = False
+                cursor.execute("INSERT INTO users (username, mail_host, created, language, preferences) VALUES ('" + str(
+                    roundcubeAddData['rUsername']) + "', '" + str(roundcubeAddData['rMailHost']) + "', '" + str(
+                    roundcubeAddData['rCreated']) + "', '" + str(roundcubeAddData['rLanguage']) + "', '" + str(
+                    roundcubeAddData['rPreferences']) + "');")
+
+                db_connection.commit()
+                rlastInserId = cursor.lastrowid
+            except (mysql.connector.Error) as err:
+                ignore = True
+                #print(err)
+                print('Error: The email address "' + roundcubeAddData[
+                    'rUsername'] + '" allready exists in the roundcube table "users"! Ignoring all contacts of this '
+                                   'email address.')
+            cursor.close()
+            db_connection.close()
+
+            if not ignore:
+                self.imscpRoundcubeContact2Contactgroup = roundcubeAddData['imscpRoundcubeContact2Contactgroup']
+                if bool(roundcubeAddData['imscpRoundcubeIdentities']):
+                    for rcuIdentityKey, rcuIdentityValue in roundcubeAddData['imscpRoundcubeIdentities'].items():
+                        if roundcubeAddData['rUserId'] == rcuIdentityValue.get('rUserId'):
+                            roundcubeIdentityAddData = {}
+                            roundcubeIdentityAddData['kdatabaseRoot'] = roundcubeAddData['kdatabaseRoot']
+                            roundcubeIdentityAddData['kdatabaseRootPassword'] = roundcubeAddData['kdatabaseRootPassword']
+                            roundcubeIdentityAddData['identity_id'] = rcuIdentityValue.get('rContactId')
+                            roundcubeIdentityAddData['user_id'] = int(rlastInserId)
+                            roundcubeIdentityAddData['changed'] = rcuIdentityValue.get('rChanged')
+                            roundcubeIdentityAddData['del'] = rcuIdentityValue.get('rDel')
+                            roundcubeIdentityAddData['standard'] = rcuIdentityValue.get('rStandard')
+                            roundcubeIdentityAddData['name'] = rcuIdentityValue.get('rName')
+                            roundcubeIdentityAddData['organization'] = rcuIdentityValue.get('rOrganization')
+                            roundcubeIdentityAddData['email'] = rcuIdentityValue.get('rEmail')
+                            roundcubeIdentityAddData['reply-to'] = rcuIdentityValue.get('rReplyTo')
+                            roundcubeIdentityAddData['bcc'] = rcuIdentityValue.get('rBcc')
+                            roundcubeIdentityAddData['signature'] = rcuIdentityValue.get('rSignature')
+                            roundcubeIdentityAddData['html_signature'] = rcuIdentityValue.get('rHtmlSignature')
+
+                            self.__addRoundcubeIdentities(roundcubeIdentityAddData)
+
+                if bool(roundcubeAddData['imscpRoundcubeContacts']):
+                    for rcuContactKey, rcuContactValue in roundcubeAddData['imscpRoundcubeContacts'].items():
+                        if roundcubeAddData['rUserId'] == rcuContactValue.get('rUserId'):
+                            lastContactInsertId = 0
+                            roundcubeContactAddData = {}
+                            roundcubeContactAddData['kdatabaseRoot'] = roundcubeAddData['kdatabaseRoot']
+                            roundcubeContactAddData['kdatabaseRootPassword'] = roundcubeAddData['kdatabaseRootPassword']
+                            roundcubeContactAddData['contact_id'] = rcuContactValue.get('rContactId')
+                            roundcubeContactAddData['changed'] = rcuContactValue.get('rChanged')
+                            roundcubeContactAddData['del'] = rcuContactValue.get('rDel')
+                            roundcubeContactAddData['name'] = rcuContactValue.get('rName')
+                            roundcubeContactAddData['email'] = rcuContactValue.get('rEmail')
+                            roundcubeContactAddData['firstname'] = rcuContactValue.get('rFirstname')
+                            roundcubeContactAddData['surname'] = rcuContactValue.get('rSurname')
+                            roundcubeContactAddData['vcard'] = rcuContactValue.get('rVcard')
+                            roundcubeContactAddData['words'] = rcuContactValue.get('rWords')
+                            roundcubeContactAddData['user_id'] = int(rlastInserId)
+
+                            lastContactInsertId = self.__addRoundcubeContacts(roundcubeContactAddData)
+                            if bool(self.imscpRoundcubeContact2Contactgroup):
+                                self.__changeIdsofContact2ContactGroup(rcuContactValue.get('rContactId'),
+                                                                       lastContactInsertId, 'contact')
+
+                if bool(roundcubeAddData['imscpRoundcubeContactgroups']):
+                    for rcuContactGroupKey, rcuContactGroupValue in roundcubeAddData[
+                        'imscpRoundcubeContactgroups'].items():
+                        if roundcubeAddData['rUserId'] == rcuContactGroupValue.get('rUserId'):
+                            lastContactGroupInsertId = 0
+                            roundcubeContactGroupAddData = {}
+                            roundcubeContactGroupAddData['kdatabaseRoot'] = roundcubeAddData['kdatabaseRoot']
+                            roundcubeContactGroupAddData['kdatabaseRootPassword'] = roundcubeAddData['kdatabaseRootPassword']
+                            roundcubeContactGroupAddData['user_id'] = int(rlastInserId)
+                            roundcubeContactGroupAddData['changed'] = rcuContactGroupValue.get('rChanged')
+                            roundcubeContactGroupAddData['del'] = rcuContactGroupValue.get('rDel')
+                            roundcubeContactGroupAddData['name'] = rcuContactGroupValue.get('rName')
+
+                            lastContactGroupInsertId = self.__addRoundcubeContactGroups(roundcubeContactGroupAddData)
+                            if bool(self.imscpRoundcubeContact2Contactgroup):
+                                self.__changeIdsofContact2ContactGroup(rcuContactGroupValue.get('rContactGroupId'),
+                                                                       lastContactGroupInsertId, 'group')
+
+    def __addRoundcubeIdentities(self, roundcubeIdentityAddData):
+        try:
+            db_connection = mysql.connector.connect(
+                host="localhost",
+                user="" + roundcubeIdentityAddData['kdatabaseRoot'] + "",
+                passwd="" + roundcubeIdentityAddData['kdatabaseRootPassword'] + "",
+                database="roundcube"
+            )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with the user name or password")
+                exit(1)
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+                exit(1)
+            else:
+                print(err)
+                exit(1)
+        else:
+            cursor = db_connection.cursor()
+            try:
+                cursor.execute(
+                    "INSERT INTO identities (`user_id`, `changed`,`del`, `standard`, `name`, `organization`, `email`, `reply-to`, `bcc`, `signature`, `html_signature`) VALUES ('" + str(
+                        roundcubeIdentityAddData['user_id']) + "', '" + str(
+                        roundcubeIdentityAddData['changed']) + "', '" + str(
+                        roundcubeIdentityAddData['del']) + "', '" + str(
+                        roundcubeIdentityAddData['standard']) + "', '" + str(
+                        roundcubeIdentityAddData['name']) + "', '" + str(
+                        roundcubeIdentityAddData['organization']) + "', '" + str(
+                        roundcubeIdentityAddData['email']) + "', '" + str(
+                        roundcubeIdentityAddData['reply-to']) + "', '" + str(
+                        roundcubeIdentityAddData['bcc']) + "', '" + str(
+                        roundcubeIdentityAddData['signature']) + "', '" + str(
+                        roundcubeIdentityAddData['html_signature']) + "');")
+
+                db_connection.commit()
+            except (mysql.connector.Error) as err:
+                #print(err)
+                print('Error: An error occurred while adding the e-mail signature for "' + roundcubeIdentityAddData[
+                    'email'] + '".')
+
+            cursor.close()
+            db_connection.close()
+
+    def __addRoundcubeContacts(self, roundcubeContactAddData):
+        try:
+            db_connection = mysql.connector.connect(
+                host="localhost",
+                user="" + roundcubeContactAddData['kdatabaseRoot'] + "",
+                passwd="" + roundcubeContactAddData['kdatabaseRootPassword'] + "",
+                database="roundcube"
+            )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with the user name or password")
+                exit(1)
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+                exit(1)
+            else:
+                print(err)
+                exit(1)
+        else:
+            cursor = db_connection.cursor()
+            cursor.execute(
+                "INSERT INTO contacts (changed, del, name, email, firstname, surname, vcard, words, user_id) VALUES ('" + str(
+                    roundcubeContactAddData['changed']) + "', '" + str(roundcubeContactAddData['del']) + "', '" + str(
+                    roundcubeContactAddData['name']) + "', '" + str(roundcubeContactAddData['email']) + "', '" + str(
+                    roundcubeContactAddData['firstname']) + "', '" + str(
+                    roundcubeContactAddData['surname']) + "', '" + str(roundcubeContactAddData['vcard']) + "', '" + str(
+                    roundcubeContactAddData['words']) + "', '" + str(roundcubeContactAddData['user_id']) + "');")
+
+            db_connection.commit()
+            lastInsertId = cursor.lastrowid
+            cursor.close()
+            db_connection.close()
+
+            return lastInsertId
+
+    def __addRoundcubeContactGroups(self, roundcubeContactGroupAddData):
+        try:
+            db_connection = mysql.connector.connect(
+                host="localhost",
+                user="" + roundcubeContactGroupAddData['kdatabaseRoot'] + "",
+                passwd="" + roundcubeContactGroupAddData['kdatabaseRootPassword'] + "",
+                database="roundcube"
+            )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with the user name or password")
+                exit(1)
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+                exit(1)
+            else:
+                print(err)
+                exit(1)
+        else:
+            cursor = db_connection.cursor()
+            cursor.execute("INSERT INTO contactgroups (user_id, changed, del, name) VALUES ('" + str(
+                roundcubeContactGroupAddData['user_id']) + "', '" + str(
+                roundcubeContactGroupAddData['changed']) + "', '" + str(
+                roundcubeContactGroupAddData['del']) + "', '" + str(roundcubeContactGroupAddData['name']) + "');")
+
+            db_connection.commit()
+            lastInsertId = cursor.lastrowid
+            cursor.close()
+            db_connection.close()
+
+            return lastInsertId
+
+    def addRoundcubeContact2Groups(self, roundcubeContact2ContactGroupAddData):
+        try:
+            db_connection = mysql.connector.connect(
+                host="localhost",
+                user="" + roundcubeContact2ContactGroupAddData['kdatabaseRoot'] + "",
+                passwd="" + roundcubeContact2ContactGroupAddData['kdatabaseRootPassword'] + "",
+                database="roundcube"
+            )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with the user name or password")
+                exit(1)
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+                exit(1)
+            else:
+                print(err)
+                exit(1)
+        else:
+            cursor = db_connection.cursor()
+            try:
+                ignore = False
+                cursor.execute("INSERT INTO contactgroupmembers (contactgroup_id, contact_id, created) VALUES ('" + str(
+                    roundcubeContact2ContactGroupAddData['contactgroup_id']) + "', '" + str(
+                    roundcubeContact2ContactGroupAddData['contact_id']) + "', '" + str(
+                    roundcubeContact2ContactGroupAddData['created']) + "');")
+
+                db_connection.commit()
+            except (mysql.connector.Error) as err:
+                ignore = True
+                # print(err)
+
+            if ignore:
+                print('Ignoring entry for "contactgroupmembers" because of a previously occurred error!')
+
+            cursor.close()
+            db_connection.close()
+
+    def __changeIdsofContact2ContactGroup(self, idToChange, newId, idColumn):
+        for i in self.imscpRoundcubeContact2Contactgroup.keys():
+            if idColumn == 'contact':
+                if self.imscpRoundcubeContact2Contactgroup[i]['rContactId'] == idToChange:
+                    self.imscpRoundcubeContact2Contactgroup[i]['rContactId'] = newId
+            if idColumn == 'group':
+                if self.imscpRoundcubeContact2Contactgroup[i]['rContactGroupId'] == idToChange:
+                    self.imscpRoundcubeContact2Contactgroup[i]['rContactGroupId'] = newId
 
     def keyhelpCreateRandomEmailPassword(self, kMinPasswordLenght):
         passwordCharacters = string.ascii_letters + string.digits + string.punctuation
