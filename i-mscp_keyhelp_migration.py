@@ -1458,7 +1458,7 @@ if __name__ == "__main__":
                             m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                             total_files = int(m[0][1])
                             progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                            sys.stdout.write('\rSyncing of emails for ' + str(rsyncEmailAddress) + ' done: ' + str(
+                            sys.stdout.write('\rSyncing emails for ' + str(rsyncEmailAddress) + ' done: ' + str(
                                 round(progress, 2)) + '%')
                             sys.stdout.flush()
                             if int(m[0][0]) == 0:
@@ -1521,7 +1521,7 @@ if __name__ == "__main__":
                             m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                             total_files = int(m[0][1])
                             progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                            sys.stdout.write('\rSyncing of webspace ' + str(
+                            sys.stdout.write('\rSyncing webspace ' + str(
                                 imscpInputData.imscpData['iUsernameDomainIdna']) + ' done: ' + str(
                                 round(progress, 2)) + '%')
                             sys.stdout.flush()
@@ -1569,7 +1569,7 @@ if __name__ == "__main__":
                             m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                             total_files = int(m[0][1])
                             progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                            sys.stdout.write('\rSyncing of 00_private folder of ' + str(
+                            sys.stdout.write('\rSyncing 00_private folder of ' + str(
                                 imscpInputData.imscpData['iUsernameDomainIdna']) + ' done: ' + str(
                                 round(progress, 2)) + '%')
                             sys.stdout.flush()
@@ -1640,7 +1640,7 @@ if __name__ == "__main__":
                                 m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                                 total_files = int(m[0][1])
                                 progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                                sys.stdout.write('\rSyncing of webspace ' + str(
+                                sys.stdout.write('\rSyncing webspace ' + str(
                                     imscpSubDomainsValue.get('iSubDomainIdna')) + ' done: ' + str(
                                     round(progress, 2)) + '%')
                                 sys.stdout.flush()
@@ -1691,7 +1691,7 @@ if __name__ == "__main__":
                                 m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                                 total_files = int(m[0][1])
                                 progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                                sys.stdout.write('\rSyncing of 00_private folder of ' + str(
+                                sys.stdout.write('\rSyncing 00_private folder of ' + str(
                                     imscpSubDomainsValue.get('iSubDomainIdna')) + ' done: ' + str(
                                     round(progress, 2)) + '%')
                                 sys.stdout.flush()
@@ -1764,7 +1764,7 @@ if __name__ == "__main__":
                                 m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                                 total_files = int(m[0][1])
                                 progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                                sys.stdout.write('\rSyncing of webspace ' + str(
+                                sys.stdout.write('\rSyncing webspace ' + str(
                                     imscpAliasDomainsValue.get('iAliasDomainIdna')) + ' done: ' + str(
                                     round(progress, 2)) + '%')
                                 sys.stdout.flush()
@@ -1814,7 +1814,7 @@ if __name__ == "__main__":
                                 m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                                 total_files = int(m[0][1])
                                 progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                                sys.stdout.write('\rSyncing of 00_private folder of ' + str(
+                                sys.stdout.write('\rSyncing 00_private folder of ' + str(
                                     imscpAliasDomainsValue.get('iAliasDomainIdna')) + ' done: ' + str(
                                     round(progress, 2)) + '%')
                                 sys.stdout.flush()
@@ -1887,7 +1887,7 @@ if __name__ == "__main__":
                                     m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                                     total_files = int(m[0][1])
                                     progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                                    sys.stdout.write('\rSyncing of webspace ' + str(
+                                    sys.stdout.write('\rSyncing webspace ' + str(
                                         imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + ' done: ' + str(
                                         round(progress, 2)) + '%')
                                     sys.stdout.flush()
@@ -1936,7 +1936,7 @@ if __name__ == "__main__":
                                     m = re.findall(r'-chk=(\d+)/(\d+)', str(output))
                                     total_files = int(m[0][1])
                                     progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
-                                    sys.stdout.write('\rSyncing of 00_private folder of ' + str(
+                                    sys.stdout.write('\rSyncing 00_private folder of ' + str(
                                         imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + ' done: ' + str(
                                         round(progress, 2)) + '%')
                                     sys.stdout.flush()

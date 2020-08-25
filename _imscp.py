@@ -1624,7 +1624,7 @@ class imscpGetData:
             self.imscpRoundcubeIdentities[index]['rHtmlSignature'] = imscpRoundcubeIdentityData[11]
 
             _global_config.write_log('Debug i-MSCP informations roundcube identities:\nRoundcube identity "' +
-                                     self.imscpRoundcubeIdentities[index]['rName'] + ', ' + '" found.\n')
+                                     self.imscpRoundcubeIdentities[index]['rName'] + '" found.\n')
             if showDebug:
                 print('Debug i-MSCP informations roundcube identities:\nRoundcube identity "' +
                       self.imscpRoundcubeIdentities[index]['rName'] + '" found.\n')
