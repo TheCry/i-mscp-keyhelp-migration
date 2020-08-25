@@ -1236,7 +1236,7 @@ class imscpGetData:
             index = int(imscpEmailDomainData[0])
 
             # Remove rounds=5000$ from i-MSCP password
-            imscpEmailDomainData[2] = re.sub("rounds=5000\$", "", imscpEmailDomainData[1], flags=re.UNICODE)
+            imscpEmailDomainData[2] = re.sub("rounds=5000\$", "", imscpEmailDomainData[2], flags=re.UNICODE)
 
             if imscpEmailDomainData[4] == 'alias_catchall':
                 self.imscpAliasEmailAddressNormalCatchAll['aliasid-' + iAliasDomainid][index] = {}
@@ -1286,7 +1286,7 @@ class imscpGetData:
                 self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][index]['iEmailMailId'] = \
                     imscpEmailDomainData[0]
                 self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][index]['iEmailMailPassword'] = \
-                    imscpEmailDomainData[3]
+                    imscpEmailDomainData[2]
                 self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][index]['iEmailMailForward'] = \
                     imscpEmailDomainData[3]
                 self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][index]['iEmailMailType'] = \
@@ -1379,7 +1379,7 @@ class imscpGetData:
             index = int(imscpEmailDomainData[0])
 
             # Remove rounds=5000$ from i-MSCP password
-            imscpEmailDomainData[2] = re.sub("rounds=5000\$", "", imscpEmailDomainData[1], flags=re.UNICODE)
+            imscpEmailDomainData[2] = re.sub("rounds=5000\$", "", imscpEmailDomainData[2], flags=re.UNICODE)
 
             if imscpEmailDomainData[4] == 'alssub_catchall':
                 self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index] = {}
