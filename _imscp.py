@@ -364,18 +364,20 @@ class imscpGetData:
 
         stdin, stdout, stderr = client.exec_command(
             'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
-                'imysqluser'] + ' -p' + self.imscpData['imysqlpassword'] + ' -e "SELECT userid, passwd, homedir FROM ' +
+                'imysqluser'] + ' -p' + self.imscpData['imysqlpassword'] + ' -e "SELECT userid, REPLACE(passwd , \'\\\'\', \'-!!!-\'), homedir FROM ' +
             self.imscpData['imysqldatabase'] + '.ftp_users WHERE admin_id = \'' + iUsernameDomainAdminId + '\'"')
         i = 0
         dataLine = ''
         self.imscpFtpUserNames = {}
         for line in stdout:
-            dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
-            dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
-            imscpDomainFtpUserData = dataLine.split("|")
+            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            dataLine = re.sub(r"\s+", "|||", line, flags=re.UNICODE)
+            imscpDomainFtpUserData = dataLine.split("|||")
             imscpDomainFtpUserData[0].strip()
             imscpDomainFtpUserData[1].strip()
             imscpDomainFtpUserData[2].strip()
+
+            imscpDomainFtpUserData[1] = re.sub(r"-!!!-", "\\\'", imscpDomainFtpUserData[1], flags=re.UNICODE)
 
             index = i
 
