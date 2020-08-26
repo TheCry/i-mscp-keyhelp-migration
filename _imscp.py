@@ -565,7 +565,7 @@ class imscpGetData:
         stdin, stdout, stderr = client.exec_command(
             'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData['imysqlpassword'] + ' -e "SELECT id, uname, upass FROM ' +
-            self.imscpData['imysqldatabase'] + '.htaccess_users WHERE dmn_id = \'' + iUsernameDomainId + '\'"')
+            self.imscpData['imysqldatabase'] + '.htaccess_users WHERE dmn_id = \'' + iUsernameDomainId + '\' AND uname != \'' + iUsernameDomainIdna + '\'"')
         i = 0
         dataLine = ''
         self.imscpDomainHtAcccessUsers = {}
