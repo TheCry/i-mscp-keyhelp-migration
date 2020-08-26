@@ -80,7 +80,8 @@ class KeyhelpGetData:
             self.keyhelpDomainDnsData = apiGetData
             return True
         else:
-            print("KeyHelp dns zone for domain '" + kDomainName + "' does not exist: Code: %i" % (responseApi.status_code))
+            print("KeyHelp dns zone for domain '" + kDomainName + "' does not exist: Code: %i" % (
+                responseApi.status_code))
             return False
 
     def getServerDatabaseCredentials(self, kConfigfileName):
@@ -283,7 +284,8 @@ class KeyhelpGetData:
             return True
 
     def keyhelpCreateRandomPassword(self, kMinPasswordLenght):
-        passwordCharacters = string.ascii_letters + string.digits + string.punctuation
+        specialChars = '()=\/!$&?§'
+        passwordCharacters = string.ascii_letters + string.digits + str(specialChars)
         kPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
         _global_config.write_log('Debug KeyHelp informations:\nKeyHelp panel password: "' + kPassword + '"\n')
         self.keyhelpData['kpassword'] = kPassword
@@ -857,16 +859,17 @@ class KeyHelpAddDataToServer:
             cursor = db_connection.cursor()
             try:
                 ignore = False
-                cursor.execute("INSERT INTO users (username, mail_host, created, language, preferences) VALUES ('" + str(
-                    roundcubeAddData['rUsername']) + "', '" + str(roundcubeAddData['rMailHost']) + "', '" + str(
-                    roundcubeAddData['rCreated']) + "', '" + str(roundcubeAddData['rLanguage']) + "', '" + str(
-                    roundcubeAddData['rPreferences']) + "');")
+                cursor.execute(
+                    "INSERT INTO users (username, mail_host, created, language, preferences) VALUES ('" + str(
+                        roundcubeAddData['rUsername']) + "', '" + str(roundcubeAddData['rMailHost']) + "', '" + str(
+                        roundcubeAddData['rCreated']) + "', '" + str(roundcubeAddData['rLanguage']) + "', '" + str(
+                        roundcubeAddData['rPreferences']) + "');")
 
                 db_connection.commit()
                 rlastInserId = cursor.lastrowid
             except (mysql.connector.Error) as err:
                 ignore = True
-                #print(err)
+                # print(err)
                 print('Error: The email address "' + roundcubeAddData[
                     'rUsername'] + '" allready exists in the roundcube table "users"! Ignoring all contacts of this '
                                    'email address.')
@@ -880,7 +883,8 @@ class KeyHelpAddDataToServer:
                         if roundcubeAddData['rUserId'] == rcuIdentityValue.get('rUserId'):
                             roundcubeIdentityAddData = {}
                             roundcubeIdentityAddData['kdatabaseRoot'] = roundcubeAddData['kdatabaseRoot']
-                            roundcubeIdentityAddData['kdatabaseRootPassword'] = roundcubeAddData['kdatabaseRootPassword']
+                            roundcubeIdentityAddData['kdatabaseRootPassword'] = roundcubeAddData[
+                                'kdatabaseRootPassword']
                             roundcubeIdentityAddData['identity_id'] = rcuIdentityValue.get('rContactId')
                             roundcubeIdentityAddData['user_id'] = int(rlastInserId)
                             roundcubeIdentityAddData['changed'] = rcuIdentityValue.get('rChanged')
@@ -926,7 +930,8 @@ class KeyHelpAddDataToServer:
                             lastContactGroupInsertId = 0
                             roundcubeContactGroupAddData = {}
                             roundcubeContactGroupAddData['kdatabaseRoot'] = roundcubeAddData['kdatabaseRoot']
-                            roundcubeContactGroupAddData['kdatabaseRootPassword'] = roundcubeAddData['kdatabaseRootPassword']
+                            roundcubeContactGroupAddData['kdatabaseRootPassword'] = roundcubeAddData[
+                                'kdatabaseRootPassword']
                             roundcubeContactGroupAddData['user_id'] = int(rlastInserId)
                             roundcubeContactGroupAddData['changed'] = rcuContactGroupValue.get('rChanged')
                             roundcubeContactGroupAddData['del'] = rcuContactGroupValue.get('rDel')
@@ -974,7 +979,7 @@ class KeyHelpAddDataToServer:
 
                 db_connection.commit()
             except (mysql.connector.Error) as err:
-                #print(err)
+                # print(err)
                 print('Error: An error occurred while adding the e-mail signature for "' + roundcubeIdentityAddData[
                     'email'] + '".')
 
@@ -1096,19 +1101,22 @@ class KeyHelpAddDataToServer:
                     self.imscpRoundcubeContact2Contactgroup[i]['rContactGroupId'] = newId
 
     def keyhelpCreateRandomEmailPassword(self, kMinPasswordLenght):
-        passwordCharacters = string.ascii_letters + string.digits + string.punctuation
+        specialChars = '()=\/!$&?§'
+        passwordCharacters = string.ascii_letters + string.digits + str(specialChars)
         emailPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
 
         return emailPassword
 
     def keyhelpCreateRandomFtpPassword(self, kMinPasswordLenght):
-        passwordCharacters = string.ascii_letters + string.digits + string.punctuation
+        specialChars = '()=\/!$&?§'
+        passwordCharacters = string.ascii_letters + string.digits + str(specialChars)
         ftpPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
 
         return ftpPassword
 
     def keyhelpCreateRandomDatabaseUserPassword(self, kMinPasswordLenght):
-        passwordCharacters = string.ascii_letters + string.digits + string.punctuation
+        specialChars = '()=\/!$&?§'
+        passwordCharacters = string.ascii_letters + string.digits + str(specialChars)
         emailPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
 
         return emailPassword
