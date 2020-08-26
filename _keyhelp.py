@@ -154,7 +154,7 @@ class KeyhelpGetData:
 
     def checkExistKeyhelpUsername(self, kUsername):
         if (len(kUsername) > 0):
-            if re.match("^[a-zA-Z0-9-]*$", str(kUsername)):
+            if re.match("^[a-zA-Z-]*$", str(kUsername)):
                 try:
                     responseApi = requests.get(apiUrl + apiEndpointClients + '/name/' + kUsername, headers=headers,
                                                timeout=apiTimeout, verify=apiServerFqdnVerify)
@@ -187,7 +187,7 @@ class KeyhelpGetData:
                         responseApi.status_code, apiGetData['username'], apiGetData['id']))
                     return False
             else:
-                print('Your Keyhelp username contains non chars which are not allowed (A-z, 0-9, -)!')
+                print('Your Keyhelp username contains non chars which are not allowed (a-z, A-Z, -)!')
                 return False
         else:
             print('Your Keyhelp username is empty!')
