@@ -284,7 +284,10 @@ class KeyhelpGetData:
             return True
 
     def keyhelpCreateRandomPassword(self, kMinPasswordLenght):
-        specialChars = '()=\/!$&?§'
+        specialChars = string.punctuation
+        specialChars = re.sub(r"'", "", specialChars, flags=re.UNICODE)
+        specialChars = re.sub(r"\"", "", specialChars, flags=re.UNICODE)
+        specialChars = re.sub(r"`", "", specialChars, flags=re.UNICODE)
         passwordCharacters = string.ascii_letters + string.digits + str(specialChars)
         kPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
         _global_config.write_log('Debug KeyHelp informations:\nKeyHelp panel password: "' + kPassword + '"\n')
@@ -1101,21 +1104,30 @@ class KeyHelpAddDataToServer:
                     self.imscpRoundcubeContact2Contactgroup[i]['rContactGroupId'] = newId
 
     def keyhelpCreateRandomEmailPassword(self, kMinPasswordLenght):
-        specialChars = '()=\/!$&?§'
+        specialChars = string.punctuation
+        specialChars = re.sub(r"'", "", specialChars, flags=re.UNICODE)
+        specialChars = re.sub(r"\"", "", specialChars, flags=re.UNICODE)
+        specialChars = re.sub(r"`", "", specialChars, flags=re.UNICODE)
         passwordCharacters = string.ascii_letters + string.digits + str(specialChars)
         emailPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
 
         return emailPassword
 
     def keyhelpCreateRandomFtpPassword(self, kMinPasswordLenght):
-        specialChars = '()=\/!$&?§'
+        specialChars = string.punctuation
+        specialChars = re.sub(r"'", "", specialChars, flags=re.UNICODE)
+        specialChars = re.sub(r"\"", "", specialChars, flags=re.UNICODE)
+        specialChars = re.sub(r"`", "", specialChars, flags=re.UNICODE)
         passwordCharacters = string.ascii_letters + string.digits + str(specialChars)
         ftpPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
 
         return ftpPassword
 
     def keyhelpCreateRandomDatabaseUserPassword(self, kMinPasswordLenght):
-        specialChars = '()=\/!$&?§'
+        specialChars = string.punctuation
+        specialChars = re.sub(r"'", "", specialChars, flags=re.UNICODE)
+        specialChars = re.sub(r"\"", "", specialChars, flags=re.UNICODE)
+        specialChars = re.sub(r"`", "", specialChars, flags=re.UNICODE)
         passwordCharacters = string.ascii_letters + string.digits + str(specialChars)
         emailPassword = ''.join(random.choice(passwordCharacters) for i in range(kMinPasswordLenght))
 
