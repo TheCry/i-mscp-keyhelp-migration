@@ -1207,7 +1207,7 @@ if __name__ == "__main__":
                     if keyhelpAddApiData['iDatabaseUsername'] == '':
                         databaseUsername = keyhelpAddApiData['iDatabaseName']
                         keyhelpAddApiData['iDatabaseUsername'] = re.sub("^db", 'dbu', databaseUsername, flags=re.UNICODE)
-                        keyhelpAddApiData['iDatabaseUserHost'] = str(dbUserValue.get('iDatabaseUserHost'))
+                        keyhelpAddApiData['iDatabaseUserHost'] = 'localhost'
                         keyhelpAddApiData[
                             'iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(
                             10)
