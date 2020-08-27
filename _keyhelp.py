@@ -528,7 +528,7 @@ class KeyHelpAddDataToServer:
                         'iOldDatabaseName']))
             _global_config.write_log(
                 'Database username for "' + str(
-                    keyHelpData['iDatabaseName'] + '":  ' + keyHelpData['iDatabaseUsername']))
+                    keyHelpData['iDatabaseName'] + '": ' + keyHelpData['iDatabaseUsername']))
             _global_config.write_log(
                 'Database username "' + str(
                     keyHelpData['iDatabaseUsername'] + '" is the new db user for the i-MSCP db user: ' + keyHelpData[
