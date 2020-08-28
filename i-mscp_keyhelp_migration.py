@@ -1961,6 +1961,8 @@ if __name__ == "__main__":
 
                 os.system('chown :www-data /home/users/' + keyHelpUsername + '/files/')
                 os.system('chown :www-data /home/users/' + keyHelpUsername + '/www/')
+                os.system('chmod 0750 /home/users/' + keyHelpUsername + '/files/')
+                os.system('chmod 0750 /home/users/' + keyHelpUsername + '/www/')
                 print(
                     '\n\nCongratulations. The migration is done. Check now the logs and make the last manually changes.')
                 print('Doings after migration:')
