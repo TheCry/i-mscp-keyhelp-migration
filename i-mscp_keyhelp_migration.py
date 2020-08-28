@@ -1951,10 +1951,16 @@ if __name__ == "__main__":
                 print('Finishing migration. File and directory permissions will be corrected!')
                 os.system(
                     'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/www/')
-                os.system(
-                    'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/files/')
                 os.system('find /home/users/' + keyHelpUsername + '/www -type d -exec chmod 0755 {} \;')
                 os.system('find /home/users/' + keyHelpUsername + '/www -type f -exec chmod 0644 {} \;')
+
+                os.system(
+                    'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/files/')
+                os.system('find /home/users/' + keyHelpUsername + '/files -type d -exec chmod 0755 {} \;')
+                os.system('find /home/users/' + keyHelpUsername + '/files -type f -exec chmod 0644 {} \;')
+
+                os.system('chown :www-data /home/users/' + keyHelpUsername + '/files/')
+                os.system('chown :www-data /home/users/' + keyHelpUsername + '/www/')
                 print(
                     '\n\nCongratulations. The migration is done. Check now the logs and make the last manually changes.')
                 print('Doings after migration:')
