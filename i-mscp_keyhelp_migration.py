@@ -1509,7 +1509,7 @@ if __name__ == "__main__":
                     else:
                         cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                               imscpRootPassword + ' ssh -p ' + \
-                              str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                              str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                               imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                     proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -1535,9 +1535,9 @@ if __name__ == "__main__":
                     # Rsync 00_private of the domain
                     print('\nPlease wait.... Create 00_private dir (00_private/' + str(
                         imscpInputData.imscpData['iUsernameDomainIdna']) + ') for the domain if not exist.')
-                    if not os.path.exists('/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                    if not os.path.exists('/home/users/' + keyHelpUsername + '/files/' + str(
                             imscpInputData.imscpData['iUsernameDomainIdna']) + '/'):
-                        os.makedirs('/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                        os.makedirs('/home/users/' + keyHelpUsername + '/files/' + str(
                             imscpInputData.imscpData['iUsernameDomainIdna']) + '/')
 
                     print('Syncing 00_private folder from domain "' + str(
@@ -1545,7 +1545,7 @@ if __name__ == "__main__":
                     additionalDomainData = imscpInputData.imscpData['iDomainData'].split("|")
                     additionalDomainData[1].strip()
                     remoteRsyncFolder = '/var/www/virtual/' + firstDomainIdna + '/00_private/'
-                    localRsyncFolder = '/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                    localRsyncFolder = '/home/users/' + keyHelpUsername + '/files/' + str(
                         imscpInputData.imscpData['iUsernameDomainIdna']) + '/'
 
                     if imscpSshPublicKey:
@@ -1556,7 +1556,7 @@ if __name__ == "__main__":
                     else:
                         cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                               imscpRootPassword + ' ssh -p ' + \
-                              str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                              str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                               imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + \
                               localRsyncFolder
 
@@ -1579,8 +1579,6 @@ if __name__ == "__main__":
                     proc.stdout.close()
                     print('\nFinished syncing 00_private folder of domain "' + str(
                         imscpInputData.imscpData['iUsernameDomainIdna']) + '".')
-                    os.system(
-                        'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/')
                     print('System owner for webspace "' + str(
                         imscpInputData.imscpData['iUsernameDomainIdna']) + '". successfully updated.\n')
                     time.sleep(1)
@@ -1628,7 +1626,7 @@ if __name__ == "__main__":
                         else:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                   imscpRootPassword + ' ssh -p ' + \
-                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                         proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -1654,9 +1652,9 @@ if __name__ == "__main__":
                         # Rsync 00_private of the sub domain
                         print('\nPlease wait.... Create 00_private dir (00_private/' + str(
                             imscpSubDomainsValue.get('iSubDomainIdna')) + ') for the domain if not exist.')
-                        if not os.path.exists('/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                        if not os.path.exists('/home/users/' + keyHelpUsername + '/files/' + str(
                                 imscpSubDomainsValue.get('iSubDomainIdna')) + '/'):
-                            os.makedirs('/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                            os.makedirs('/home/users/' + keyHelpUsername + '/files/' + str(
                                 imscpSubDomainsValue.get('iSubDomainIdna')) + '/')
 
                         print('Syncing 00_private folder from sub domain "' + str(
@@ -1667,7 +1665,7 @@ if __name__ == "__main__":
                         additionalDomainData[1].strip()
                         remoteRsyncFolder = '/var/www/virtual/' + firstDomainIdna + str(
                             subDomainfolder) + '/00_private/'
-                        localRsyncFolder = '/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                        localRsyncFolder = '/home/users/' + keyHelpUsername + '/files/' + str(
                             imscpSubDomainsValue.get('iSubDomainIdna')) + '/'
 
                         if imscpSshPublicKey:
@@ -1678,7 +1676,7 @@ if __name__ == "__main__":
                         else:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                   imscpRootPassword + ' ssh -p ' + \
-                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + \
                                   localRsyncFolder
 
@@ -1701,8 +1699,6 @@ if __name__ == "__main__":
                         proc.stdout.close()
                         print('\nFinished syncing 00_private folder of sub domain "' + str(
                             imscpSubDomainsValue.get('iSubDomainIdna')) + '".')
-                        os.system(
-                            'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/')
                         print('System owner for webspace "' + str(
                             imscpSubDomainsValue.get('iSubDomainIdna')) + '". successfully updated.\n')
                         time.sleep(1)
@@ -1752,7 +1748,7 @@ if __name__ == "__main__":
                         else:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                   imscpRootPassword + ' ssh -p ' + \
-                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                         proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -1778,9 +1774,9 @@ if __name__ == "__main__":
                         # Rsync 00_private of the alias domain
                         print('\nPlease wait.... Create 00_private dir (00_private/' + str(
                             imscpAliasDomainsValue.get('iAliasDomainIdna')) + ') for the domain if not exist.')
-                        if not os.path.exists('/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                        if not os.path.exists('/home/users/' + keyHelpUsername + '/files/' + str(
                                 imscpAliasDomainsValue.get('iAliasDomainIdna')) + '/'):
-                            os.makedirs('/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                            os.makedirs('/home/users/' + keyHelpUsername + '/files/' + str(
                                 imscpAliasDomainsValue.get('iAliasDomainIdna')) + '/')
 
                         print('Syncing 00_private folder from alias domain "' + str(
@@ -1790,7 +1786,7 @@ if __name__ == "__main__":
                         additionalDomainData[1].strip()
                         remoteRsyncFolder = '/var/www/virtual/' + firstDomainIdna + str(
                             additionalDomainData[0]) + '/00_private/'
-                        localRsyncFolder = '/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                        localRsyncFolder = '/home/users/' + keyHelpUsername + '/files/' + str(
                             imscpAliasDomainsValue.get('iAliasDomainIdna')) + '/'
 
                         if imscpSshPublicKey:
@@ -1801,7 +1797,7 @@ if __name__ == "__main__":
                         else:
                             cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                   imscpRootPassword + ' ssh -p ' + \
-                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                  str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                   imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + \
                                   localRsyncFolder
 
@@ -1824,8 +1820,6 @@ if __name__ == "__main__":
                         proc.stdout.close()
                         print('\nFinished syncing 00_private folder of alias domain "' + str(
                             imscpAliasDomainsValue.get('iAliasDomainIdna')) + '".')
-                        os.system(
-                            'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/')
                         print('System owner for webspace "' + str(
                             imscpAliasDomainsValue.get('iAliasDomainIdna')) + '". successfully updated.\n')
                         time.sleep(1)
@@ -1875,7 +1869,7 @@ if __name__ == "__main__":
                             else:
                                 cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                       imscpRootPassword + ' ssh -p ' + \
-                                      str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                      str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                       imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                             proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -1902,9 +1896,9 @@ if __name__ == "__main__":
                             print('\nPlease wait.... Create 00_private dir (00_private/' + str(
                                 imscpAliasSubDomainsValue.get(
                                     'iAliasSubDomainIdna')) + ') for the domain if not exist.')
-                            if not os.path.exists('/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                            if not os.path.exists('/home/users/' + keyHelpUsername + '/files/' + str(
                                     imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '/'):
-                                os.makedirs('/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                                os.makedirs('/home/users/' + keyHelpUsername + '/files/' + str(
                                     imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '/')
 
                             print('Syncing 00_private folder from alias sub domain "' + str(
@@ -1914,7 +1908,7 @@ if __name__ == "__main__":
                             additionalDomainData[1].strip()
                             remoteRsyncFolder = '/var/www/virtual/' + firstDomainIdna + str(
                                 additionalDomainData[0]) + '/00_private/'
-                            localRsyncFolder = '/home/users/' + keyHelpUsername + '/www/00_private/' + str(
+                            localRsyncFolder = '/home/users/' + keyHelpUsername + '/files/' + str(
                                 imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '/'
 
                             if imscpSshPublicKey:
@@ -1924,7 +1918,7 @@ if __name__ == "__main__":
                             else:
                                 cmd = 'rsync -aHAXSz --delete --info=progress --numeric-ids -e "sshpass -p ' + \
                                       imscpRootPassword + ' ssh -p ' + \
-                                      str(imscpSshPort) + ' -q" --rsync-path="rsync" --exclude={"dovecot.sieve"} ' + \
+                                      str(imscpSshPort) + ' -q" --rsync-path="rsync" ' + \
                                       imscpSshUsername + '@' + imscpServerFqdn + ':' + remoteRsyncFolder + ' ' + localRsyncFolder
 
                             proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -1946,8 +1940,6 @@ if __name__ == "__main__":
                             proc.stdout.close()
                             print('\nFinished syncing 00_private folder of alias sub domain "' + str(
                                 imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '".')
-                            os.system(
-                                'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/')
                             print('System owner for webspace "' + str(
                                 imscpAliasSubDomainsValue.get(
                                     'iAliasSubDomainIdna')) + '". successfully updated.\n')
@@ -1957,6 +1949,10 @@ if __name__ == "__main__":
                                 imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '" !')
                 # End migration
                 print('Finishing migration. File and directory permissions will be corrected!')
+                os.system(
+                    'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/www/')
+                os.system(
+                    'chown -R ' + keyHelpUsername + ':' + keyHelpUsername + ' /home/users/' + keyHelpUsername + '/files/')
                 os.system('find /home/users/' + keyHelpUsername + '/www -type d -exec chmod 0755 {} \;')
                 os.system('find /home/users/' + keyHelpUsername + '/www -type f -exec chmod 0644 {} \;')
                 print(
