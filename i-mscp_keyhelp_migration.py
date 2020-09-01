@@ -1533,7 +1533,7 @@ if __name__ == "__main__":
                         imscpInputData.imscpData['iUsernameDomainIdna']) + '".')
 
                     # Rsync 00_private of the domain
-                    print('\nPlease wait.... Create 00_private dir (00_private/' + str(
+                    print('\nPlease wait.... Create 00_private dir (files/' + str(
                         imscpInputData.imscpData['iUsernameDomainIdna']) + ') for the domain if not exist.')
                     if not os.path.exists('/home/users/' + keyHelpUsername + '/files/' + str(
                             imscpInputData.imscpData['iUsernameDomainIdna']) + '/'):
@@ -1650,7 +1650,7 @@ if __name__ == "__main__":
                             imscpSubDomainsValue.get('iSubDomainIdna')) + '".')
 
                         # Rsync 00_private of the sub domain
-                        print('\nPlease wait.... Create 00_private dir (00_private/' + str(
+                        print('\nPlease wait.... Create 00_private dir (files/' + str(
                             imscpSubDomainsValue.get('iSubDomainIdna')) + ') for the domain if not exist.')
                         if not os.path.exists('/home/users/' + keyHelpUsername + '/files/' + str(
                                 imscpSubDomainsValue.get('iSubDomainIdna')) + '/'):
@@ -1772,7 +1772,7 @@ if __name__ == "__main__":
                             imscpAliasDomainsValue.get('iAliasDomainIdna')) + '".')
 
                         # Rsync 00_private of the alias domain
-                        print('\nPlease wait.... Create 00_private dir (00_private/' + str(
+                        print('\nPlease wait.... Create 00_private dir (files/' + str(
                             imscpAliasDomainsValue.get('iAliasDomainIdna')) + ') for the domain if not exist.')
                         if not os.path.exists('/home/users/' + keyHelpUsername + '/files/' + str(
                                 imscpAliasDomainsValue.get('iAliasDomainIdna')) + '/'):
@@ -1893,7 +1893,7 @@ if __name__ == "__main__":
                                 imscpAliasSubDomainsValue.get('iAliasSubDomainIdna')) + '".')
 
                             # Rsync 00_private of the alias domain
-                            print('\nPlease wait.... Create 00_private dir (00_private/' + str(
+                            print('\nPlease wait.... Create 00_private dir (files/' + str(
                                 imscpAliasSubDomainsValue.get(
                                     'iAliasSubDomainIdna')) + ') for the domain if not exist.')
                             if not os.path.exists('/home/users/' + keyHelpUsername + '/files/' + str(
