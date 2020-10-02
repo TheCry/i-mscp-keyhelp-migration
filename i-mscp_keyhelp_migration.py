@@ -1435,6 +1435,10 @@ if __name__ == "__main__":
                                 'chown -R vmail:vmail /var/mail/vhosts/' + emailAddressData[1] + '/' +
                                 emailAddressData[
                                     0] + '/')
+                            os.system(
+                                'chmod 2755 /var/mail/vhosts/' + emailAddressData[1] + '/')
+                            os.system(
+                                'chmod 2700 /var/mail/vhosts/' + emailAddressData[1] + '/' + emailAddressData[0] + '/')
 
                     if imscpSshPublicKey:
                         cmd = 'rsync -aHAXSz --info=progress --numeric-ids -e "ssh -i ' + imscpSshPublicKey + ' -p ' + \
@@ -1469,6 +1473,12 @@ if __name__ == "__main__":
                     os.system(
                         'chown -R vmail:vmail /var/mail/vhosts/' + emailAddressData[1] + '/' + emailAddressData[
                             0] + '/')
+                    os.system('find /var/mail/vhosts/' + emailAddressData[1] + '/ -type d -exec chmod 2700 {} \;')
+                    os.system('chmod 2755 /var/mail/vhosts/' + emailAddressData[1] + '/')
+                    os.system(
+                        'find /var/mail/vhosts/' + emailAddressData[1] + '/ -name managesieve.sieve -exec rm {} \;')
+                    os.system(
+                        'find /var/mail/vhosts/' + emailAddressData[1] + '/ -name dovecot.sieve -exec rm {} \;')
                     print(
                         'System owner for email address "' + str(rsyncEmailAddress) + '". successfully updated.\n')
                     time.sleep(1)
