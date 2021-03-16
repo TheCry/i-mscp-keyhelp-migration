@@ -8,9 +8,6 @@ import _global_config
 
 _global_config.init()
 
-# General
-showDebug = _global_config.showDebug
-
 # i-MSCP
 imscpServerFqdn = _global_config.imscpServerFqdn
 imscpSshUsername = _global_config.imscpSshUsername
@@ -99,13 +96,6 @@ class imscpGetData:
         _global_config.write_log('i-MSCP MySQL-User: ' + iconfig['client']['user'])
         _global_config.write_log('i-MSCP MySQL-Password: ' + iconfig['client']['password'])
         _global_config.write_log('i-MSCP Database: ' + imscpDatabase[1] + '\n')
-        if showDebug:
-            print('\nDebug i-MSCP MySQL informations:')
-            print('i-MSCP MySQL-Host: ' + iconfig['client']['host'])
-            print('i-MSCP MySQL-Port: ' + iconfig['client']['port'])
-            print('i-MSCP MySQL-User: ' + iconfig['client']['user'])
-            print('i-MSCP MySQL-Password: ' + iconfig['client']['password'])
-            print('i-MSCP Database: ' + imscpDatabase[1] + '\n')
 
         self.imscpData['imysqlhost'] = iconfig['client']['host']
         self.imscpData['imysqlport'] = iconfig['client']['port']
@@ -159,9 +149,6 @@ class imscpGetData:
 
                 _global_config.write_log('Debug i-MSCP informations:\nYour Domain: "' + iUsername + '"')
                 _global_config.write_log('Your Domain IDN converted: "' + iUsernameIdna + '"\n')
-                if showDebug:
-                    print('\nDebug i-MSCP informations:\nYour Domain: "' + iUsername + '"')
-                    print('Your Domain IDN converted: "' + iUsernameIdna + '"\n')
 
                 print('\nFound domain: ' + iUsername)
 
@@ -254,9 +241,6 @@ class imscpGetData:
             _global_config.write_log(
                 'Debug i-MSCP informations sub domains:\nSub domain "' + self.imscpDomainSubDomains[index][
                     'iSubDomain'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print('Debug i-MSCP informations sub domains:\nSub domain "' + self.imscpDomainSubDomains[index][
-                    'iSubDomain'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             self.__getImscpSubDomainEmailaddresses(iUsernameDomainId,
                                                    self.imscpDomainSubDomains[index]['iSubDomainId'],
@@ -274,9 +258,6 @@ class imscpGetData:
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations sub domains:\nNo sub domains found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations sub domains:\nNo sub domains found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
     def __getImscpAliasDomains(self, iUsernameDomainId, iUsernameDomain, iUsernameDomainIdna, client):
         if imscpSshPublicKey:
@@ -328,9 +309,6 @@ class imscpGetData:
             _global_config.write_log(
                 'Debug i-MSCP informations alias domains:\nAlias domain "' + self.imscpDomainAliases[index][
                     'iAliasDomain'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print('Debug i-MSCP informations alias domains:\nAlias domain "' + self.imscpDomainAliases[index][
-                    'iAliasDomain'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             self.__getImscpDomainAliasDns(iUsernameDomainId, self.imscpDomainAliases[index]['iAliasDomainId'],
                                            self.imscpDomainAliases[index]['iAliasDomainIdna'], client)
@@ -350,9 +328,6 @@ class imscpGetData:
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations alias domains:\nNo alias domains found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations alias domains:\nNo alias domains found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
     def __getImscpFtpUsers(self, iUsernameDomain, iUsernameDomainAdminId, client):
         if imscpSshPublicKey:
@@ -389,18 +364,12 @@ class imscpGetData:
             _global_config.write_log(
                 'Debug i-MSCP informations FTP users:\nFTP user "' + self.imscpFtpUserNames[index][
                     'iFtpUsername'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print('Debug i-MSCP informations FTP users:\nFTP user "' + self.imscpFtpUserNames[index][
-                    'iFtpUsername'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             i += 1
 
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations FTP users:\nNo FTP user found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations FTP users:\nNo FTP user found for the i-MSCP domain "' + iUsernameDomain + '"\n')
         else:
             _global_config.write_log(
                 '======================= End data for FTP users "' + iUsernameDomain + '" =======================\n\n\n')
@@ -422,17 +391,6 @@ class imscpGetData:
             self.imscpData[
                 'imysqldatabase'] + '.ssl_certs WHERE domain_id = \'' + iDomainId + '\' AND domain_type = \'' + iDomainType + '\' AND status = \'ok\'"')
 
-        if showDebug:
-            print(
-                'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
-                self.imscpData['imysqluser'] + ' -p' + self.imscpData[
-                    'imysqlpassword'] + ' -e "SELECT cert_id, TO_BASE64(private_key), TO_BASE64(certificate), '
-                                        'IF(ca_bundle '
-                                        'IS NULL or ca_bundle = \'\', '', TO_BASE64(ca_bundle)), allow_hsts, '
-                                        'hsts_max_age, '
-                                        'hsts_include_subdomains FROM ' +
-                self.imscpData[
-                    'imysqldatabase'] + '.ssl_certs WHERE domain_id = \'' + iDomainId + '\' AND domain_type = \'' + iDomainType + '\' AND status = \'ok\'"')
         i = 0
         dataLine = ''
 
@@ -540,18 +498,12 @@ class imscpGetData:
 
             _global_config.write_log(
                 'Debug i-MSCP informations SSL certs:\nSSL cert found for the i-MSCP domain "' + iDomainName + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations SSL certs:\nSSL cert found for the i-MSCP domain "' + iDomainName + '"\n')
 
             i += 1
 
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations SSL Certs:\nNo SSL cert found for the i-MSCP domain "' + iDomainName + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations SSL certs:\nNo SSL cert found for the i-MSCP domain "' + iDomainName + '"\n')
         else:
             _global_config.write_log(
                 '======================= End data for SSL certs "' + iDomainName + '" =======================\n\n\n')
@@ -589,18 +541,12 @@ class imscpGetData:
             _global_config.write_log(
                 'Debug i-MSCP informations HTACCESS:\nHTACCESS user "' + self.imscpDomainHtAcccessUsers[index][
                     'iHtAccessUserame'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print('Debug i-MSCP informations HTACCESS:\nHTACCESS user "' + self.imscpDomainHtAcccessUsers[index][
-                    'iHtAccessUserame'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             i += 1
 
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations HTACCESS:\nNo HTACCESS users found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations HTACCESS:\nNo HTACCESS users found for the i-MSCP domain "' + iUsernameDomain + '"\n')
         else:
             _global_config.write_log(
                 '======================= End data for HTACCESS users "' + iUsernameDomain + '" =======================\n\n\n')
@@ -661,18 +607,12 @@ class imscpGetData:
             _global_config.write_log(
                 'Debug i-MSCP informations domain dns:\nDNS "' + self.imscpDnsEntries[index][
                     'iDomainDnsEntry'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print('Debug i-MSCP informations domain dns:\nDNS "' + self.imscpDnsEntries[index][
-                    'iDomainDnsEntry'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             i += 1
 
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations domain dns:\nNo dns entry found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations domain dns:\nNo dns entry found for the i-MSCP domain "' + iUsernameDomain + '"\n')
         else:
             _global_config.write_log(
                 '======================= End data for domain dns "' + iUsernameDomain + '" =======================\n\n\n')
@@ -740,19 +680,12 @@ class imscpGetData:
             _global_config.write_log('Debug i-MSCP informations domain alias dns:\nDNS "' +
                                      self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index][
                                          'iDomainAliasDnsEntry'] + '" found for the i-MSCP domain alias "' + iAliasDomain + '"\n')
-            if showDebug:
-                print('Debug i-MSCP informations domain dns:\nDNS "' +
-                      self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][
-                          index] + '" found for the i-MSCP domain alias "' + iAliasDomain + '"\n')
 
             i += 1
 
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations domain alias dns:\nNo dns entry found for the i-MSCP domain alias "' + iAliasDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations domain alias dns:\nNo dns entry found for the i-MSCP domain alias "' + iAliasDomain + '"\n')
         else:
             _global_config.write_log(
                 '======================= End data for domain alias dns "' + iAliasDomain + '" =======================\n\n\n')
@@ -788,9 +721,6 @@ class imscpGetData:
             _global_config.write_log(
                 'Debug i-MSCP informations database:\nDatabase "' + self.imscpDomainDatabaseNames[index][
                     'iDatabaseName'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print('Debug i-MSCP informations database:\nDatabase "' + self.imscpDomainDatabaseNames[index][
-                    'iDatabaseName'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             self.__getImscpDomainDatabaseUsers(iUsernameDomainId, iUsernameDomain,
                                                self.imscpDomainDatabaseNames[index]['iDatabaseId'],
@@ -801,9 +731,6 @@ class imscpGetData:
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations database:\nNo database found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations database:\nNo database found for the i-MSCP domain "' + iUsernameDomain + '"\n')
         else:
             _global_config.write_log(
                 '======================= End data for database "' + iUsernameDomain + '" =======================\n\n\n')
@@ -843,10 +770,6 @@ class imscpGetData:
             _global_config.write_log('Debug i-MSCP informations database users:\nDatabase username "' +
                                      self.imscpDomainDatabaseUsernames[index][
                                          'iDatabaseUsername'] + '" found for the i-MSCP database "' + iDatabaseName + '""(domain: ' + iUsernameDomain + ')\n')
-            if showDebug:
-                print('Debug i-MSCP informations database:\nDatabase username "' +
-                      self.imscpDomainDatabaseUsernames[index][
-                          'iDatabaseUsername'] + '" found for the i-MSCP database "' + iDatabaseName + '" (domain: ' + iUsernameDomain + ')\n')
 
             i += 1
 
@@ -854,9 +777,6 @@ class imscpGetData:
             _global_config.write_log(
                 'Debug i-MSCP informations database users :\nNo database users found for the database "' +
                 iDatabaseName + '"\n')
-            if showDebug:
-                print('Debug i-MSCP informations database users:\nNo database users found for the database "' +
-                      iDatabaseName + '"\n')
         else:
             _global_config.write_log(
                 '======================= End data for database users - "' + iDatabaseName + '" - Domain "' + iUsernameDomain + '" =======================\n\n\n')
@@ -914,10 +834,6 @@ class imscpGetData:
             _global_config.write_log('Debug i-MSCP informations alias sub domains:\nAlias sub domain "' +
                                      self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index][
                                          'iAliasSubDomain'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
-            if showDebug:
-                print('Debug i-MSCP informations alias sub domains:\nAlias sub domain "' +
-                      self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index][
-                          'iAliasSubDomain'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
             self.__getImscpAliasSubEmailaddresses(iUsernameDomainId,
                                                   self.imscpAliasSubDomains['aliasid-' + iAliasDomainid][index][
@@ -932,9 +848,6 @@ class imscpGetData:
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations alias sub domains:\nNo alias sub domains found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations alias sub domains:\nNo alias sub domains found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
     def __getImscpDomainEmailaddresses(self, iUsernameDomainId, iUsernameDomain, iUsernameDomainIdna, client):
         if imscpSshPublicKey:
@@ -985,10 +898,6 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations catchall emails domain:\nEmailadress "' +
                                          self.imscpDomainEmailAddressNormalCatchAll[index][
                                              'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails domain:\nEmailadress "' +
-                          self.imscpDomainEmailAddressNormal[index][
-                              'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             if imscpEmailDomainData[4] == 'normal_mail':
                 self.imscpDomainEmailAddressNormal[index] = {}
@@ -1001,10 +910,6 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations emails domain:\nEmailadress "' +
                                          self.imscpDomainEmailAddressNormal[index][
                                              'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails domain:\nEmailadress "' +
-                          self.imscpDomainEmailAddressNormal[index][
-                              'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
                 if imscpRoundcubeContactImport:
                     print('Get i-MSCP roundcube domain email contact data')
@@ -1021,10 +926,6 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations emails domain:\nEmailadress "' +
                                          self.imscpDomainEmailAddressNormalForward[index][
                                              'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails domain:\nEmailadress "' +
-                          self.imscpDomainEmailAddressNormalForward[index][
-                              'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
                 if imscpRoundcubeContactImport:
                     print('Get i-MSCP roundcube domain email contact data')
@@ -1042,19 +943,12 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations emails domain:\nEmailadress "' +
                                          self.imscpDomainEmailAddressForward[index][
                                              'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails domain:\nEmailadress "' +
-                          self.imscpDomainEmailAddressForward[index][
-                              'iEmailAddress'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             i += 1
 
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations emails domain:\nNo emails found for the i-MSCP domain "' + iUsernameDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations emails domain:\nNo emails found for the i-MSCP domain "' + iUsernameDomain + '"\n')
         else:
             _global_config.write_log(
                 '======================= End data for email data "' + iUsernameDomain + '" =======================\n\n\n')
@@ -1108,10 +1002,6 @@ class imscpGetData:
                                          self.imscpDomainSubEmailAddressNormalCatchAll['subid-' + iSubDomainId][
                                              index][
                                              'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails sub domain:\nEmailadress "' +
-                          self.imscpDomainSubEmailAddressNormal[index][
-                              'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
 
             if imscpEmailDomainData[4] == 'subdom_mail':
                 self.imscpDomainSubEmailAddressNormal['subid-' + iSubDomainId][index] = {}
@@ -1130,10 +1020,6 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations emails sub domain:\nEmailadress "' +
                                          self.imscpDomainSubEmailAddressNormal['subid-' + iSubDomainId][index][
                                              'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails sub domain:\nEmailadress "' +
-                          self.imscpDomainSubEmailAddressNormal['subid-' + iSubDomainId][index][
-                              'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
 
                 if imscpRoundcubeContactImport:
                     print('Get i-MSCP roundcube sub domain email contact data')
@@ -1159,10 +1045,6 @@ class imscpGetData:
                                          self.imscpDomainSubEmailAddressNormalForward['subid-' + iSubDomainId][
                                              index][
                                              'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails sub domain:\nEmailadress "' +
-                          self.imscpDomainSubEmailAddressNormalForward['subid-' + iSubDomainId][index][
-                              'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
 
                 if imscpRoundcubeContactImport:
                     print('Get i-MSCP roundcube sub domain email contact data')
@@ -1187,19 +1069,12 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations emails sub domain:\nEmailadress "' +
                                          self.imscpDomainSubEmailAddressForward['subid-' + iSubDomainId][index][
                                              'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails sub domain:\nEmailadress "' +
-                          self.imscpDomainSubEmailAddressForward['subid-' + iSubDomainId][index][
-                              'iEmailAddress'] + '" found for the i-MSCP sub domain "' + iSubDomain + '"\n')
 
             i += 1
 
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations emails sub domain:\nNo emails found for the i-MSCP sub domain "' + iSubDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations emails sub domain:\nNo emails found for the i-MSCP sub domain "' + iSubDomain + '"\n')
 
     def __getImscpAliasEmailaddresses(self, iUsernameDomainId, iAliasDomainid, iAliasDomain, iAliasDomainIdna, client):
         if imscpSshPublicKey:
@@ -1250,10 +1125,6 @@ class imscpGetData:
                                          self.imscpAliasEmailAddressNormalCatchAll['aliasid-' + iAliasDomainid][
                                              index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations catchall emails alias domain:\nEmailadress "' +
-                          self.imscpAliasEmailAddressNormalCatchAll['aliasid-' + iAliasDomainid][index][
-                              'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
             if imscpEmailDomainData[4] == 'alias_mail':
                 self.imscpAliasEmailAddressNormal['aliasid-' + iAliasDomainid][index] = {}
@@ -1272,10 +1143,6 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations emails alias domain:\nEmailadress "' +
                                          self.imscpAliasEmailAddressNormal['aliasid-' + iAliasDomainid][index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails alias domain:\nEmailadress "' +
-                          self.imscpAliasEmailAddressNormal['aliasid-' + iAliasDomainid][index][
-                              'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
                 if imscpRoundcubeContactImport:
                     print('Get i-MSCP roundcube alias domain email contact data')
@@ -1301,10 +1168,6 @@ class imscpGetData:
                                          self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][
                                              index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails alias domain:\nEmailadress "' +
-                          self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid][index][
-                              'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
                 if imscpRoundcubeContactImport:
                     print('Get i-MSCP roundcube alias domain email contact data')
@@ -1329,19 +1192,12 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations emails alias domain:\nEmailadress "' +
                                          self.imscpAliasEmailAddressForward['aliasid-' + iAliasDomainid][index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails alias domain:\nEmailadress "' +
-                          self.imscpAliasEmailAddressForward['aliasid-' + iAliasDomainid][index][
-                              'iEmailAddress'] + '" found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
             i += 1
 
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations emails alias domain:\nNo emails found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations emails alias domain:\nNo emails found for the i-MSCP alias domain "' + iAliasDomain + '"\n')
 
     def __getImscpAliasSubEmailaddresses(self, iDomainid, iAliasSubDomainId, iAliasSubDomain, iAliasSubDomainIdna,
                                          client):
@@ -1393,10 +1249,6 @@ class imscpGetData:
                     'Debug i-MSCP informations catchall emails alias sub domain:\nEmailadress "' +
                     self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index][
                         'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations catchall emails alias sub domain:\nEmailadress "' +
-                          self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index][
-                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
             if imscpEmailDomainData[4] == 'alssub_mail':
                 self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index] = {}
@@ -1415,10 +1267,6 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
                                          self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                          self.imscpAliasSubEmailAddressNormal['aliassubid-' + iAliasSubDomainId][index][
-                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
                 if imscpRoundcubeContactImport:
                     print('Get i-MSCP roundcube alias sub domain email contact data')
@@ -1444,10 +1292,6 @@ class imscpGetData:
                                          self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][
                                              index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                          self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index][
-                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
                 if imscpRoundcubeContactImport:
                     print('Get i-MSCP roundcube alias sub domain email contact data')
@@ -1471,20 +1315,12 @@ class imscpGetData:
                 _global_config.write_log('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
                                          self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
-                if showDebug:
-                    print('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                          self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index][
-                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
             i += 1
 
         if i == 0:
             _global_config.write_log(
                 'Debug i-MSCP informations emails alias sub domain:\nNo emails found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
-            if showDebug:
-                print(
-                    'Debug i-MSCP informations emails alias sub domain:\nNo emails found for the i-MSCP alias sub '
-                    'domain "' + iAliasSubDomain + '"\n')
 
     def __getImscpRoundcubeUsers(self, client, rEmailaddress):
         if imscpSshPublicKey:
@@ -1546,9 +1382,6 @@ class imscpGetData:
 
             _global_config.write_log(
                 'Debug i-MSCP informations roundcube users:\nRoundcube user "' + self.imscpRoundcubeUsers[index][
-                    'rUsername'] + '" found.\n')
-            if showDebug:
-                print('Debug i-MSCP informations roundcube users:\nRoundcube user "' + self.imscpRoundcubeUsers[index][
                     'rUsername'] + '" found.\n')
 
             self.__getImscpRoundcubeIdentities(self.imscpRoundcubeUsers[index]['rUserId'], client)
@@ -1627,9 +1460,6 @@ class imscpGetData:
 
             _global_config.write_log('Debug i-MSCP informations roundcube identities:\nRoundcube identity "' +
                                      self.imscpRoundcubeIdentities[index]['rName'] + '" found.\n')
-            if showDebug:
-                print('Debug i-MSCP informations roundcube identities:\nRoundcube identity "' +
-                      self.imscpRoundcubeIdentities[index]['rName'] + '" found.\n')
 
             _global_config.write_log(
                 '======================= End data for roundcube identities =======================\n\n\n')
@@ -1702,9 +1532,6 @@ class imscpGetData:
 
             _global_config.write_log('Debug i-MSCP informations roundcube contact:\nRoundcube contact "' +
                                      self.imscpRoundcubeContacts[index]['rEmail'] + '" found.\n')
-            if showDebug:
-                print('Debug i-MSCP informations roundcube contacts:\nRoundcube contact "' +
-                      self.imscpRoundcubeContacts[index]['rEmail'] + '" found.\n')
 
             _global_config.write_log(
                 '======================= End data for roundcube contacts =======================\n\n\n')
@@ -1755,9 +1582,6 @@ class imscpGetData:
 
             _global_config.write_log('Debug i-MSCP informations roundcube contact group:\nRoundcube contact "' +
                                      self.imscpRoundcubeContactgroups[index]['rName'] + '" found.\n')
-            if showDebug:
-                print('Debug i-MSCP informations roundcube contact group:\nRoundcube contact "' +
-                      self.imscpRoundcubeContactgroups[index]['rSurname'] + '" found.\n')
 
             self.__getImscpRoundcubeContact2Contactgroup(self.imscpRoundcubeContactgroups[index]['rContactGroupId'], client)
 

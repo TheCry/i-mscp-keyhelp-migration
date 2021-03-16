@@ -18,7 +18,6 @@ _global_config.init()
 _global_config.createNeededScriptFolders()
 
 # General
-showDebug = _global_config.showDebug
 loggingFolder = _global_config.loggingFolder
 logFile = _global_config.logFile
 keyhelpDefaultHostingplan = _global_config.keyhelpDefaultHostingplan
@@ -116,8 +115,6 @@ if __name__ == "__main__":
             keyhelpInputData.getServerInformations(apiGetData)
             print('Checking whether Default hostingplan "' + keyhelpDefaultHostingplan + '" exist.')
             if keyhelpInputData.checkExistDefaultHostingplan(keyhelpDefaultHostingplan):
-                if showDebug:
-                    print('\nDebug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
 
                 migration_actions = ['a new KeyHelp account']
                 keyhelpInputData.getAllKeyHelpUsernames()
@@ -167,12 +164,6 @@ if __name__ == "__main__":
                             answers['keyhelpAction']) + '\n')
                 _global_config.write_log('======================= End data for KeyHelp =======================\n\n\n')
 
-                if showDebug:
-                    if answers['keyhelpAction'] == 'a new KeyHelp account':
-                        print('\nDebug KeyHelp informations:\n' + str(keyhelpInputData.keyhelpData) + '\n')
-                    else:
-                        print('\nDebug KeyHelp informations:\nUsing KeyHelp informations of exting account: ' + str(
-                            answers['keyhelpAction']) + '\n')
             else:
                 exit(1)
         else:
@@ -263,57 +254,6 @@ if __name__ == "__main__":
         if os.path.exists(logFile):
             os.rename(logFile, loggingFolder + '/' + imscpInputData.imscpData[
                 'iUsernameDomainIdna'] + '_get_data_from_imscp.log')
-
-        if showDebug:
-            print('\nDebug i-MSCP informations:\n' + str(imscpInputData.imscpData) + '\n')
-            print('i-MSCP sub domains:\n' + str(imscpInputData.imscpDomainSubDomains) + '\n')
-            print('i-MSCP alias domains:\n' + str(imscpInputData.imscpDomainAliases) + '\n')
-            print('i-MSCP alias sub domains:\n' + str(imscpInputData.imscpAliasSubDomains) + '\n')
-            print('i-MSCP catchall emailadresses domain (catchall):\n' + str(
-                imscpInputData.imscpDomainEmailAddressNormalCatchAll) + '\n')
-            print('i-MSCP emailadresses domain (normal):\n' + str(imscpInputData.imscpDomainEmailAddressNormal) + '\n')
-            print('i-MSCP emailadresses domain (normal forward):\n' + str(
-                imscpInputData.imscpDomainEmailAddressNormalForward) + '\n')
-            print(
-                'i-MSCP emailadresses domain (forward):\n' + str(imscpInputData.imscpDomainEmailAddressForward) + '\n')
-            print('i-MSCP catch emailadresses sub domain (catchall):\n' + str(
-                imscpInputData.imscpDomainSubEmailAddressNormalCatchAll) + '\n')
-            print('i-MSCP emailadresses sub domain (normal):\n' + str(
-                imscpInputData.imscpDomainSubEmailAddressNormal) + '\n')
-            print('i-MSCP emailadresses sub domain (normal forward):\n' + str(
-                imscpInputData.imscpDomainSubEmailAddressNormalForward) + '\n')
-            print('i-MSCP emailadresses sub domain (forward):\n' + str(
-                imscpInputData.imscpDomainSubEmailAddressForward) + '\n')
-            print('i-MSCP catchall emailadresses alias domains (catchall):\n' + str(
-                imscpInputData.imscpAliasEmailAddressNormalCatchAll) + '\n')
-            print('i-MSCP emailadresses alias domains (normal):\n' + str(
-                imscpInputData.imscpAliasEmailAddressNormal) + '\n')
-            print('i-MSCP emailadresses alias domains (normal forward):\n' + str(
-                imscpInputData.imscpAliasEmailAddressNormalForward) + '\n')
-            print('i-MSCP emailadresses alias domains (forward):\n' + str(
-                imscpInputData.imscpAliasEmailAddressForward) + '\n')
-            print('i-MSCP catchall emailadresses alias sub domains (catchall):\n' + str(
-                imscpInputData.imscpAliasSubEmailAddressNormalCatchAll) + '\n')
-            print('i-MSCP emailadresses alias sub domains (normal):\n' + str(
-                imscpInputData.imscpAliasSubEmailAddressNormal) + '\n')
-            print('i-MSCP emailadresses alias sub domains (normal forward):\n' + str(
-                imscpInputData.imscpAliasSubEmailAddressNormalForward) + '\n')
-            print('i-MSCP emailadresses alias sub domains (forward):\n' + str(
-                imscpInputData.imscpAliasSubEmailAddressForward) + '\n')
-            if imscpRoundcubeContactImport:
-                print('i-MSCP roundcube users:\n' + str(imscpInputData.imscpRoundcubeUsers) + '\n')
-                print('i-MSCP roundcube identities:\n' + str(imscpInputData.imscpRoundcubeIdentities) + '\n')
-                print('i-MSCP roundcube contacts:\n' + str(imscpInputData.imscpRoundcubeContacts) + '\n')
-                print('i-MSCP roundcube contactgroups:\n' + str(imscpInputData.imscpRoundcubeContactgroups) + '\n')
-                print('i-MSCP roundcube contactgroup to contact:\n' + str(
-                    imscpInputData.imscpRoundcubeContact2Contactgroup) + '\n')
-            print('i-MSCP domain databases):\n' + str(imscpInputData.imscpDomainDatabaseNames) + '\n')
-            print('i-MSCP domain database users:\n' + str(imscpInputData.imscpDomainDatabaseUsernames) + '\n')
-            print('i-MSCP domain FTP users):\n' + str(imscpInputData.imscpFtpUserNames) + '\n')
-            print('i-MSCP SSL certs:\n' + str(imscpInputData.imscpSslCerts) + '\n')
-            print('i-MSCP HTACCESS users:\n' + str(imscpInputData.imscpDomainHtAcccessUsers) + '\n')
-            print('i-MSCP domain dns:\n' + str(imscpInputData.imscpDnsEntries) + '\n')
-            print('i-MSCP domain alias dns:\n' + str(imscpInputData.imscpDnsAliasEntries) + '\n')
 
     except AuthenticationException:
         print('Authentication failed, please verify your credentials!')

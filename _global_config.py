@@ -24,7 +24,6 @@ apiKey = str(config['keyhelp']['apiKey'])
 apiTimeout = int(config['keyhelp']['apiTimeout'])
 keyhelpMinPasswordLenght = int(config['keyhelp']['keyhelpMinPasswordLenght'])
 apiServerFqdnVerify = bool(strtobool(str(config['keyhelp']['apiServerFqdnVerify'])))
-showDebug = bool(strtobool(str(config['general']['showDebug'])))
 keyhelpConfigfile = str(config['keyhelp']['keyhelpConfigfile'])
 keyhelpSleeptime = str(config['keyhelp']['keyhelpSleeptime'])
 keyhelpDefaultHostingplan = str(config['keyhelp']['keyhelpDefaultHostingplan'])
@@ -83,6 +82,6 @@ def ask_Yes_No(answer):
 def init():
 	global loggingFolder, logFile, keyhelpSleeptime, keyhelpDefaultHostingplan, keyhelpSendloginCredentials, \
 		keyhelpCreateSystemDomain, keyhelpDisableDnsForDomain, apiServerFqdn, apiKey, apiTimeout, \
-		keyhelpMinPasswordLenght, apiServerFqdnVerify, showDebug, keyhelpConfigfile, imscpServerFqdn, imscpSshUsername, \
+		keyhelpMinPasswordLenght, apiServerFqdnVerify, keyhelpConfigfile, imscpServerFqdn, imscpSshUsername, \
 		imscpSshPort, imscpSshTimeout, imscpRootPassword, imscpSshPublicKey, imscpDbDumpFolder, \
 		imscpRoundcubeContactImport, keyhelpCreateRandomPassword

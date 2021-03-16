@@ -14,7 +14,6 @@ import _global_config
 _global_config.init()
 
 # General
-showDebug = _global_config.showDebug
 keyhelpSleeptime = _global_config.keyhelpSleeptime
 
 # KeyHelp
@@ -94,11 +93,6 @@ class KeyhelpGetData:
             _global_config.write_log('Debug KeyHelp informations:\nKeyHelp database root username: ' + self.keyhelpData[
                 'kdatabaseRoot'] + '\nKeyHelp database root password: ' + self.keyhelpData[
                                          'kdatabaseRootPassword'] + '\n')
-
-            if showDebug:
-                print('Debug KeyHelp informations:\nKeyHelp database root username: ' + self.keyhelpData[
-                    'kdatabaseRoot'] + '\nKeyHelp database root password: ' + self.keyhelpData[
-                          'kdatabaseRootPassword'] + '\n')
 
             kConfigfile.close()
             return True
