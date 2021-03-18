@@ -1520,7 +1520,7 @@ if __name__ == "__main__":
                             total_files = int(m[0][1])
                             progress = (100 * (int(m[0][1]) - int(m[0][0]))) / total_files
                             sys.stdout.write('\rSyncing 00_private folder of ' + str(
-                                imscpInputData.imscpData['iUsernameDoUndeliveredmainIdna']) + ' done: ' + str(
+                                imscpInputData.imscpData['iUsernameDomainIdna']) + ' done: ' + str(
                                 round(progress, 2)) + '%')
                             sys.stdout.flush()
                             if int(m[0][0]) == 0:
