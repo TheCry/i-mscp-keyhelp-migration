@@ -15,7 +15,7 @@ i-MSCP accounts to one KeyHelp account.
 
 ## Installation packages
 ```
-apt-get install pv sshpass python3-pip python3-requests python3-paramiko python3-distutils-extra python3-tqdm
+apt-get install pv sshpass python3-pip python3-requests python3-paramiko python3-distutils-extra python3-tqdm python3-setuptools python3-wheel
 python3 -m pip install mysql-connector inquirer
 ```
 
