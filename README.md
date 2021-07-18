@@ -15,7 +15,7 @@ i-MSCP accounts to one KeyHelp account.
 
 ## Installation packages
 ```
-apt-get install pv sshpass python3-pip python3-requests python3-paramiko python3-distutils-extra python3-tqdm
+apt-get install pv sshpass python3-pip python3-requests python3-paramiko python3-distutils-extra python3-tqdm python3-setuptools python3-wheel
 python3 -m pip install mysql-connector inquirer
 ```
 
@@ -32,9 +32,9 @@ If you get some messages like the following while running the migration script:
 ```
 CryptographyDeprecationWarning: Support for unsafe construction of public numbers from encoded data will be removed in a future version
 ```
-Upgrade the package "paramiko" to version 2.5.0
+Upgrade the package "paramiko" to at least version 2.5.0
 ```
-pip3 install paramiko==2.5.0
+pip3 install "paramiko>=2.5.0"
 ```
 
 ## How to use the migration script
