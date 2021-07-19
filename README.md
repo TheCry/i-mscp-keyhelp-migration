@@ -9,7 +9,7 @@ i-MSCP accounts to one KeyHelp account.
 
 ## Required settings in KeyHelp
 * SETTINGS => Configuration => Database => Allow remote access = enable
-* SETTINGS => Configuration => Miscellaneous => Notifications => Send 'Email account has been setup successfully' notification = disable (enable sends for every added email address an email)
+* SETTINGS => Configuration => Control Panel => Email Notifications => A new email account has been created = disable (enable sends for every added email address an email)
 * SETTINGS => Configuration => Account Templates => Database remote access = enable
 * SETTINGS => Configuration => FTP server => Custom FTP usernames = enable
 
