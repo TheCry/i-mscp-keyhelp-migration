@@ -22,6 +22,7 @@ logFile = str(loggingFolder+'/'+config['general']['logFile'])
 apiServerFqdn = str(config['keyhelp']['apiServerFqdn'])
 apiKey = str(config['keyhelp']['apiKey'])
 apiTimeout = int(config['keyhelp']['apiTimeout'])
+keyhelpUpdatePasswordWithApi = bool(strtobool(str(config['keyhelp']['keyhelpUpdatePasswordWithApi'])))
 keyhelpMinPasswordLenght = int(config['keyhelp']['keyhelpMinPasswordLenght'])
 apiServerFqdnVerify = bool(strtobool(str(config['keyhelp']['apiServerFqdnVerify'])))
 keyhelpConfigfile = str(config['keyhelp']['keyhelpConfigfile'])
@@ -84,4 +85,4 @@ def init():
 		keyhelpCreateSystemDomain, keyhelpDisableDnsForDomain, apiServerFqdn, apiKey, apiTimeout, \
 		keyhelpMinPasswordLenght, apiServerFqdnVerify, keyhelpConfigfile, imscpServerFqdn, imscpSshUsername, \
 		imscpSshPort, imscpSshTimeout, imscpRootPassword, imscpSshPublicKey, imscpDbDumpFolder, \
-		imscpRoundcubeContactImport, keyhelpCreateRandomPassword
+		imscpRoundcubeContactImport, keyhelpCreateRandomPassword, keyhelpUpdatePasswordWithApi

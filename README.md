@@ -13,6 +13,8 @@ i-MSCP accounts to one KeyHelp account.
 * SETTINGS => Configuration => Account Templates => Database remote access = enable
 * SETTINGS => Configuration => FTP server => Custom FTP usernames = enable
 
+If you want to update the old passwords of i-MSCP via API, the following setting must be made in the API
+* SETTINGS => Configuration => Control Panel => API => Options => Use password hashes = Yes
 ## Installation packages
 ```
 apt-get install pv sshpass python3-pip python3-requests python3-paramiko python3-distutils-extra python3-tqdm python3-setuptools python3-wheel

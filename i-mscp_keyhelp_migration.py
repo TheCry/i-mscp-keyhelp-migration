@@ -25,6 +25,7 @@ keyhelpCreateRandomPassword = _global_config.keyhelpCreateRandomPassword
 keyhelpSendloginCredentials = _global_config.keyhelpSendloginCredentials
 keyhelpCreateSystemDomain = _global_config.keyhelpCreateSystemDomain
 keyhelpDisableDnsForDomain = _global_config.keyhelpDisableDnsForDomain
+keyhelpUpdatePasswordWithApi = _global_config.keyhelpUpdatePasswordWithApi
 
 if keyhelpDisableDnsForDomain == 'ask':
     keyhelpDisableDnsForDomain = str(keyhelpDisableDnsForDomain)
@@ -69,6 +70,7 @@ apiEndPointEmails = 'emails'
 apiEndpointDatabases = 'databases'
 apiEndpointFtpusers = 'ftp-users'
 apiEndpointDns = 'dns'
+apiEndpointDirProtection = 'directory-protections'
 headers = {
     'X-API-Key': apiKey
 }
@@ -366,20 +368,34 @@ if __name__ == "__main__":
                     print('\nStart adding HTACCESS users.')
                     for HtAccessUserKey, HtAccessUserValue in imscpInputData.imscpDomainHtAcccessUsers.items():
                         # print(HtAccessUserKey, '->', HtAccessUserValue)
-                        keyhelpAddApiData = {'iHtAccessUserame': str(HtAccessUserValue.get('iHtAccessUserame')),
+                        keyhelpAddApiData = {'iHtAccessUsername': str(HtAccessUserValue.get('iHtAccessUsername')),
                                              'iHtAccessPassword': str(HtAccessUserValue.get('iHtAccessPassword')),
                                              'iHtAccessPath': '/home/users/' + str(
                                                  keyhelpInputData.keyhelpData['kusername'].lower()) + '/www/' + str(
                                                  imscpInputData.imscpData['iUsernameDomainIdna']),
                                              'iHtAccessAuthName': 'Migrated from i-MSCP - ' + str(
-                                                 HtAccessUserValue.get('iHtAccessUserame')),
+                                                 HtAccessUserValue.get('iHtAccessUsername')),
                                              'addedKeyHelpUserId': addedKeyHelpUserId,
                                              'kdatabaseRoot': keyhelpInputData.keyhelpData['kdatabaseRoot'],
                                              'kdatabaseRootPassword': keyhelpInputData.keyhelpData[
                                                  'kdatabaseRootPassword']}
 
-                        keyhelpAddData.addHtAccessUsersFromImscp(keyhelpAddApiData)
-                        print('HTACCESS user "' + keyhelpAddApiData['iHtAccessUserame'] + '" added successfully.\n')
+                        if keyhelpUpdatePasswordWithApi:
+                            keyhelpAddApiData['iHtAccessPath'] = str(imscpInputData.imscpData['iUsernameDomainIdna']) + '/'
+                            keyhelpAddData.addKeyHelpDataToApi(apiEndpointDirProtection, keyhelpAddApiData)
+                            if keyhelpAddData.status:
+                                print('Directory protection "' + keyhelpAddApiData['iHtAccessUsername'] + '" added successfully.')
+
+                                keyhelpAddApiData['keyhelpDirProtectionId'] = keyhelpAddData.keyhelpApiReturnData[
+                                    'keyhelpDirProtectionId']
+                            else:
+                                _global_config.write_log(
+                                    'ERROR Directory protection "' + keyhelpAddApiData['iHtAccessUsername'] + '" failed to add.')
+                                print(
+                                    'ERROR Directory protection "' + keyhelpAddApiData['iHtAccessUsername'] + '" failed to add.\n')
+                        else:
+                            keyhelpAddData.addHtAccessUsersFromImscp(keyhelpAddApiData)
+                            print('Directory protection "' + keyhelpAddApiData['iHtAccessUsername'] + '" added successfully.\n')
                 else:
                     print('No HTACCESS users to add.\n')
 

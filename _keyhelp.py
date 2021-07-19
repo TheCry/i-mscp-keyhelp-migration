@@ -25,6 +25,7 @@ apiServerFqdnVerify = _global_config.apiServerFqdnVerify
 keyhelpConfigfile = _global_config.keyhelpConfigfile
 keyhelpSendloginCredentials = _global_config.keyhelpSendloginCredentials
 keyhelpCreateSystemDomain = _global_config.keyhelpCreateSystemDomain
+keyhelpUpdatePasswordWithApi = _global_config.keyhelpUpdatePasswordWithApi
 
 if not apiServerFqdnVerify:
     from urllib3.exceptions import InsecureRequestWarning
@@ -42,6 +43,7 @@ apiEndPointEmails = 'emails'
 apiEndpointDatabases = 'databases'
 apiEndpointFtpusers = 'ftp-users'
 apiEndpointDns = 'dns'
+apiEndpointDirProtection = 'directory-protections'
 headers = {
     'X-API-Key': apiKey
 }
@@ -508,7 +510,7 @@ class KeyHelpAddDataToServer:
         elif apiEndPoint == 'emails' and responseApi.status_code == 201:
             _global_config.write_log(
                 'EMail address "' + str(keyHelpData['iEmailAddress'] + '" added successfully'))
-            if keyHelpData['iEmailMailPassword']:
+            if keyHelpData['iEmailMailPassword'] and not keyhelpUpdatePasswordWithApi:
                 self.__updateEmailPasswordWithImscpPassword(keyHelpData, apiPostData['id'])
                 _global_config.write_log(
                     'EMail address "' + str(keyHelpData['iEmailAddress'] + '" with old i-MSCP password updated'))
@@ -540,19 +542,23 @@ class KeyHelpAddDataToServer:
         elif apiEndPoint == 'ftp-users' and responseApi.status_code == 201:
             _global_config.write_log(
                 'FTP user "' + str(keyHelpData['iFtpUsername'] + '" added successfully'))
-            if keyHelpData['iFtpUserPassword']:
+            if keyHelpData['iFtpUserPassword'] and not keyhelpUpdatePasswordWithApi:
                 self.__updateFtpPasswordWithImscpPassword(keyHelpData, apiPostData['id'])
                 _global_config.write_log(
                     'FTP user "' + str(keyHelpData['iFtpUsername'] + '" with old i-MSCP password updated'))
-                _global_config.write_log(
-                    'FTP user homedir is now "' + str(
-                        keyHelpData['iFtpUserHomeDir'] + '". In i-MSCP it was: ' +
-                        keyHelpData[
-                            'iOldFtpUserHomeDir']))
+
+            _global_config.write_log('FTP user homedir is now "' + str(keyHelpData['iFtpUserHomeDir'] + '". In i-MSCP '
+                                                                                                        'it was: ' +
+                                                                       keyHelpData['iOldFtpUserHomeDir']))
         elif apiEndPoint == 'certificates' and responseApi.status_code == 201:
             self.keyhelpApiReturnData['keyhelpSslId'] = apiPostData['id']
             _global_config.write_log(
                 'SSL cert for domain "' + str(keyHelpData['iSslDomainIdna'] + '" added successfully'))
+            self.status = True
+        elif apiEndPoint == 'directory-protections' and responseApi.status_code == 201:
+            self.keyhelpApiReturnData['keyhelpDirProtectionId'] = apiPostData['id']
+            _global_config.write_log(
+                'Directory protection "' + str(keyHelpData['iHtAccessUsername'] + '" added successfully'))
             self.status = True
         else:
             _global_config.write_log("KeyHelp API Message: %i - %s, Message %s" % (
@@ -706,7 +712,10 @@ class KeyHelpAddDataToServer:
 
             data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
             data['email'] = keyHelpData['iEmailAddress']
-            data['password'] = keyHelpData['iEmailMailInitialPassword']
+            if keyhelpUpdatePasswordWithApi:
+                data['password_hash'] = keyHelpData['iEmailMailPassword']
+            else:
+                data['password'] = keyHelpData['iEmailMailInitialPassword']
             data['description'] = "Email migrated from i-MSCP"
             data['max_size'] = int(keyHelpData['iEmailMailQuota'])
             data['catch_all'] = bool(strtobool(str(emailaddressIsCatchall)))
@@ -737,7 +746,10 @@ class KeyHelpAddDataToServer:
             data['username'] = keyHelpData['iFtpUsername']
             data['description'] = "FTP user migrated from i-MSCP"
             data['home_directory'] = '/www/' + keyHelpData['iFtpUserHomeDir']
-            data['password'] = keyHelpData['iFtpInitialPassword']
+            if keyhelpUpdatePasswordWithApi:
+                data['password_hash'] = keyHelpData['iFtpInitialPassword']
+            else:
+                data['password'] = keyHelpData['iFtpInitialPassword']
 
         if apiEndPoint == 'certificates':
             data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
@@ -745,6 +757,13 @@ class KeyHelpAddDataToServer:
             data['private_key'] = keyHelpData['iSslPrivateKey']
             data['certificate'] = keyHelpData['iSslCertificate']
             data['ca_certificate'] = keyHelpData['iSslCaBundle']
+
+        if apiEndPoint == 'directory-protections':
+            data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
+            data['path'] = keyHelpData['iHtAccessPath']
+            data['auth_name'] = keyHelpData['iHtAccessAuthName']
+            data['username'] = keyHelpData['iHtAccessUsername']
+            data['password_hash'] = keyHelpData['iHtAccessPassword']
 
         jsonData = json.dumps(data)
 
@@ -772,7 +791,7 @@ class KeyHelpAddDataToServer:
             cursor = db_connection.cursor()
             cursor.execute("INSERT INTO directory_protections (id_user, path, auth_name, username, password) VALUES ('" + str(
                 keyHelpData['addedKeyHelpUserId']) + "', '" + str(keyHelpData['iHtAccessPath']) + "', '" + str(
-                keyHelpData['iHtAccessAuthName']) + "', '" + str(keyHelpData['iHtAccessUserame']) + "', '" + str(
+                keyHelpData['iHtAccessAuthName']) + "', '" + str(keyHelpData['iHtAccessUsername']) + "', '" + str(
                 keyHelpData['iHtAccessPassword']) + "');")
 
             db_connection.commit()

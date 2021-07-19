@@ -535,12 +535,12 @@ class imscpGetData:
 
             self.imscpDomainHtAcccessUsers[index] = {}
             self.imscpDomainHtAcccessUsers[index]['iHtAccessId'] = imscpDomainHtAccessData[0]
-            self.imscpDomainHtAcccessUsers[index]['iHtAccessUserame'] = imscpDomainHtAccessData[1]
+            self.imscpDomainHtAcccessUsers[index]['iHtAccessUsername'] = imscpDomainHtAccessData[1]
             self.imscpDomainHtAcccessUsers[index]['iHtAccessPassword'] = imscpDomainHtAccessData[2]
 
             _global_config.write_log(
                 'Debug i-MSCP informations HTACCESS:\nHTACCESS user "' + self.imscpDomainHtAcccessUsers[index][
-                    'iHtAccessUserame'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
+                    'iHtAccessUsername'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             i += 1
 
