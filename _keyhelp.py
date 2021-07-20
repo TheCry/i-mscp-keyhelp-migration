@@ -532,9 +532,14 @@ class KeyHelpAddDataToServer:
                 'Database username "' + str(
                     keyHelpData['iDatabaseUsername'] + '" is the new db user for the i-MSCP db user: ' + keyHelpData[
                         'iOldDatabaseUsername']))
-            _global_config.write_log(
-                'Database password for "' + str(
-                    keyHelpData['iDatabaseUsername'] + '": ' + keyHelpData['iDatabaseUserPassword']))
+            if keyhelpUpdatePasswordWithApi and keyHelpData['iDatabaseUserPassword'] == 'imported':
+                _global_config.write_log(
+                    'Database password for "' + str(
+                        keyHelpData['iDatabaseUsername'] + '": imported from i-MSCP!'))
+            else:
+                _global_config.write_log(
+                    'Database password for "' + str(
+                        keyHelpData['iDatabaseUsername'] + '": ' + keyHelpData['iDatabaseUserPassword']))
             _global_config.write_log(
                 'Database host for "' + str(
                     keyHelpData['iDatabaseUsername'] + '": ' + keyHelpData['iDatabaseUserHost']) + '\n')
@@ -735,11 +740,14 @@ class KeyHelpAddDataToServer:
             data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])
             data['database_name'] = keyHelpData['iDatabaseName']
             data['database_username'] = keyHelpData['iDatabaseUsername']
-            data['password'] = keyHelpData['iDatabaseUserPassword']
+            if keyhelpUpdatePasswordWithApi and keyHelpData['iDatabasePasswordHash'] != 'N/A':
+                data['password_hash'] = keyHelpData['iDatabasePasswordHash']
+            else:
+                data['password'] = keyHelpData['iDatabaseUserPassword']
             data['description'] = "Database migrated from i-MSCP"
             data['remote_hosts'] = data_remote_hosts
 
-            # print(str(data)+'\n')
+            #print(str(data)+'\n')
 
         if apiEndPoint == 'ftp-users':
             data['id_user'] = int(keyHelpData['addedKeyHelpUserId'])

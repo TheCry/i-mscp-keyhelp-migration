@@ -1144,9 +1144,12 @@ if __name__ == "__main__":
                                             addedKeyHelpUserId) + '_' + databaseUsername
 
                                     keyhelpAddApiData['iDatabaseUserHost'] = str(dbUserValue.get('iDatabaseUserHost'))
-                                    keyhelpAddApiData[
-                                        'iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(
-                                        10)
+                                    keyhelpAddApiData['iDatabasePasswordHash'] = str(dbUserValue.get(
+                                        'iDatabasePasswordHash'))
+                                    if keyhelpUpdatePasswordWithApi and keyhelpAddApiData['iDatabasePasswordHash'] != 'N/A':
+                                        keyhelpAddApiData['iDatabaseUserPassword'] = 'imported'
+                                    else:
+                                        keyhelpAddApiData['iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(10)
 
                                 # If an i-MSCP has only one db user we need to extend the username
                                 while True:
@@ -1164,10 +1167,10 @@ if __name__ == "__main__":
                         databaseUsername = keyhelpAddApiData['iDatabaseName']
                         keyhelpAddApiData['iDatabaseUsername'] = re.sub("^db", 'dbu', databaseUsername, flags=re.UNICODE)
                         keyhelpAddApiData['iDatabaseUserHost'] = 'localhost'
-                        keyhelpAddApiData[
-                            'iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(
-                            10)
+                        keyhelpAddApiData['iDatabasePasswordHash'] = 'N/A'
+                        keyhelpAddApiData['iDatabaseUserPassword'] = keyhelpAddData.keyhelpCreateRandomDatabaseUserPassword(10)
 
+                    #print('Passwort Hash: ' + str(keyhelpAddApiData['iDatabasePasswordHash']))
                     keyhelpAddData.addKeyHelpDataToApi(apiEndpointDatabases, keyhelpAddApiData)
                     if keyhelpAddData.status:
                         print('Database "' + keyhelpAddApiData['iDatabaseName'] + '" added successfully.\n')

@@ -17,6 +17,7 @@ imscpRootPassword = _global_config.imscpRootPassword
 imscpRoundcubeContactImport = _global_config.imscpRoundcubeContactImport
 imscpSshPublicKey = _global_config.imscpSshPublicKey
 imscpDbDumpFolder = _global_config.imscpDbDumpFolder
+keyhelpUpdatePasswordWithApi = _global_config.keyhelpUpdatePasswordWithApi
 
 
 class imscpGetData:
@@ -767,6 +768,13 @@ class imscpGetData:
             self.imscpDomainDatabaseUsernames[index]['iDatabaseUsername'] = imscpDomainDatabaseUsernameData[2]
             self.imscpDomainDatabaseUsernames[index]['iDatabaseUserHost'] = imscpDomainDatabaseUsernameData[3]
 
+            if keyhelpUpdatePasswordWithApi:
+                self.imscpDomainDatabaseUsernames[index]['iDatabasePasswordHash'] = self.__getImscpDatabaseUserPasswordHash(
+                    imscpDomainDatabaseUsernameData[2],
+                    imscpDomainDatabaseUsernameData[3], client)
+            else:
+                self.imscpDomainDatabaseUsernames[index]['iDatabasePasswordHash'] = 'N/A'
+
             _global_config.write_log('Debug i-MSCP informations database users:\nDatabase username "' +
                                      self.imscpDomainDatabaseUsernames[index][
                                          'iDatabaseUsername'] + '" found for the i-MSCP database "' + iDatabaseName + '""(domain: ' + iUsernameDomain + ')\n')
@@ -780,6 +788,44 @@ class imscpGetData:
         else:
             _global_config.write_log(
                 '======================= End data for database users - "' + iDatabaseName + '" - Domain "' + iUsernameDomain + '" =======================\n\n\n')
+
+    def __getImscpDatabaseUserPasswordHash(self, iDatabaseUsername, iDatabaseUserHost, client):
+        if imscpSshPublicKey:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername,
+                           key_filename=imscpSshPublicKey, timeout=imscpSshTimeout)
+        else:
+            client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
+                           timeout=imscpSshTimeout)
+
+        stdin, stdout, stderr = client.exec_command(
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+                'imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SHOW GRANTS FOR \'' + iDatabaseUsername + '\'@\'' + iDatabaseUserHost + '\'"')
+        i = 0
+        dataLine = ''
+        iDatabasePasswordHash = 'N/A'
+        for line in stdout:
+            if i == 0:
+                dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+                #print(dataLine)
+            i += 1
+        if dataLine:
+            imscpDomainDatabaseUsernamePasswordData = dataLine.split("|")
+            iDatabasePasswordHash = imscpDomainDatabaseUsernamePasswordData[9].strip()
+            # Remove single quotes
+            iDatabasePasswordHash = iDatabasePasswordHash[1:]
+            iDatabasePasswordHash = iDatabasePasswordHash[:-1]
+
+        if iDatabasePasswordHash == 'N/A':
+            _global_config.write_log(
+                'Debug i-MSCP informations database user password :\nNo password found for the user "' + iDatabaseUsername + '@' + iDatabaseUserHost + '"\n')
+        else:
+            _global_config.write_log(
+                'Debug i-MSCP informations database user password:\nDatabase username password found for user "' + iDatabaseUsername + '@' + iDatabaseUserHost + '"\n')
+            _global_config.write_log(
+                '======================= End data for database user password for user - "' + iDatabaseUsername + '" =======================\n\n\n')
+
+        return iDatabasePasswordHash
 
     def __getImscpAliasSubDomains(self, iUsernameDomainId, iAliasDomainid, iAliasDomain, iAliasDomainIdna, client):
         if imscpSshPublicKey:
