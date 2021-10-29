@@ -840,7 +840,7 @@ class imscpGetData:
                     iDatabasePasswordHash = imscpDomainDatabaseUsernamePasswordData[9].strip()
                 except IndexError:
                     raise SystemExit(
-                        "An MySQL query Error occurred: It seems on i-MSCP is MySQL version >= 5.7 installed. Set "
+                        "A MySQL query Error occurred: It seems on i-MSCP is MySQL version >= 5.7 installed. Set "
                         "'imscpMysqlVersion5_7' to true in the migration-config.cfg.")
             # Remove single quotes
             iDatabasePasswordHash = iDatabasePasswordHash[1:]
