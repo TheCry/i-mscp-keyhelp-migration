@@ -46,6 +46,7 @@ imscpSshPort = int(config['imscp-'+configSection]['imscpSshPort'])
 imscpSshTimeout = int(config['imscp-'+configSection]['imscpSshTimeout'])
 imscpRootPassword = str(config['imscp-'+configSection]['imscpRootPassword'])
 imscpRoundcubeContactImport = bool(strtobool(str(config['imscp-'+configSection]['imscpRoundcubeContactImport'])))
+imscpMysqlVersion5_7 = bool(strtobool(str(config['imscp-'+configSection]['imscpMysqlVersion5_7'])))
 imscpSshPublicKey = str(config['imscp-'+configSection]['imscpSshPublicKey'])
 imscpDbDumpFolder = str(config['imscp-'+configSection]['imscpDbDumpFolder'])
 
@@ -85,4 +86,4 @@ def init():
 		keyhelpCreateSystemDomain, keyhelpDisableDnsForDomain, apiServerFqdn, apiKey, apiTimeout, \
 		keyhelpMinPasswordLenght, apiServerFqdnVerify, keyhelpConfigfile, imscpServerFqdn, imscpSshUsername, \
 		imscpSshPort, imscpSshTimeout, imscpRootPassword, imscpSshPublicKey, imscpDbDumpFolder, \
-		imscpRoundcubeContactImport, keyhelpCreateRandomPassword, keyhelpUpdatePasswordWithApi
+		imscpRoundcubeContactImport, imscpMysqlVersion5_7, keyhelpCreateRandomPassword, keyhelpUpdatePasswordWithApi

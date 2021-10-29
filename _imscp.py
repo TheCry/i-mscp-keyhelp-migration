@@ -15,6 +15,7 @@ imscpSshPort = _global_config.imscpSshPort
 imscpSshTimeout = _global_config.imscpSshTimeout
 imscpRootPassword = _global_config.imscpRootPassword
 imscpRoundcubeContactImport = _global_config.imscpRoundcubeContactImport
+imscpMysqlVersion5_7 = _global_config.imscpMysqlVersion5_7
 imscpSshPublicKey = _global_config.imscpSshPublicKey
 imscpDbDumpFolder = _global_config.imscpDbDumpFolder
 keyhelpUpdatePasswordWithApi = _global_config.keyhelpUpdatePasswordWithApi
@@ -183,7 +184,7 @@ class imscpGetData:
                                        'dmn', client)
                 print('Get i-MSCP HtAccess user data')
                 self.__getImscpHtAccessUsers(self.imscpData['iUsernameDomainId'], self.imscpData['iUsernameDomain'],
-                                               self.imscpData['iUsernameDomainIdna'], client)
+                                             self.imscpData['iUsernameDomainIdna'], client)
 
                 self.complete = True
                 return True
@@ -203,7 +204,8 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData[
                 'imysqlpassword'] + ' -e "SELECT subdomain_id, subdomain_name, subdomain_mount, '
                                     'subdomain_document_root, subdomain_url_forward FROM ' +
@@ -213,7 +215,7 @@ class imscpGetData:
         dataLine = ''
         self.imscpDomainSubDomains = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpSubDomainData = dataLine.split("|")
             imscpSubDomainData[0].strip()
@@ -269,7 +271,8 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData[
                 'imysqlpassword'] + ' -e "SELECT alias_id, alias_name, alias_mount, alias_document_root, url_forward '
                                     'FROM ' +
@@ -280,7 +283,7 @@ class imscpGetData:
         dataLine = ''
         self.imscpDomainAliases = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpAliasDomainData = dataLine.split("|")
             imscpAliasDomainData[0].strip()
@@ -312,7 +315,7 @@ class imscpGetData:
                     'iAliasDomain'] + '" found for the i-MSCP domain "' + iUsernameDomain + '"\n')
 
             self.__getImscpDomainAliasDns(iUsernameDomainId, self.imscpDomainAliases[index]['iAliasDomainId'],
-                                           self.imscpDomainAliases[index]['iAliasDomainIdna'], client)
+                                          self.imscpDomainAliases[index]['iAliasDomainIdna'], client)
             self.__getImscpAliasSubDomains(iUsernameDomainId, self.imscpDomainAliases[index]['iAliasDomainId'],
                                            self.imscpDomainAliases[index]['iAliasDomain'],
                                            self.imscpDomainAliases[index]['iAliasDomainIdna'], client)
@@ -339,14 +342,16 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
-                'imysqluser'] + ' -p' + self.imscpData['imysqlpassword'] + ' -e "SELECT userid, REPLACE(passwd , \'\\\'\', \'-!!!-\'), homedir FROM ' +
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
+                'imysqluser'] + ' -p' + self.imscpData[
+                'imysqlpassword'] + ' -e "SELECT userid, REPLACE(passwd , \'\\\'\', \'-!!!-\'), homedir FROM ' +
             self.imscpData['imysqldatabase'] + '.ftp_users WHERE admin_id = \'' + iUsernameDomainAdminId + '\'"')
         i = 0
         dataLine = ''
         self.imscpFtpUserNames = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|||", line, flags=re.UNICODE)
             imscpDomainFtpUserData = dataLine.split("|||")
             imscpDomainFtpUserData[0].strip()
@@ -404,7 +409,7 @@ class imscpGetData:
         if iDomainType == 'alssub':
             self.imscpSslCerts['aliassubid-' + iDomainId] = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpSslData = dataLine.split("|")
             imscpSslData[0].strip()
@@ -436,9 +441,9 @@ class imscpGetData:
                 self.imscpSslCerts['domainid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
                 self.imscpSslCerts['domainid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
 
-                #print(str(self.imscpSslCerts['domainid-' + iDomainId][index]['iSslPrivateKey'].decode('utf-8')))
-                #print(str(self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCertificate'].decode('utf-8')))
-                #print(str(self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCaBundle'].decode('utf-8')))
+                # print(str(self.imscpSslCerts['domainid-' + iDomainId][index]['iSslPrivateKey'].decode('utf-8')))
+                # print(str(self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCertificate'].decode('utf-8')))
+                # print(str(self.imscpSslCerts['domainid-' + iDomainId][index]['iSslCaBundle'].decode('utf-8')))
             if iDomainType == 'sub':
                 self.imscpSslCerts['subid-' + iDomainId][index] = {}
                 self.imscpSslCerts['subid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
@@ -455,9 +460,9 @@ class imscpGetData:
                 self.imscpSslCerts['subid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
                 self.imscpSslCerts['subid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
 
-                #print(str(self.imscpSslCerts['subid-' + iDomainId][index]['iSslPrivateKey']))
-                #print(str(self.imscpSslCerts['subid-' + iDomainId][index]['iSslCertificate']))
-                #print(str(self.imscpSslCerts['subid-' + iDomainId][index]['iSslCaBundle']))
+                # print(str(self.imscpSslCerts['subid-' + iDomainId][index]['iSslPrivateKey']))
+                # print(str(self.imscpSslCerts['subid-' + iDomainId][index]['iSslCertificate']))
+                # print(str(self.imscpSslCerts['subid-' + iDomainId][index]['iSslCaBundle']))
             if iDomainType == 'als':
                 self.imscpSslCerts['aliasid-' + iDomainId][index] = {}
                 self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
@@ -474,9 +479,9 @@ class imscpGetData:
                 self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
                 self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
 
-                #print(str(self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslPrivateKey'].decode('utf-8')))
-                #print(str(self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCertificate'].decode('utf-8')))
-                #print(str(self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCaBundle'].decode('utf-8')))
+                # print(str(self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslPrivateKey'].decode('utf-8')))
+                # print(str(self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCertificate'].decode('utf-8')))
+                # print(str(self.imscpSslCerts['aliasid-' + iDomainId][index]['iSslCaBundle'].decode('utf-8')))
             if iDomainType == 'alssub':
                 self.imscpSslCerts['aliassubid-' + iDomainId][index] = {}
                 self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslId'] = imscpSslData[0]
@@ -493,9 +498,9 @@ class imscpGetData:
                 self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslHstsMaxAge'] = imscpSslData[5]
                 self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslHstsIncludeSubdomains'] = imscpSslData[6]
 
-                #print(str(self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslPrivateKey'].decode('utf-8')))
-                #print(str(self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCertificate'].decode('utf-8')))
-                #print(str(self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCaBundle'].decode('utf-8')))
+                # print(str(self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslPrivateKey'].decode('utf-8')))
+                # print(str(self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCertificate'].decode('utf-8')))
+                # print(str(self.imscpSslCerts['aliassubid-' + iDomainId][index]['iSslCaBundle'].decode('utf-8')))
 
             _global_config.write_log(
                 'Debug i-MSCP informations SSL certs:\nSSL cert found for the i-MSCP domain "' + iDomainName + '"\n')
@@ -518,14 +523,16 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData['imysqlpassword'] + ' -e "SELECT id, uname, upass FROM ' +
-            self.imscpData['imysqldatabase'] + '.htaccess_users WHERE dmn_id = \'' + iUsernameDomainId + '\' AND uname != \'' + iUsernameDomainIdna + '\'"')
+            self.imscpData[
+                'imysqldatabase'] + '.htaccess_users WHERE dmn_id = \'' + iUsernameDomainId + '\' AND uname != \'' + iUsernameDomainIdna + '\'"')
         i = 0
         dataLine = ''
         self.imscpDomainHtAcccessUsers = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpDomainHtAccessData = dataLine.split("|")
             imscpDomainHtAccessData[0].strip()
@@ -574,7 +581,7 @@ class imscpGetData:
         dataLine = ''
         self.imscpDnsEntries = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpDnsEntriesDataArray = dataLine.split("|")
             j = 0
@@ -634,8 +641,8 @@ class imscpGetData:
                 'imysqldatabase'] + '.domain_dns WHERE domain_id = \'' + iUsernameDomainId + '\' AND owned_by = '
                                                                                              '\'custom_dns_feature\' '
                                                                                              'AND alias_id = \'' + iAliasDomainid + '\' '
-                                                                                             'AND domain_dns_status = '
-                                                                                             '\'ok\'"')
+                                                                                                                                    'AND domain_dns_status = '
+                                                                                                                                    '\'ok\'"')
         i = 0
         dataLine = ''
         self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid] = {}
@@ -664,19 +671,19 @@ class imscpGetData:
 
             self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index] = {}
             self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDnsId'] = \
-            imscpAliasDnsEntriesData[0].rstrip()
+                imscpAliasDnsEntriesData[0].rstrip()
             self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDns'] = imscpAliasDnsEntriesData[
                 1].rstrip()
             self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDnsEntry'] = \
-            DomainAliasDnsEntriesData[0].rstrip('.')
+                DomainAliasDnsEntriesData[0].rstrip('.')
             self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDnsEntryTTL'] = \
-            DomainAliasDnsEntriesData[1].rstrip()
+                DomainAliasDnsEntriesData[1].rstrip()
             self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasDns'] = imscpAliasDnsEntriesData[
                 1].rstrip()
             self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasType'] = \
-            imscpAliasDnsEntriesData[2].rstrip()
+                imscpAliasDnsEntriesData[2].rstrip()
             self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index]['iDomainAliasText'] = \
-            imscpAliasDnsEntriesData[3].rstrip()
+                imscpAliasDnsEntriesData[3].rstrip()
 
             _global_config.write_log('Debug i-MSCP informations domain alias dns:\nDNS "' +
                                      self.imscpDnsAliasEntries['aliasid-' + iAliasDomainid][index][
@@ -700,14 +707,15 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData['imysqlpassword'] + ' -e "SELECT sqld_id, sqld_name FROM ' +
             self.imscpData['imysqldatabase'] + '.sql_database WHERE domain_id = \'' + iUsernameDomainId + '\'"')
         i = 0
         dataLine = ''
         self.imscpDomainDatabaseNames = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpDomainDatabaseData = dataLine.split("|")
             imscpDomainDatabaseData[0].strip()
@@ -745,14 +753,15 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData[
                 'imysqlpassword'] + ' -e "SELECT sqlu_id, sqld_id, sqlu_name, sqlu_host FROM ' + self.imscpData[
                 'imysqldatabase'] + '.sql_user WHERE sqld_id = \'' + iDatabaseId + '\'"')
         i = 0
         dataLine = ''
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpDomainDatabaseUsernameData = dataLine.split("|")
             imscpDomainDatabaseUsernameData[0].strip()
@@ -769,7 +778,8 @@ class imscpGetData:
             self.imscpDomainDatabaseUsernames[index]['iDatabaseUserHost'] = imscpDomainDatabaseUsernameData[3]
 
             if keyhelpUpdatePasswordWithApi:
-                self.imscpDomainDatabaseUsernames[index]['iDatabasePasswordHash'] = self.__getImscpDatabaseUserPasswordHash(
+                self.imscpDomainDatabaseUsernames[index][
+                    'iDatabasePasswordHash'] = self.__getImscpDatabaseUserPasswordHash(
                     imscpDomainDatabaseUsernameData[2],
                     imscpDomainDatabaseUsernameData[3], client)
             else:
@@ -797,21 +807,41 @@ class imscpGetData:
             client.connect(imscpServerFqdn, port=imscpSshPort, username=imscpSshUsername, password=imscpRootPassword,
                            timeout=imscpSshTimeout)
 
-        stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
-                'imysqluser'] + ' -p' + self.imscpData[
-                'imysqlpassword'] + ' -e "SHOW GRANTS FOR \'' + iDatabaseUsername + '\'@\'' + iDatabaseUserHost + '\'"')
+        if imscpMysqlVersion5_7:
+            stdin, stdout, stderr = client.exec_command(
+                'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+                self.imscpData[
+                    'imysqluser'] + ' -p' + self.imscpData[
+                    'imysqlpassword'] + ' -e "SHOW CREATE USER \'' + iDatabaseUsername + '\'@\'' + iDatabaseUserHost + '\'"')
+        else:
+            stdin, stdout, stderr = client.exec_command(
+                'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+                self.imscpData[
+                    'imysqluser'] + ' -p' + self.imscpData[
+                    'imysqlpassword'] + ' -e "SHOW GRANTS FOR \'' + iDatabaseUsername + '\'@\'' + iDatabaseUserHost + '\'"')
         i = 0
         dataLine = ''
         iDatabasePasswordHash = 'N/A'
         for line in stdout:
-            if i == 0:
-                dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
-                #print(dataLine)
+            if imscpMysqlVersion5_7:
+                if i == 1:
+                    dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            else:
+                if i == 0:
+                    dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
+            #print(dataLine)
             i += 1
         if dataLine:
             imscpDomainDatabaseUsernamePasswordData = dataLine.split("|")
-            iDatabasePasswordHash = imscpDomainDatabaseUsernamePasswordData[9].strip()
+            if imscpMysqlVersion5_7:
+                iDatabasePasswordHash = imscpDomainDatabaseUsernamePasswordData[7].strip()
+            else:
+                try:
+                    iDatabasePasswordHash = imscpDomainDatabaseUsernamePasswordData[9].strip()
+                except IndexError:
+                    raise SystemExit(
+                        "An MySQL query Error occurred: It seems on i-MSCP is MySQL version >= 5.7 installed. Set "
+                        "'imscpMysqlVersion5_7' to true in the migration-config.cfg.")
             # Remove single quotes
             iDatabasePasswordHash = iDatabasePasswordHash[1:]
             iDatabasePasswordHash = iDatabasePasswordHash[:-1]
@@ -836,7 +866,8 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData[
                 'imysqlpassword'] + ' -e "SELECT subdomain_alias_id, subdomain_alias_name, subdomain_alias_mount, '
                                     'subdomain_alias_document_root, subdomain_alias_url_forward FROM ' +
@@ -848,7 +879,7 @@ class imscpGetData:
         dataLine = ''
         self.imscpAliasSubDomains['aliasid-' + iAliasDomainid] = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpAliasSubDomainData = dataLine.split("|")
             imscpAliasSubDomainData[0].strip()
@@ -904,7 +935,8 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData[
                 'imysqlpassword'] + ' -e "SELECT mail_id, mail_acc, mail_pass, mail_forward, mail_type, sub_id, quota, '
                                     'mail_addr FROM ' +
@@ -920,7 +952,7 @@ class imscpGetData:
         self.imscpDomainEmailAddressNormalForward = {}
         self.imscpDomainEmailAddressForward = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpEmailDomainData = dataLine.split("|")
             imscpEmailDomainData[0].strip()
@@ -1021,7 +1053,7 @@ class imscpGetData:
         self.imscpDomainSubEmailAddressNormalForward['subid-' + iSubDomainId] = {}
         self.imscpDomainSubEmailAddressForward['subid-' + iSubDomainId] = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpEmailDomainData = dataLine.split("|")
             imscpEmailDomainData[0].strip()
@@ -1131,7 +1163,8 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData[
                 'imysqlpassword'] + ' -e "SELECT mail_id, mail_acc, mail_pass, mail_forward, mail_type, sub_id, quota, '
                                     'mail_addr FROM ' +
@@ -1144,7 +1177,7 @@ class imscpGetData:
         self.imscpAliasEmailAddressNormalForward['aliasid-' + iAliasDomainid] = {}
         self.imscpAliasEmailAddressForward['aliasid-' + iAliasDomainid] = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpEmailDomainData = dataLine.split("|")
             imscpEmailDomainData[0].strip()
@@ -1255,7 +1288,8 @@ class imscpGetData:
                            timeout=imscpSshTimeout)
 
         stdin, stdout, stderr = client.exec_command(
-            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' + self.imscpData[
+            'mysql -s -h' + self.imscpData['imysqlhost'] + ' -P' + self.imscpData['imysqlport'] + ' -u' +
+            self.imscpData[
                 'imysqluser'] + ' -p' + self.imscpData[
                 'imysqlpassword'] + ' -e "SELECT mail_id, mail_acc, mail_pass, mail_forward, mail_type, '
                                     'sub_id, quota, mail_addr FROM ' +
@@ -1268,7 +1302,7 @@ class imscpGetData:
         self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId] = {}
         self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId] = {}
         for line in stdout:
-            #dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
+            # dataLine = re.sub("^\s+|\s+$", "", line, flags=re.UNICODE)
             dataLine = re.sub(r"\s+", "|", line, flags=re.UNICODE)
             imscpEmailDomainData = dataLine.split("|")
             imscpEmailDomainData[0].strip()
@@ -1289,7 +1323,8 @@ class imscpGetData:
                 self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index] = {}
                 self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index]['iEmailMailId'] = \
                     imscpEmailDomainData[0]
-                self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
+                self.imscpAliasSubEmailAddressNormalCatchAll['aliassubid-' + iAliasSubDomainId][index][
+                    'iEmailAddress'] = \
                     imscpEmailDomainData[1]
                 _global_config.write_log(
                     'Debug i-MSCP informations catchall emails alias sub domain:\nEmailadress "' +
@@ -1327,7 +1362,8 @@ class imscpGetData:
                     'iEmailMailPassword'] = imscpEmailDomainData[2]
                 self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index][
                     'iEmailMailForward'] = imscpEmailDomainData[3]
-                self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index]['iEmailMailType'] = \
+                self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index][
+                    'iEmailMailType'] = \
                     imscpEmailDomainData[4]
                 self.imscpAliasSubEmailAddressNormalForward['aliassubid-' + iAliasSubDomainId][index][
                     'iEmailMailQuota'] = \
@@ -1359,7 +1395,8 @@ class imscpGetData:
                 self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index]['iEmailAddress'] = \
                     imscpEmailDomainData[7]
                 _global_config.write_log('Debug i-MSCP informations emails alias sub domain:\nEmailadress "' +
-                                         self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][index][
+                                         self.imscpAliasSubEmailAddressForward['aliassubid-' + iAliasSubDomainId][
+                                             index][
                                              'iEmailAddress'] + '" found for the i-MSCP alias sub domain "' + iAliasSubDomain + '"\n')
 
             i += 1
@@ -1425,7 +1462,6 @@ class imscpGetData:
             self.imscpRoundcubeUsers[index]['rLanguage'] = imscpRoundcubeUserData[7]
             self.imscpRoundcubeUsers[index]['rPreferences'] = imscpRoundcubeUserData[8]
 
-
             _global_config.write_log(
                 'Debug i-MSCP informations roundcube users:\nRoundcube user "' + self.imscpRoundcubeUsers[index][
                     'rUsername'] + '" found.\n')
@@ -1452,8 +1488,8 @@ class imscpGetData:
             self.imscpData['imysqluser'] + ' -p' + self.imscpData[
                 'imysqlpassword'] + ' -e "SELECT identity_id, user_id, REPLACE(changed , \' \', \'--!!!--\'), del, '
                                     'standard, IF(name = \'\', \'empty\', REPLACE(name , \' \', \'--!!!--\')), IF(organization = \'\', \'empty\', REPLACE(organization , \' \', \'--!!!--\')), email, IF(\'reply-to\' = \'\', \'reply-to\', \'empty\'), '
-                'IF(bcc = \'\', \'empty\', bcc), IF(signature = \'\', \'empty\', REPLACE(REPLACE(REPLACE(signature , \'\n\', \'-!!-\'), \'\r\', \'_!!_\'), \'\ \', \'--!!!--\')), '
-                'html_signature FROM ' +
+                                    'IF(bcc = \'\', \'empty\', bcc), IF(signature = \'\', \'empty\', REPLACE(REPLACE(REPLACE(signature , \'\n\', \'-!!-\'), \'\r\', \'_!!_\'), \'\ \', \'--!!!--\')), '
+                                    'html_signature FROM ' +
             self.imscpData['imysqldatabase'] + '_roundcube.identities WHERE user_id = \'' + rUserId + '\'"')
         i = 0
         dataLine = ''
@@ -1629,7 +1665,8 @@ class imscpGetData:
             _global_config.write_log('Debug i-MSCP informations roundcube contact group:\nRoundcube contact "' +
                                      self.imscpRoundcubeContactgroups[index]['rName'] + '" found.\n')
 
-            self.__getImscpRoundcubeContact2Contactgroup(self.imscpRoundcubeContactgroups[index]['rContactGroupId'], client)
+            self.__getImscpRoundcubeContact2Contactgroup(self.imscpRoundcubeContactgroups[index]['rContactGroupId'],
+                                                         client)
 
             _global_config.write_log(
                 '======================= End data for roundcube contact groups =======================\n\n\n')
@@ -1669,11 +1706,13 @@ class imscpGetData:
 
             self.imscpRoundcubeContact2Contactgroup[str(i) + '-g-' + imscpRoundcubeContactGroup2ContactData[0] + '-c-' +
                                                     imscpRoundcubeContactGroup2ContactData[1]]['rContactGroupId'] = \
-            imscpRoundcubeContactGroup2ContactData[0]
+                imscpRoundcubeContactGroup2ContactData[0]
             self.imscpRoundcubeContact2Contactgroup[str(i) + '-g-' + imscpRoundcubeContactGroup2ContactData[0] + '-c-' +
                                                     imscpRoundcubeContactGroup2ContactData[1]]['rContactId'] = \
-            imscpRoundcubeContactGroup2ContactData[1]
-            self.imscpRoundcubeContact2Contactgroup[str(i) + '-g-' + imscpRoundcubeContactGroup2ContactData[0] + '-c-' + imscpRoundcubeContactGroup2ContactData[1]]['rCreated'] = imscpRoundcubeContactGroup2ContactData[2]
+                imscpRoundcubeContactGroup2ContactData[1]
+            self.imscpRoundcubeContact2Contactgroup[str(i) + '-g-' + imscpRoundcubeContactGroup2ContactData[0] + '-c-' +
+                                                    imscpRoundcubeContactGroup2ContactData[1]]['rCreated'] = \
+            imscpRoundcubeContactGroup2ContactData[2]
 
             _global_config.write_log(
                 '======================= End data for roundcube contact groups to contact =======================\n\n\n')
