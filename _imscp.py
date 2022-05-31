@@ -364,7 +364,9 @@ class imscpGetData:
 
             self.imscpFtpUserNames[index] = {}
             self.imscpFtpUserNames[index]['iFtpUsername'] = imscpDomainFtpUserData[0]
-            self.imscpFtpUserNames[index]['iFtpUserPassword'] = imscpDomainFtpUserData[1]
+            # escape single quote in password hash
+            self.imscpFtpUserNames[index]['iFtpUserPassword'] = re.sub(r"'", "\'", imscpDomainFtpUserData[1],
+                                                                       flags=re.UNICODE)
             self.imscpFtpUserNames[index]['iFtpUserHomeDir'] = imscpDomainFtpUserData[2]
 
             _global_config.write_log(
@@ -544,7 +546,9 @@ class imscpGetData:
             self.imscpDomainHtAcccessUsers[index] = {}
             self.imscpDomainHtAcccessUsers[index]['iHtAccessId'] = imscpDomainHtAccessData[0]
             self.imscpDomainHtAcccessUsers[index]['iHtAccessUsername'] = imscpDomainHtAccessData[1]
-            self.imscpDomainHtAcccessUsers[index]['iHtAccessPassword'] = imscpDomainHtAccessData[2]
+            # escape single quote in password hash
+            self.imscpDomainHtAcccessUsers[index]['iHtAccessPassword'] = re.sub(r"'", "\'", imscpDomainHtAccessData[2],
+                                                                                flags=re.UNICODE)
 
             _global_config.write_log(
                 'Debug i-MSCP informations HTACCESS:\nHTACCESS user "' + self.imscpDomainHtAcccessUsers[index][
