@@ -755,7 +755,7 @@ class KeyHelpAddDataToServer:
             data['description'] = "FTP user migrated from i-MSCP"
             data['home_directory'] = '/www/' + keyHelpData['iFtpUserHomeDir']
             if keyhelpUpdatePasswordWithApi:
-                data['password_hash'] = keyHelpData['iFtpInitialPassword']
+                data['password_hash'] = keyHelpData['iFtpUserPassword']
             else:
                 data['password'] = keyHelpData['iFtpInitialPassword']
 
